@@ -1,0 +1,124 @@
+You are an expert React Native (Expo) engineer. Build a cross-platform mobile app called “NextUp” (Entertainment: Watchlist & Episode Progress Tracker). The app helps users manage movies/TV series in one place, track where they left off, and decide what to watch with friends. Implement the following screens/features: Onboarding/Sign In, Home Dashboard, Search & Discover (trending/genres), Title Details, My Lists (Want/Watching/Watched), Progress Tracker (season/episode), Random Picker with filters, Friends, Watch Together (shared titles + fair pick), QR Join + Settings (scan QR to join session; edit profile/preferences). Use TMDB API for content/search/details. Persist lists and progress locally with AsyncStorage. Use device camera for QR scanning. Add basic caching for API responses/images, plus loading & error handling.  [oai_citation:2‡mobile propo.pdf](sediment://file_00000000a50c71f49bbefb928d3df64d)
+
+TECH STACK / REQUIREMENTS
+- Expo React Native with TypeScript.
+- Navigation: React Navigation (Stack + Bottom Tabs).
+- State: React Context + useReducer (or Zustand if you prefer, but explain why).
+- Storage: @react-native-async-storage/async-storage.
+- Networking: fetch or axios.
+- QR: expo-barcode-scanner (or expo-camera with BarcodeScanner).
+- UI: clean, modern; reusable components; responsive; consistent spacing; light theme by default.
+- No real authentication backend is required; implement “local sign in” (store profile/preferences locally) as a lightweight companion app (not a streaming platform).  [oai_citation:3‡mobile propo.pdf](sediment://file_00000000a50c71f49bbefb928d3df64d)
+
+DATA MODELS (TypeScript interfaces)
+- UserProfile: id, name, avatar(optional), favoriteGenres[], language, region.
+- MediaType: 'movie' | 'tv'
+- MediaItem (from TMDB): id, mediaType, title/name, posterPath, backdropPath, overview, releaseDate/firstAirDate, voteAverage, genreIds[].
+- ListStatus: 'want' | 'watching' | 'watched'
+- ListEntry: mediaId, mediaType, status, addedAt, notes(optional)
+- ProgressEntry (tv only): mediaId, seasonNumber, episodeNumber, updatedAt, isCompleted(optional)
+- Friend: id, displayName
+- WatchSession: sessionId, hostId, memberIds[], createdAt
+Store everything in AsyncStorage keys like: profile, lists, progress, friends, session.
+
+TMDB API
+- Create a TMDB client module:
+  - base URL: https://api.themoviedb.org/3
+  - endpoints needed:
+    - trending (movie + tv)
+    - discover by genre (movie/tv)
+    - search multi
+    - details for movie and tv
+    - tv season details (optional, for episode counts)
+- Store TMDB key in environment:
+  - Use app.config.js or .env via expo-constants or expo-dotenv.
+  - Provide instructions in README on where to put TMDB_API_KEY.
+- Implement basic caching:
+  - in-memory cache map with TTL (e.g., 10 minutes) OR AsyncStorage cache for last results.
+  - Always show graceful errors and retry.
+
+APP NAVIGATION (suggested)
+- AuthStack: Onboarding/SignIn
+- MainTabs:
+  - Home
+  - Search
+  - My Lists
+  - Friends
+  - Settings
+Inside stacks:
+- HomeStack: Home -> TitleDetails -> ProgressTracker -> RandomPicker
+- SearchStack: SearchDiscover -> TitleDetails
+- ListsStack: MyLists -> TitleDetails -> ProgressTracker
+- FriendsStack: Friends -> WatchTogether -> QRJoin (or QRJoin from Settings)
+
+SCREEN BEHAVIOR (minimum)
+1) Onboarding/Sign In:
+   - Simple form: name + choose favorite genres + region/language.
+   - Save profile locally and enter app.
+
+2) Home Dashboard:
+   - “Continue Watching” section: show items in Watching list + current progress for TV.
+   - Quick actions: Random Picker, Search, My Lists.
+
+3) Search & Discover:
+   - Trending list (default).
+   - Filters: media type (movie/tv), genre, sort (popularity/vote).
+   - Search bar with debounce.
+
+4) Title Details:
+   - Show poster, title, overview, rating, release date, genres.
+   - Buttons: Add to Want / Watching / Watched.
+   - If TV: button to open Progress Tracker.
+
+5) My Lists:
+   - Tabs/segmented control for Want / Watching / Watched.
+   - Sorting + filtering.
+   - Swipe to remove or move status.
+
+6) Progress Tracker (TV):
+   - Update season & episode numbers.
+   - Optionally show total episodes if fetched from TMDB season endpoint.
+   - Save to AsyncStorage.
+
+7) Random Picker:
+   - Choose list(s) (Want/Watching) and filters (genre, media type).
+   - Pick randomly and navigate to Title Details.
+
+8) Friends:
+   - Add friend manually (name) and generate a friend id.
+   - List friends; remove friend.
+
+9) Watch Together:
+   - Select friends to join a session.
+   - Compute shared titles: intersection of Want list among selected users (for now, since no backend, simulate by allowing user to “import friend lists” via QR join payload).
+   - “Fair pick”: random selection among shared titles with option to reroll.
+
+10) QR Join + Settings:
+   - Settings: edit profile/preferences; clear storage; app info.
+   - QR Join:
+     - Host generates a QR code payload representing a session + (optionally) selected list ids.
+     - Joiner scans QR and the app loads/join session locally.
+   - If QR code generation is needed, use expo-sharing or a QR library (e.g., react-native-qrcode-svg) to display the QR for the host.
+
+PROJECT STRUCTURE (create these folders)
+- src/
+  - app/ (navigation setup)
+  - screens/
+  - components/
+  - services/ (tmdb client, cache)
+  - store/ (context, reducers, actions)
+  - storage/ (AsyncStorage helpers)
+  - utils/
+  - types/
+- App.tsx wraps providers + navigation container.
+
+QUALITY
+- Add a README with:
+  - setup steps, install, run (expo start)
+  - where to put TMDB_API_KEY
+  - key features checklist
+- Add basic unit tests for pure functions (random picker, shared titles) using Jest (optional but nice).
+- Ensure the project runs without errors in Replit.
+
+DELIVERABLE
+Produce the full codebase with all files created, working navigation, storage CRUD, TMDB integration, and QR scanning flow. Include TODO comments only where truly optional enhancements exist.
