@@ -38,9 +38,6 @@ function NativeTabLayout() {
 }
 
 function ClassicTabLayout() {
-  const colorScheme = useColorScheme();
-  const safeAreaInsets = useSafeAreaInsets();
-  const isDark = colorScheme === "dark";
   const isWeb = Platform.OS === "web";
   const isIOS = Platform.OS === "ios";
 
@@ -52,7 +49,7 @@ function ClassicTabLayout() {
         tabBarInactiveTintColor: Colors.light.tabIconDefault,
         tabBarStyle: {
           position: "absolute",
-          backgroundColor: isIOS ? "transparent" : "#fff",
+          backgroundColor: isIOS ? "transparent" : Colors.light.surface,
           borderTopWidth: isWeb ? 1 : 0,
           borderTopColor: Colors.light.border,
           elevation: 0,
@@ -69,7 +66,7 @@ function ClassicTabLayout() {
             <View
               style={[
                 StyleSheet.absoluteFill,
-                { backgroundColor: "#fff" },
+                { backgroundColor: Colors.light.surface },
               ]}
             />
           ) : null,
@@ -129,13 +126,15 @@ function ClassicTabLayout() {
 }
 
 export default function TabLayout() {
-  const { profile, isLoading } = useApp();
+  const { isAuthenticated, profile, isLoading } = useApp();
 
   useEffect(() => {
-    if (!isLoading && !profile?.onboarded) {
+    if (!isLoading && !isAuthenticated) {
+      router.replace("/(auth)/login");
+    } else if (!isLoading && isAuthenticated && !profile?.onboarded) {
       router.replace("/onboarding");
     }
-  }, [isLoading, profile]);
+  }, [isLoading, isAuthenticated, profile]);
 
   if (isLiquidGlassAvailable()) {
     return <NativeTabLayout />;

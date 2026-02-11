@@ -14,6 +14,7 @@ SplashScreen.preventAutoHideAsync();
 function RootLayoutNav() {
   return (
     <Stack screenOptions={{ headerShown: false, headerBackTitle: "Back" }}>
+      <Stack.Screen name="(auth)" options={{ gestureEnabled: false }} />
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="onboarding" options={{ gestureEnabled: false }} />
       <Stack.Screen name="details/[id]" />
