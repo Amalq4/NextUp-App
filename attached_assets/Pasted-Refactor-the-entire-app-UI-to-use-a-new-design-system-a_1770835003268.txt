@@ -1,0 +1,110 @@
+Refactor the entire app UI to use a new design system and color palette.
+
+Use the following colors as the main theme:
+
+Primary Palette:
+Beige: #F3E8DE
+Soft Green: #818E6E
+Pink: #EFCABB
+Emerald: #254C42
+Copper: #C47955
+Indigo: #4C2744
+Brick: #9B4C34
+
+Also use:
+White: #FFFFFF
+Black: #000000
+
+REQUIREMENTS:
+
+1) Create a centralized theme file:
+src/theme/colors.ts
+src/theme/gradients.ts
+src/theme/spacing.ts
+
+2) Replace all hardcoded colors in the app with theme variables.
+
+3) Create soft gradients for:
+- Buttons
+- Header backgrounds
+- Onboarding background
+- Cards
+
+Suggested gradients:
+- Beige → Pink
+- Emerald → Indigo
+- Copper → Brick
+- Soft Green → Beige
+
+Use expo-linear-gradient for gradients.
+
+4) UI STYLE RULES:
+- Rounded corners (16–24 radius)
+- Soft shadows
+- Modern clean layout
+- Consistent spacing
+- No random colors
+- Proper contrast for readability
+
+5) Create a complete Authentication Flow:
+
+Create:
+- LoginScreen
+- SignUpScreen
+
+Both must:
+- Follow the new color theme
+- Use gradient background
+- Styled input fields
+- Styled primary button
+- Styled secondary text link
+
+Login Screen:
+- Email input
+- Password input
+- Login button
+- “Don’t have an account? Sign Up” link
+
+Sign Up Screen:
+- Name input
+- Email input
+- Password input
+- Confirm password input
+- Sign Up button
+- “Already have an account? Login” link
+
+6) Authentication logic:
+- No backend required
+- Store user locally using AsyncStorage
+- If user exists → navigate to main app
+- If not logged in → show AuthStack
+
+7) Update navigation:
+Create:
+AuthStack (Login + SignUp)
+MainTabs (Home, Search, Lists, Friends, Settings)
+
+If user is logged in → go to MainTabs
+If not → go to AuthStack
+
+8) Update all existing screens to match the new theme:
+- Home
+- Title Details
+- Progress Tracker
+- Random Picker
+- Friends
+- Settings
+
+9) Improve typography:
+- Bold headers
+- Elegant spacing
+- Clear hierarchy
+- Large CTA buttons
+
+10) Keep the app fully functional.
+
+After refactor, ensure:
+- No broken imports
+- No unused styles
+- Clean structure
+- Modern premium UI look
