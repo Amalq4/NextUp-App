@@ -5,15 +5,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import AppBackground from '@/components/AppBackground';
-import { DARK_THEME } from '@/components/AppBackground';
+import Colors from '@/theme/colors';
 import { useApp } from '@/context/AppContext';
 import { ListItem } from '@/components/ListItem';
 import { ListStatus, ListEntry } from '@/types/media';
 
 const TABS: { key: ListStatus; label: string; icon: keyof typeof Ionicons.glyphMap; color: string; bg: string }[] = [
-  { key: 'want', label: 'Want', icon: 'bookmark', color: '#E8935A', bg: 'rgba(232,147,90,0.15)' },
-  { key: 'watching', label: 'Watching', icon: 'play-circle', color: '#4EEAAD', bg: 'rgba(78,234,173,0.15)' },
-  { key: 'watched', label: 'Watched', icon: 'checkmark-circle', color: '#7C3AED', bg: 'rgba(124,58,237,0.15)' },
+  { key: 'want', label: 'Want', icon: 'bookmark', color: Colors.tan, bg: Colors.accentSoft },
+  { key: 'watching', label: 'Watching', icon: 'play-circle', color: Colors.accent, bg: Colors.accentSoft },
+  { key: 'watched', label: 'Watched', icon: 'checkmark-circle', color: Colors.slateGray, bg: Colors.accentSoft },
 ];
 
 export default function ListsScreen() {
@@ -55,7 +55,7 @@ export default function ListsScreen() {
                 <Ionicons
                   name={tab.icon}
                   size={18}
-                  color={isActive ? tab.color : DARK_THEME.textMuted}
+                  color={isActive ? tab.color : Colors.textMuted}
                 />
                 <Text style={[styles.tabText, isActive && { color: tab.color, fontFamily: 'DMSans_600SemiBold' as const }]}>
                   {tab.label}
@@ -91,7 +91,7 @@ export default function ListsScreen() {
               <Ionicons
                 name={activeTab === 'want' ? 'bookmark-outline' : activeTab === 'watching' ? 'play-circle-outline' : 'checkmark-circle-outline'}
                 size={52}
-                color={DARK_THEME.textMuted}
+                color={Colors.textMuted}
               />
               <Text style={styles.emptyTitle}>No titles yet</Text>
               <Text style={styles.emptyText}>
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
   screenTitle: {
     fontSize: 28,
     fontFamily: 'DMSans_700Bold',
-    color: DARK_THEME.text,
+    color: Colors.text,
     paddingHorizontal: 20,
     paddingTop: 10,
     marginBottom: 16,
@@ -135,17 +135,17 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: 10,
     borderRadius: 12,
-    backgroundColor: DARK_THEME.glass,
+    backgroundColor: Colors.glass,
     borderWidth: 1,
-    borderColor: DARK_THEME.glassBorder,
+    borderColor: Colors.glassBorder,
   },
   tabText: {
     fontSize: 13,
     fontFamily: 'DMSans_500Medium',
-    color: DARK_THEME.textSoft,
+    color: Colors.textSecondary,
   },
   countBadge: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: Colors.glass,
     borderRadius: 8,
     paddingHorizontal: 6,
     paddingVertical: 1,
@@ -155,10 +155,10 @@ const styles = StyleSheet.create({
   countText: {
     fontSize: 11,
     fontFamily: 'DMSans_600SemiBold',
-    color: DARK_THEME.textSoft,
+    color: Colors.textSecondary,
   },
   countTextActive: {
-    color: '#fff',
+    color: Colors.white,
   },
   listContent: {
     paddingHorizontal: 16,
@@ -171,12 +171,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 17,
     fontFamily: 'DMSans_600SemiBold',
-    color: DARK_THEME.text,
+    color: Colors.text,
   },
   emptyText: {
     fontSize: 14,
     fontFamily: 'DMSans_400Regular',
-    color: DARK_THEME.textSoft,
+    color: Colors.textSecondary,
     textAlign: 'center',
     paddingHorizontal: 40,
   },

@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import * as Crypto from 'expo-crypto';
-import { DARK_THEME } from '@/components/AppBackground';
+import Colors from '@/theme/colors';
 import { useApp } from '@/context/AppContext';
 import { GENRES, UserProfile } from '@/types/media';
 
@@ -51,7 +51,7 @@ export default function OnboardingScreen() {
   return (
     <View style={[styles.container, { paddingTop: Platform.OS === 'web' ? 67 : insets.top }]}>
       <LinearGradient
-        colors={['#254C42', '#1A1040', '#0B1023']}
+        colors={[Colors.background, Colors.backgroundDark, Colors.backgroundDeep]}
         locations={[0, 0.3, 0.6]}
         style={StyleSheet.absoluteFill}
       />
@@ -62,7 +62,7 @@ export default function OnboardingScreen() {
       >
         <View style={styles.header}>
           <View style={styles.iconCircle}>
-            <Ionicons name="play" size={28} color="#fff" />
+            <Ionicons name="play" size={28} color={Colors.text} />
           </View>
           <Text style={styles.appName}>NextUp</Text>
           <Text style={styles.tagline}>
@@ -76,7 +76,7 @@ export default function OnboardingScreen() {
             <TextInput
               style={styles.input}
               placeholder="Your name"
-              placeholderTextColor={'rgba(255,255,255,0.35)'}
+              placeholderTextColor={Colors.textMuted}
               value={name}
               onChangeText={setName}
               autoFocus
@@ -100,7 +100,7 @@ export default function OnboardingScreen() {
                     <Text style={[styles.genreLabel, isSelected && styles.genreLabelSelected]}>
                       {genre.name}
                     </Text>
-                    {isSelected && <Ionicons name="checkmark-circle" size={16} color="#fff" />}
+                    {isSelected && <Ionicons name="checkmark-circle" size={16} color={Colors.text} />}
                   </Pressable>
                 );
               })}
@@ -112,7 +112,7 @@ export default function OnboardingScreen() {
       <View style={[styles.footer, { paddingBottom: Platform.OS === 'web' ? 34 : insets.bottom + 10 }]}>
         {step === 1 && (
           <Pressable onPress={() => setStep(0)} style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={22} color="#FFFFFF" />
+            <Ionicons name="arrow-back" size={22} color={Colors.text} />
           </Pressable>
         )}
         <Pressable
@@ -127,7 +127,7 @@ export default function OnboardingScreen() {
           <Text style={styles.continueBtnText}>
             {step === 0 ? 'Continue' : 'Get Started'}
           </Text>
-          <Ionicons name="arrow-forward" size={18} color="#fff" />
+          <Ionicons name="arrow-forward" size={18} color={Colors.text} />
         </Pressable>
       </View>
     </View>
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 20,
-    backgroundColor: '#E8935A',
+    backgroundColor: Colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -161,45 +161,45 @@ const styles = StyleSheet.create({
   appName: {
     fontSize: 32,
     fontFamily: 'DMSans_700Bold',
-    color: '#fff',
+    color: Colors.text,
     marginBottom: 6,
   },
   tagline: {
     fontSize: 16,
     fontFamily: 'DMSans_400Regular',
-    color: 'rgba(255,255,255,0.85)',
+    color: Colors.text,
   },
   card: {
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: Colors.glass,
     borderRadius: 20,
     padding: 24,
     marginTop: 10,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.14)',
+    borderColor: Colors.glassBorder,
   },
   cardTitle: {
     fontSize: 20,
     fontFamily: 'DMSans_700Bold',
-    color: '#FFFFFF',
+    color: Colors.text,
     marginBottom: 6,
   },
   cardSub: {
     fontSize: 13,
     fontFamily: 'DMSans_400Regular',
-    color: 'rgba(255,255,255,0.6)',
+    color: Colors.textMuted,
     marginBottom: 16,
   },
   input: {
     borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.12)',
+    borderColor: Colors.glassBorder,
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
     fontFamily: 'DMSans_500Medium',
-    color: '#FFFFFF',
+    color: Colors.text,
     marginTop: 10,
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: Colors.surface,
   },
   genreGrid: {
     flexDirection: 'row',
@@ -213,39 +213,39 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: Colors.glass,
     borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.14)',
+    borderColor: Colors.glassBorder,
   },
   genreChipSelected: {
-    backgroundColor: '#4EEAAD',
-    borderColor: '#4EEAAD',
+    backgroundColor: Colors.accent,
+    borderColor: Colors.accent,
   },
   genreLabel: {
     fontSize: 13,
     fontFamily: 'DMSans_500Medium',
-    color: '#FFFFFF',
+    color: Colors.text,
   },
   genreLabelSelected: {
-    color: '#fff',
+    color: Colors.text,
   },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 12,
-    backgroundColor: '#0B1023',
+    backgroundColor: Colors.backgroundDeep,
     gap: 12,
   },
   backBtn: {
     width: 48,
     height: 48,
     borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: Colors.glass,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.14)',
+    borderColor: Colors.glassBorder,
   },
   continueBtn: {
     flex: 1,
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#4EEAAD',
+    backgroundColor: Colors.accent,
     borderRadius: 14,
     paddingVertical: 15,
   },
@@ -263,6 +263,6 @@ const styles = StyleSheet.create({
   continueBtnText: {
     fontSize: 16,
     fontFamily: 'DMSans_600SemiBold',
-    color: '#fff',
+    color: Colors.text,
   },
 });

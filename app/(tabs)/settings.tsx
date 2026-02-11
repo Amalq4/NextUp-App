@@ -15,7 +15,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
-import AppBackground, { DARK_THEME as DK } from '@/components/AppBackground';
+import AppBackground from '@/components/AppBackground';
+import Colors from '@/theme/colors';
 import { useApp } from '@/context/AppContext';
 import { getGenreName } from '@/types/media';
 
@@ -37,14 +38,14 @@ function SettingsRow({ icon, iconColor, iconBg, label, labelColor, subtitle, onP
       onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onPress(); }}
       style={({ pressed }) => [styles.row, !isLast && styles.rowDivider, { opacity: pressed ? 0.7 : 1 }]}
     >
-      <View style={[styles.rowIcon, { backgroundColor: iconBg || DK.glass }]}>
-        <Ionicons name={icon} size={17} color={iconColor || DK.accent} />
+      <View style={[styles.rowIcon, { backgroundColor: iconBg || Colors.glass }]}>
+        <Ionicons name={icon} size={17} color={iconColor || Colors.accent} />
       </View>
       <View style={styles.rowContent}>
         <Text style={[styles.rowLabel, labelColor ? { color: labelColor } : null]}>{label}</Text>
         {subtitle ? <Text style={styles.rowSub}>{subtitle}</Text> : null}
       </View>
-      {trailing || <Ionicons name="chevron-forward" size={16} color={DK.textMuted} />}
+      {trailing || <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />}
     </Pressable>
   );
 }
@@ -106,7 +107,7 @@ export default function SettingsScreen() {
         >
           <View style={styles.profileLeft}>
             <LinearGradient
-              colors={['#254C42', '#4C2744']}
+              colors={[Colors.spaceCadet, Colors.coffee]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.profileAvatar}
@@ -122,15 +123,15 @@ export default function SettingsScreen() {
             </View>
           </View>
           <View style={styles.profileEditBtn}>
-            <Ionicons name="create-outline" size={18} color={DK.accent} />
+            <Ionicons name="create-outline" size={18} color={Colors.accent} />
           </View>
         </Pressable>
 
         <View style={styles.statsRow}>
           {[
-            { label: 'Want', value: stats.want, color: DK.copper },
-            { label: 'Watching', value: stats.watching, color: DK.accent },
-            { label: 'Watched', value: stats.watched, color: DK.indigo },
+            { label: 'Want', value: stats.want, color: Colors.tan },
+            { label: 'Watching', value: stats.watching, color: Colors.accent },
+            { label: 'Watched', value: stats.watched, color: Colors.slateGray },
           ].map(stat => (
             <View key={stat.label} style={styles.statCard}>
               <Text style={[styles.statValue, { color: stat.color }]}>{stat.value}</Text>
@@ -150,12 +151,12 @@ export default function SettingsScreen() {
                 <Switch
                   value={notificationsEnabled}
                   onValueChange={v => { setNotificationsEnabled(v); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
-                  trackColor={{ false: 'rgba(255,255,255,0.15)', true: 'rgba(78,234,173,0.4)' }}
-                  thumbColor={notificationsEnabled ? DK.accent : '#888'}
+                  trackColor={{ false: Colors.glassBorder, true: Colors.accentBorder }}
+                  thumbColor={notificationsEnabled ? Colors.accent : Colors.textMuted}
                 />
               }
             />
-            <SettingsRow icon="log-out-outline" iconColor={DK.danger} iconBg={DK.dangerBg} label="Log Out" labelColor={DK.danger} onPress={handleLogout} isLast />
+            <SettingsRow icon="log-out-outline" iconColor={Colors.danger} iconBg={Colors.dangerBg} label="Log Out" labelColor={Colors.danger} onPress={handleLogout} isLast />
           </View>
         </View>
 
@@ -163,7 +164,7 @@ export default function SettingsScreen() {
           <Text style={styles.sectionHeader}>DATA</Text>
           <View style={styles.sectionCard}>
             <SettingsRow icon="trash-bin-outline" label="Clear Cache" onPress={handleClearCache} />
-            <SettingsRow icon="warning-outline" iconColor={DK.danger} iconBg={DK.dangerBg} label="Clear All Data" labelColor={DK.danger} onPress={() => setShowClearModal(true)} isLast />
+            <SettingsRow icon="warning-outline" iconColor={Colors.danger} iconBg={Colors.dangerBg} label="Clear All Data" labelColor={Colors.danger} onPress={() => setShowClearModal(true)} isLast />
           </View>
         </View>
 
@@ -177,7 +178,7 @@ export default function SettingsScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <View style={styles.modalIconWrap}>
-              <Ionicons name="warning" size={32} color={DK.danger} />
+              <Ionicons name="warning" size={32} color={Colors.danger} />
             </View>
             <Text style={styles.modalTitle}>Clear All Data?</Text>
             <Text style={styles.modalDesc}>
@@ -202,7 +203,7 @@ const styles = StyleSheet.create({
   screenTitle: {
     fontSize: 28,
     fontFamily: 'DMSans_700Bold',
-    color: DK.text,
+    color: Colors.text,
     paddingHorizontal: 20,
     paddingTop: 10,
     marginBottom: 20,
@@ -214,9 +215,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     borderRadius: 20,
     padding: 16,
-    backgroundColor: DK.glass,
+    backgroundColor: Colors.glass,
     borderWidth: 1,
-    borderColor: DK.glassBorder,
+    borderColor: Colors.glassBorder,
   },
   profileLeft: {
     flexDirection: 'row',
@@ -233,7 +234,7 @@ const styles = StyleSheet.create({
   profileAvatarText: {
     fontSize: 24,
     fontFamily: 'DMSans_700Bold',
-    color: '#FFF',
+    color: Colors.white,
   },
   profileInfo: {
     flex: 1,
@@ -243,26 +244,26 @@ const styles = StyleSheet.create({
   profileName: {
     fontSize: 18,
     fontFamily: 'DMSans_700Bold',
-    color: DK.text,
+    color: Colors.text,
   },
   profileEmail: {
     fontSize: 13,
     fontFamily: 'DMSans_400Regular',
-    color: DK.textSoft,
+    color: Colors.textSecondary,
   },
   profileGenres: {
     fontSize: 11,
     fontFamily: 'DMSans_400Regular',
-    color: DK.textMuted,
+    color: Colors.textMuted,
     marginTop: 2,
   },
   profileEditBtn: {
     width: 36,
     height: 36,
     borderRadius: 12,
-    backgroundColor: DK.glass,
+    backgroundColor: Colors.glass,
     borderWidth: 1,
-    borderColor: DK.glassBorder,
+    borderColor: Colors.glassBorder,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -274,12 +275,12 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: DK.glass,
+    backgroundColor: Colors.glass,
     borderRadius: 14,
     padding: 14,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: DK.glassBorder,
+    borderColor: Colors.glassBorder,
   },
   statValue: {
     fontSize: 24,
@@ -288,7 +289,7 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 11,
     fontFamily: 'DMSans_400Regular',
-    color: DK.textMuted,
+    color: Colors.textMuted,
     marginTop: 2,
   },
   section: {
@@ -298,16 +299,16 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 11,
     fontFamily: 'DMSans_700Bold',
-    color: DK.textMuted,
+    color: Colors.textMuted,
     letterSpacing: 1.5,
     marginBottom: 8,
     marginLeft: 4,
   },
   sectionCard: {
-    backgroundColor: DK.glass,
+    backgroundColor: Colors.glass,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: DK.glassBorder,
+    borderColor: Colors.glassBorder,
     overflow: 'hidden',
   },
   row: {
@@ -318,7 +319,7 @@ const styles = StyleSheet.create({
   },
   rowDivider: {
     borderBottomWidth: 1,
-    borderBottomColor: DK.divider,
+    borderBottomColor: Colors.divider,
   },
   rowIcon: {
     width: 34,
@@ -334,12 +335,12 @@ const styles = StyleSheet.create({
   rowLabel: {
     fontSize: 15,
     fontFamily: 'DMSans_500Medium',
-    color: DK.text,
+    color: Colors.text,
   },
   rowSub: {
     fontSize: 11,
     fontFamily: 'DMSans_400Regular',
-    color: DK.textMuted,
+    color: Colors.textMuted,
     marginTop: 1,
   },
   appInfo: {
@@ -350,29 +351,29 @@ const styles = StyleSheet.create({
   appInfoText: {
     fontSize: 12,
     fontFamily: 'DMSans_400Regular',
-    color: DK.textMuted,
+    color: Colors.textMuted,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: Colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 30,
   },
   modalCard: {
     width: '100%',
-    backgroundColor: '#1A1A2E',
+    backgroundColor: Colors.backgroundDark,
     borderRadius: 20,
     padding: 24,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: DK.glassBorder,
+    borderColor: Colors.glassBorder,
   },
   modalIconWrap: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: DK.dangerBg,
+    backgroundColor: Colors.dangerBg,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -380,13 +381,13 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontFamily: 'DMSans_700Bold',
-    color: DK.text,
+    color: Colors.text,
     marginBottom: 8,
   },
   modalDesc: {
     fontSize: 14,
     fontFamily: 'DMSans_400Regular',
-    color: DK.textSoft,
+    color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
     marginBottom: 24,
@@ -400,28 +401,28 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 14,
     borderRadius: 14,
-    backgroundColor: DK.glass,
+    backgroundColor: Colors.glass,
     borderWidth: 1,
-    borderColor: DK.glassBorder,
+    borderColor: Colors.glassBorder,
     alignItems: 'center',
   },
   modalCancelText: {
     fontSize: 15,
     fontFamily: 'DMSans_600SemiBold',
-    color: DK.text,
+    color: Colors.text,
   },
   modalDeleteBtn: {
     flex: 1,
     paddingVertical: 14,
     borderRadius: 14,
-    backgroundColor: DK.dangerBg,
+    backgroundColor: Colors.dangerBg,
     borderWidth: 1,
-    borderColor: 'rgba(239,68,68,0.3)',
+    borderColor: Colors.dangerBorder,
     alignItems: 'center',
   },
   modalDeleteText: {
     fontSize: 15,
     fontFamily: 'DMSans_600SemiBold',
-    color: DK.danger,
+    color: Colors.danger,
   },
 });

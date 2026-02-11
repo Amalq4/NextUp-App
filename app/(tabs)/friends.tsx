@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import * as Crypto from 'expo-crypto';
 import AppBackground from '@/components/AppBackground';
-import { DARK_THEME } from '@/components/AppBackground';
+import Colors from '@/theme/colors';
 import { useApp } from '@/context/AppContext';
 import { Friend } from '@/types/media';
 
@@ -50,7 +50,7 @@ export default function FriendsScreen() {
         <Text style={styles.friendId}>ID: {item.id.slice(0, 8)}</Text>
       </View>
       <Pressable onPress={() => handleRemove(item)} hitSlop={10}>
-        <Ionicons name="trash-outline" size={20} color={DARK_THEME.danger} />
+        <Ionicons name="trash-outline" size={20} color={Colors.danger} />
       </Pressable>
     </View>
   );
@@ -64,7 +64,7 @@ export default function FriendsScreen() {
             onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setShowAdd(!showAdd); }}
             style={styles.addBtn}
           >
-            <Ionicons name={showAdd ? 'close' : 'person-add'} size={20} color={DARK_THEME.copper} />
+            <Ionicons name={showAdd ? 'close' : 'person-add'} size={20} color={Colors.tan} />
           </Pressable>
         </View>
 
@@ -73,7 +73,7 @@ export default function FriendsScreen() {
             <TextInput
               style={styles.addInput}
               placeholder="Friend's name"
-              placeholderTextColor={DARK_THEME.textMuted}
+              placeholderTextColor={Colors.textMuted}
               value={friendName}
               onChangeText={setFriendName}
               autoFocus
@@ -85,7 +85,7 @@ export default function FriendsScreen() {
               disabled={!friendName.trim()}
               style={[styles.addConfirmBtn, !friendName.trim() && { opacity: 0.4 }]}
             >
-              <Ionicons name="checkmark" size={22} color="#fff" />
+              <Ionicons name="checkmark" size={22} color={Colors.white} />
             </Pressable>
           </View>
         )}
@@ -95,9 +95,9 @@ export default function FriendsScreen() {
             onPress={() => router.push('/watch-together')}
             style={({ pressed }) => [styles.watchBtn, { opacity: pressed ? 0.9 : 1 }]}
           >
-            <Ionicons name="people" size={20} color="#fff" />
+            <Ionicons name="people" size={20} color={Colors.white} />
             <Text style={styles.watchBtnText}>Watch Together</Text>
-            <Ionicons name="arrow-forward" size={18} color="#fff" />
+            <Ionicons name="arrow-forward" size={18} color={Colors.white} />
           </Pressable>
         )}
 
@@ -112,7 +112,7 @@ export default function FriendsScreen() {
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Ionicons name="people-outline" size={52} color={DARK_THEME.textMuted} />
+              <Ionicons name="people-outline" size={52} color={Colors.textMuted} />
               <Text style={styles.emptyTitle}>No friends yet</Text>
               <Text style={styles.emptyText}>Add friends to start watching together</Text>
             </View>
@@ -138,13 +138,13 @@ const styles = StyleSheet.create({
   screenTitle: {
     fontSize: 28,
     fontFamily: 'DMSans_700Bold',
-    color: DARK_THEME.text,
+    color: Colors.text,
   },
   addBtn: {
     width: 42,
     height: 42,
     borderRadius: 14,
-    backgroundColor: 'rgba(232,147,90,0.15)',
+    backgroundColor: Colors.accentSoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -158,20 +158,20 @@ const styles = StyleSheet.create({
   addInput: {
     flex: 1,
     borderWidth: 1.5,
-    borderColor: DARK_THEME.inputBorder,
+    borderColor: Colors.inputBorder,
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 15,
     fontFamily: 'DMSans_400Regular',
-    color: DARK_THEME.text,
-    backgroundColor: DARK_THEME.inputBg,
+    color: Colors.text,
+    backgroundColor: Colors.inputBg,
   },
   addConfirmBtn: {
     width: 46,
     height: 46,
     borderRadius: 14,
-    backgroundColor: DARK_THEME.accent,
+    backgroundColor: Colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -184,12 +184,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingVertical: 14,
     borderRadius: 14,
-    backgroundColor: DARK_THEME.accent,
+    backgroundColor: Colors.accent,
   },
   watchBtnText: {
     fontSize: 15,
     fontFamily: 'DMSans_600SemiBold',
-    color: '#fff',
+    color: Colors.white,
     flex: 1,
   },
   listContent: {
@@ -198,25 +198,25 @@ const styles = StyleSheet.create({
   friendCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: DARK_THEME.glass,
+    backgroundColor: Colors.glass,
     borderRadius: 14,
     padding: 14,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: DARK_THEME.glassBorder,
+    borderColor: Colors.glassBorder,
   },
   avatar: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(232,147,90,0.15)',
+    backgroundColor: Colors.accentSoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarText: {
     fontSize: 18,
     fontFamily: 'DMSans_700Bold',
-    color: DARK_THEME.copper,
+    color: Colors.tan,
   },
   friendInfo: {
     flex: 1,
@@ -225,12 +225,12 @@ const styles = StyleSheet.create({
   friendName: {
     fontSize: 15,
     fontFamily: 'DMSans_600SemiBold',
-    color: DARK_THEME.text,
+    color: Colors.text,
   },
   friendId: {
     fontSize: 12,
     fontFamily: 'DMSans_400Regular',
-    color: DARK_THEME.textMuted,
+    color: Colors.textMuted,
     marginTop: 2,
   },
   emptyState: {
@@ -241,12 +241,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 17,
     fontFamily: 'DMSans_600SemiBold',
-    color: DARK_THEME.text,
+    color: Colors.text,
   },
   emptyText: {
     fontSize: 14,
     fontFamily: 'DMSans_400Regular',
-    color: DARK_THEME.textSoft,
+    color: Colors.textSecondary,
     textAlign: 'center',
     paddingHorizontal: 40,
   },

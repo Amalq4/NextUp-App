@@ -21,26 +21,12 @@ import * as Haptics from 'expo-haptics';
 import { useApp } from '@/context/AppContext';
 import { MediaItem, mapTmdbToMediaItem, getPosterUrl, getGenreName } from '@/types/media';
 import { getApiUrl } from '@/lib/query-client';
+import Colors from '@/theme/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_W = SCREEN_WIDTH * 0.32;
 const CARD_H = CARD_W * 1.5;
 const RANK_SIZE = 52;
-
-const D = {
-  bg1: '#0B1023',
-  bg2: '#111535',
-  bg3: '#0D0D2B',
-  surface: 'rgba(255,255,255,0.06)',
-  surfaceBorder: 'rgba(255,255,255,0.08)',
-  text: '#FFFFFF',
-  textSoft: 'rgba(255,255,255,0.65)',
-  textMuted: 'rgba(255,255,255,0.35)',
-  accent: '#4EEAAD',
-  gold: '#FBBF24',
-  addBtn: 'rgba(255,255,255,0.15)',
-  addBtnActive: '#4EEAAD',
-};
 
 interface Provider {
   id: number;
@@ -53,7 +39,6 @@ const PROVIDERS: Provider[] = [
   { id: 8, name: 'Netflix', color: '#E50914', iconName: 'play' },
   { id: 337, name: 'Disney+', color: '#0063E5', iconName: 'sparkles' },
   { id: 9, name: 'Prime Video', color: '#00A8E1', iconName: 'play-circle' },
-  { id: 384, name: 'Max', color: '#B535F6', iconName: 'tv' },
   { id: 350, name: 'Apple TV+', color: '#A2AAAD', iconName: 'logo-apple' },
   { id: 531, name: 'Paramount+', color: '#0064FF', iconName: 'star' },
 ];
@@ -87,7 +72,7 @@ function Top10Card({
           <Image source={{ uri: posterUri }} style={styles.top10Image} contentFit="cover" transition={200} />
         ) : (
           <View style={styles.top10Placeholder}>
-            <Ionicons name="film-outline" size={28} color={D.textMuted} />
+            <Ionicons name="film-outline" size={28} color={Colors.textMuted} />
           </View>
         )}
         <Pressable
@@ -99,7 +84,7 @@ function Top10Card({
         </Pressable>
         {item.voteAverage > 0 && (
           <View style={styles.ratingPill}>
-            <Ionicons name="star" size={9} color={D.gold} />
+            <Ionicons name="star" size={9} color={Colors.star} />
             <Text style={styles.ratingText}>{item.voteAverage.toFixed(1)}</Text>
           </View>
         )}
@@ -198,13 +183,13 @@ export default function HomeScreen() {
   }, [queryClient]);
 
   return (
-    <LinearGradient colors={[D.bg1, D.bg2, D.bg3]} style={styles.container}>
+    <LinearGradient colors={[Colors.background, Colors.backgroundDark, Colors.backgroundDeep]} style={styles.container}>
       <ScrollView
         style={{ paddingTop: Platform.OS === 'web' ? 67 : insets.top }}
         contentContainerStyle={{ paddingBottom: Platform.OS === 'web' ? 34 : insets.bottom + 90 }}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={D.accent} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.accent} />
         }
       >
         <View style={styles.headerRow}>
@@ -216,7 +201,7 @@ export default function HomeScreen() {
             onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/random-picker'); }}
             style={({ pressed }) => [styles.spinBtn, { opacity: pressed ? 0.8 : 1 }]}
           >
-            <Ionicons name="shuffle" size={20} color={D.accent} />
+            <Ionicons name="shuffle" size={20} color={Colors.accent} />
           </Pressable>
         </View>
 
@@ -240,7 +225,7 @@ export default function HomeScreen() {
                 activeProvider === p.id && { backgroundColor: p.color, borderColor: p.color },
               ]}
             >
-              <Ionicons name={p.iconName} size={14} color={activeProvider === p.id ? '#FFF' : D.textSoft} style={{ marginRight: 5 }} />
+              <Ionicons name={p.iconName} size={14} color={activeProvider === p.id ? '#FFF' : Colors.textSecondary} style={{ marginRight: 5 }} />
               <Text style={[styles.providerChipText, activeProvider === p.id && styles.providerChipTextActive]}>{p.name}</Text>
             </Pressable>
           ))}
@@ -249,7 +234,7 @@ export default function HomeScreen() {
         {watching.length > 0 && (
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeader}>
-              <View style={[styles.providerDot, { backgroundColor: D.accent }]} />
+              <View style={[styles.providerDot, { backgroundColor: Colors.accent }]} />
               <Text style={styles.sectionTitle}>Continue Watching</Text>
               <Pressable onPress={() => router.push('/(tabs)/lists')} hitSlop={10}>
                 <Text style={styles.seeAll}>See All</Text>
@@ -277,7 +262,7 @@ export default function HomeScreen() {
                         <Image source={{ uri: posterUri }} style={styles.cwImage} contentFit="cover" />
                       ) : (
                         <View style={styles.cwPlaceholder}>
-                          <Ionicons name="film-outline" size={24} color={D.textMuted} />
+                          <Ionicons name="film-outline" size={24} color={Colors.textMuted} />
                         </View>
                       )}
                     </View>
@@ -315,21 +300,21 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 26,
     fontFamily: 'DMSans_700Bold',
-    color: D.text,
+    color: Colors.text,
   },
   subtitle: {
     fontSize: 14,
     fontFamily: 'DMSans_400Regular',
-    color: D.textSoft,
+    color: Colors.textSecondary,
     marginTop: 2,
   },
   spinBtn: {
     width: 44,
     height: 44,
     borderRadius: 14,
-    backgroundColor: D.surface,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: D.surfaceBorder,
+    borderColor: Colors.surfaceBorder,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -345,18 +330,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 12,
-    backgroundColor: D.surface,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: D.surfaceBorder,
+    borderColor: Colors.surfaceBorder,
   },
   providerChipActive: {
-    backgroundColor: 'rgba(78,234,173,0.2)',
-    borderColor: 'rgba(78,234,173,0.4)',
+    backgroundColor: Colors.accentSoft,
+    borderColor: Colors.accentBorder,
   },
   providerChipText: {
     fontSize: 12,
     fontFamily: 'DMSans_600SemiBold',
-    color: D.textSoft,
+    color: Colors.textSecondary,
   },
   providerChipTextActive: {
     color: '#FFF',
@@ -380,13 +365,13 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     fontFamily: 'DMSans_700Bold',
-    color: D.text,
+    color: Colors.text,
     letterSpacing: 0.2,
   },
   seeAll: {
     fontSize: 13,
     fontFamily: 'DMSans_500Medium',
-    color: D.accent,
+    color: Colors.accent,
   },
   sectionLoading: {
     height: CARD_H + 60,
@@ -404,16 +389,16 @@ const styles = StyleSheet.create({
   },
   rankNumber: {
     position: 'absolute',
-    left: -2,
-    bottom: 50,
-    fontSize: RANK_SIZE,
+    left: -4,
+    bottom: 44,
+    fontSize: 60,
     fontFamily: 'DMSans_700Bold',
-    color: 'rgba(255,255,255,0.9)',
-    zIndex: 0,
-    lineHeight: RANK_SIZE,
-    textShadowColor: 'rgba(0,0,0,0.8)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 6,
+    color: 'rgba(255,255,255,0.95)',
+    zIndex: 2,
+    lineHeight: 60,
+    textShadowColor: 'rgba(0,0,0,0.9)',
+    textShadowOffset: { width: 0, height: 3 },
+    textShadowRadius: 10,
   },
   top10Poster: {
     width: CARD_W,
@@ -421,9 +406,9 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     overflow: 'hidden',
     marginLeft: 16,
-    backgroundColor: D.surface,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: D.surfaceBorder,
+    borderColor: Colors.surfaceBorder,
   },
   top10Image: {
     width: '100%',
@@ -435,7 +420,7 @@ const styles = StyleSheet.create({
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: D.surface,
+    backgroundColor: Colors.surface,
   },
   addBtn: {
     position: 'absolute',
@@ -444,15 +429,15 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: D.addBtn,
+    backgroundColor: 'rgba(255,255,255,0.15)',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
+    borderColor: Colors.glassBorder,
   },
   addBtnActive: {
-    backgroundColor: D.addBtnActive,
-    borderColor: D.addBtnActive,
+    backgroundColor: Colors.accent,
+    borderColor: Colors.accent,
   },
   ratingPill: {
     position: 'absolute',
@@ -474,7 +459,7 @@ const styles = StyleSheet.create({
   top10Title: {
     fontSize: 12,
     fontFamily: 'DMSans_600SemiBold',
-    color: D.text,
+    color: Colors.text,
     marginTop: 6,
     marginLeft: 16,
     lineHeight: 16,
@@ -482,7 +467,7 @@ const styles = StyleSheet.create({
   top10Sub: {
     fontSize: 10,
     fontFamily: 'DMSans_400Regular',
-    color: D.textMuted,
+    color: Colors.textMuted,
     marginTop: 2,
     marginLeft: 16,
   },
@@ -495,9 +480,9 @@ const styles = StyleSheet.create({
     height: 70,
     borderRadius: 10,
     overflow: 'hidden',
-    backgroundColor: D.surface,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: D.surfaceBorder,
+    borderColor: Colors.surfaceBorder,
   },
   cwImage: {
     width: '100%',
@@ -513,13 +498,13 @@ const styles = StyleSheet.create({
   cwTitle: {
     fontSize: 11,
     fontFamily: 'DMSans_600SemiBold',
-    color: D.text,
+    color: Colors.text,
     marginTop: 6,
   },
   cwProgress: {
     fontSize: 10,
     fontFamily: 'DMSans_400Regular',
-    color: D.accent,
+    color: Colors.accent,
     marginTop: 2,
   },
 });

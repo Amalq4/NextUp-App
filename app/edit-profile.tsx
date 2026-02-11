@@ -15,7 +15,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
-import AppBackground, { DARK_THEME as DARK } from '@/components/AppBackground';
+import AppBackground from '@/components/AppBackground';
+import Colors from '@/theme/colors';
 import { useApp } from '@/context/AppContext';
 import { getGenreName, GENRES } from '@/types/media';
 
@@ -126,7 +127,7 @@ export default function EditProfileScreen() {
         <View style={{ paddingTop: Platform.OS === 'web' ? 67 : insets.top }}>
           <View style={styles.header}>
             <Pressable onPress={() => router.back()} style={styles.headerBtn}>
-              <Ionicons name="arrow-back" size={20} color={DARK.text} />
+              <Ionicons name="arrow-back" size={20} color={Colors.text} />
             </Pressable>
             <Text style={styles.headerTitle}>Edit Profile</Text>
             <View style={{ width: 40 }} />
@@ -140,7 +141,7 @@ export default function EditProfileScreen() {
         >
           <View style={styles.avatarSection}>
             <LinearGradient
-              colors={['#254C42', '#4C2744']}
+              colors={[Colors.background, Colors.backgroundDark]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.avatar}
@@ -156,14 +157,14 @@ export default function EditProfileScreen() {
               <View style={styles.field}>
                 <Text style={styles.fieldLabel}>Name</Text>
                 <View style={[styles.inputWrap, errors.name ? styles.inputError : null]}>
-                  <Ionicons name="person-outline" size={16} color={DARK.textMuted} />
+                  <Ionicons name="person-outline" size={16} color={Colors.textMuted} />
                   <TextInput
                     style={styles.input}
                     value={name}
                     onChangeText={t => { setName(t); setErrors(prev => ({ ...prev, name: '' })); }}
                     placeholder="Your name"
-                    placeholderTextColor={DARK.textMuted}
-                    selectionColor={DARK.accent}
+                    placeholderTextColor={Colors.textMuted}
+                    selectionColor={Colors.accent}
                   />
                 </View>
                 {errors.name ? <Text style={styles.errorText}>{errors.name}</Text> : null}
@@ -174,16 +175,16 @@ export default function EditProfileScreen() {
               <View style={styles.field}>
                 <Text style={styles.fieldLabel}>Email</Text>
                 <View style={[styles.inputWrap, errors.email ? styles.inputError : null]}>
-                  <Ionicons name="mail-outline" size={16} color={DARK.textMuted} />
+                  <Ionicons name="mail-outline" size={16} color={Colors.textMuted} />
                   <TextInput
                     style={styles.input}
                     value={email}
                     onChangeText={t => { setEmail(t); setErrors(prev => ({ ...prev, email: '' })); }}
                     placeholder="your@email.com"
-                    placeholderTextColor={DARK.textMuted}
+                    placeholderTextColor={Colors.textMuted}
                     keyboardType="email-address"
                     autoCapitalize="none"
-                    selectionColor={DARK.accent}
+                    selectionColor={Colors.accent}
                   />
                 </View>
                 {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null}
@@ -220,7 +221,7 @@ export default function EditProfileScreen() {
                     onPress={() => toggleProvider(p.id)}
                     style={[styles.providerChip, active && styles.providerChipActive]}
                   >
-                    <Ionicons name="tv-outline" size={14} color={active ? '#FFF' : DARK.textMuted} />
+                    <Ionicons name="tv-outline" size={14} color={active ? Colors.text : Colors.textMuted} />
                     <Text style={[styles.genreChipText, active && styles.providerChipTextActive]}>{p.name}</Text>
                   </Pressable>
                 );
@@ -234,18 +235,18 @@ export default function EditProfileScreen() {
               <View style={styles.field}>
                 <Text style={styles.fieldLabel}>Current Password</Text>
                 <View style={[styles.inputWrap, errors.currentPassword ? styles.inputError : null]}>
-                  <Ionicons name="lock-closed-outline" size={16} color={DARK.textMuted} />
+                  <Ionicons name="lock-closed-outline" size={16} color={Colors.textMuted} />
                   <TextInput
                     style={styles.input}
                     value={currentPassword}
                     onChangeText={t => { setCurrentPassword(t); setErrors(prev => ({ ...prev, currentPassword: '' })); }}
                     placeholder="Enter current password"
-                    placeholderTextColor={DARK.textMuted}
+                    placeholderTextColor={Colors.textMuted}
                     secureTextEntry={!showCurrentPw}
-                    selectionColor={DARK.accent}
+                    selectionColor={Colors.accent}
                   />
                   <Pressable onPress={() => setShowCurrentPw(!showCurrentPw)} hitSlop={10}>
-                    <Ionicons name={showCurrentPw ? 'eye-off-outline' : 'eye-outline'} size={16} color={DARK.textMuted} />
+                    <Ionicons name={showCurrentPw ? 'eye-off-outline' : 'eye-outline'} size={16} color={Colors.textMuted} />
                   </Pressable>
                 </View>
                 {errors.currentPassword ? <Text style={styles.errorText}>{errors.currentPassword}</Text> : null}
@@ -256,18 +257,18 @@ export default function EditProfileScreen() {
               <View style={styles.field}>
                 <Text style={styles.fieldLabel}>New Password</Text>
                 <View style={[styles.inputWrap, errors.newPassword ? styles.inputError : null]}>
-                  <Ionicons name="key-outline" size={16} color={DARK.textMuted} />
+                  <Ionicons name="key-outline" size={16} color={Colors.textMuted} />
                   <TextInput
                     style={styles.input}
                     value={newPassword}
                     onChangeText={t => { setNewPassword(t); setErrors(prev => ({ ...prev, newPassword: '' })); }}
                     placeholder="New password (6+ chars)"
-                    placeholderTextColor={DARK.textMuted}
+                    placeholderTextColor={Colors.textMuted}
                     secureTextEntry={!showNewPw}
-                    selectionColor={DARK.accent}
+                    selectionColor={Colors.accent}
                   />
                   <Pressable onPress={() => setShowNewPw(!showNewPw)} hitSlop={10}>
-                    <Ionicons name={showNewPw ? 'eye-off-outline' : 'eye-outline'} size={16} color={DARK.textMuted} />
+                    <Ionicons name={showNewPw ? 'eye-off-outline' : 'eye-outline'} size={16} color={Colors.textMuted} />
                   </Pressable>
                 </View>
                 {errors.newPassword ? <Text style={styles.errorText}>{errors.newPassword}</Text> : null}
@@ -278,15 +279,15 @@ export default function EditProfileScreen() {
               <View style={styles.field}>
                 <Text style={styles.fieldLabel}>Confirm Password</Text>
                 <View style={[styles.inputWrap, errors.confirmPassword ? styles.inputError : null]}>
-                  <Ionicons name="checkmark-circle-outline" size={16} color={DARK.textMuted} />
+                  <Ionicons name="checkmark-circle-outline" size={16} color={Colors.textMuted} />
                   <TextInput
                     style={styles.input}
                     value={confirmPassword}
                     onChangeText={t => { setConfirmPassword(t); setErrors(prev => ({ ...prev, confirmPassword: '' })); }}
                     placeholder="Confirm new password"
-                    placeholderTextColor={DARK.textMuted}
+                    placeholderTextColor={Colors.textMuted}
                     secureTextEntry={!showNewPw}
-                    selectionColor={DARK.accent}
+                    selectionColor={Colors.accent}
                   />
                 </View>
                 {errors.confirmPassword ? <Text style={styles.errorText}>{errors.confirmPassword}</Text> : null}
@@ -300,12 +301,12 @@ export default function EditProfileScreen() {
               style={({ pressed }) => [styles.saveBtnWrap, pressed && { opacity: 0.85 }]}
             >
               <LinearGradient
-                colors={['#254C42', '#4C2744']}
+                colors={[Colors.background, Colors.backgroundDark]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.saveBtn}
               >
-                <Ionicons name="checkmark" size={20} color="#FFF" />
+                <Ionicons name="checkmark" size={20} color={Colors.text} />
                 <Text style={styles.saveBtnText}>Save Changes</Text>
               </LinearGradient>
             </Pressable>
@@ -331,16 +332,16 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 14,
-    backgroundColor: DARK.glass,
+    backgroundColor: Colors.glass,
     borderWidth: 1,
-    borderColor: DARK.glassBorder,
+    borderColor: Colors.glassBorder,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontFamily: 'DMSans_700Bold',
-    color: DARK.text,
+    color: Colors.text,
     letterSpacing: 0.5,
   },
   scrollContent: {
@@ -360,12 +361,12 @@ const styles = StyleSheet.create({
   avatarText: {
     fontSize: 32,
     fontFamily: 'DMSans_700Bold',
-    color: '#FFF',
+    color: Colors.text,
   },
   avatarHint: {
     fontSize: 12,
     fontFamily: 'DMSans_400Regular',
-    color: DARK.textMuted,
+    color: Colors.textMuted,
     marginTop: 8,
   },
   formSection: {
@@ -374,16 +375,16 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 11,
     fontFamily: 'DMSans_700Bold',
-    color: DARK.textMuted,
+    color: Colors.textMuted,
     letterSpacing: 1.5,
     marginBottom: 8,
     marginLeft: 4,
   },
   fieldGroup: {
-    backgroundColor: DARK.glass,
+    backgroundColor: Colors.glass,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: DARK.glassBorder,
+    borderColor: Colors.glassBorder,
     overflow: 'hidden',
   },
   field: {
@@ -391,40 +392,40 @@ const styles = StyleSheet.create({
   },
   fieldDivider: {
     height: 1,
-    backgroundColor: DARK.divider,
+    backgroundColor: Colors.divider,
     marginHorizontal: 14,
   },
   fieldLabel: {
     fontSize: 11,
     fontFamily: 'DMSans_600SemiBold',
-    color: DARK.textSoft,
+    color: Colors.textSecondary,
     marginBottom: 6,
   },
   inputWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: DARK.inputBg,
+    backgroundColor: Colors.inputBg,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
     gap: 8,
     borderWidth: 1,
-    borderColor: DARK.inputBorder,
+    borderColor: Colors.inputBorder,
   },
   inputError: {
-    borderColor: DARK.danger,
+    borderColor: Colors.danger,
   },
   input: {
     flex: 1,
     fontSize: 15,
     fontFamily: 'DMSans_400Regular',
-    color: DARK.text,
+    color: Colors.text,
     padding: 0,
   },
   errorText: {
     fontSize: 11,
     fontFamily: 'DMSans_400Regular',
-    color: DARK.danger,
+    color: Colors.danger,
     marginTop: 4,
     marginLeft: 4,
   },
@@ -437,21 +438,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 10,
-    backgroundColor: DARK.glass,
+    backgroundColor: Colors.glass,
     borderWidth: 1,
-    borderColor: DARK.glassBorder,
+    borderColor: Colors.glassBorder,
   },
   genreChipActive: {
-    backgroundColor: 'rgba(78,234,173,0.2)',
-    borderColor: 'rgba(78,234,173,0.4)',
+    backgroundColor: Colors.accentSoft,
+    borderColor: Colors.accentBorder,
   },
   genreChipText: {
     fontSize: 13,
     fontFamily: 'DMSans_500Medium',
-    color: DARK.textSoft,
+    color: Colors.textSecondary,
   },
   genreChipTextActive: {
-    color: DARK.accent,
+    color: Colors.accent,
     fontFamily: 'DMSans_600SemiBold',
   },
   providerChip: {
@@ -461,9 +462,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 10,
-    backgroundColor: DARK.glass,
+    backgroundColor: Colors.glass,
     borderWidth: 1,
-    borderColor: DARK.glassBorder,
+    borderColor: Colors.glassBorder,
   },
   providerChipActive: {
     backgroundColor: 'rgba(124,58,237,0.25)',
@@ -491,6 +492,6 @@ const styles = StyleSheet.create({
   saveBtnText: {
     fontSize: 17,
     fontFamily: 'DMSans_700Bold',
-    color: '#FFF',
+    color: Colors.text,
   },
 });

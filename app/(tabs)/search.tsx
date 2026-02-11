@@ -21,31 +21,13 @@ import * as Haptics from 'expo-haptics';
 import { useApp } from '@/context/AppContext';
 import { MediaItem, mapTmdbToMediaItem, getPosterUrl, getGenreName, GENRES, MediaType } from '@/types/media';
 import { getApiUrl } from '@/lib/query-client';
+import Colors from '@/theme/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const GRID_GAP = 10;
 const GRID_PAD = 16;
 const COL_W = (SCREEN_WIDTH - GRID_PAD * 2 - GRID_GAP) / 2;
 const CARD_H = COL_W * 1.5;
-
-const D = {
-  bg1: '#0B1023',
-  bg2: '#111535',
-  bg3: '#0D0D2B',
-  surface: 'rgba(255,255,255,0.06)',
-  surfaceHover: 'rgba(255,255,255,0.10)',
-  border: 'rgba(255,255,255,0.08)',
-  text: '#FFFFFF',
-  textSoft: 'rgba(255,255,255,0.65)',
-  textMuted: 'rgba(255,255,255,0.35)',
-  accent: '#4EEAAD',
-  gold: '#FBBF24',
-  searchBg: 'rgba(255,255,255,0.08)',
-  skeleton: 'rgba(255,255,255,0.06)',
-  skeletonShine: 'rgba(255,255,255,0.12)',
-  addBtn: 'rgba(255,255,255,0.15)',
-  addBtnActive: '#4EEAAD',
-};
 
 type FilterType = 'all' | 'movie' | 'tv';
 
@@ -112,7 +94,7 @@ function DiscoverCard({
             <Image source={{ uri: posterUri }} style={styles.posterImage} contentFit="cover" transition={200} />
           ) : (
             <View style={styles.posterPlaceholder}>
-              <Ionicons name="film-outline" size={28} color={D.textMuted} />
+              <Ionicons name="film-outline" size={28} color={Colors.textMuted} />
             </View>
           )}
           <Pressable
@@ -124,7 +106,7 @@ function DiscoverCard({
           </Pressable>
           {item.voteAverage > 0 && (
             <View style={styles.ratingPill}>
-              <Ionicons name="star" size={8} color={D.gold} />
+              <Ionicons name="star" size={8} color={Colors.star} />
               <Text style={styles.ratingText}>{item.voteAverage.toFixed(1)}</Text>
             </View>
           )}
@@ -285,7 +267,7 @@ export default function SearchScreen() {
     if (isFetchingNextPage) {
       return (
         <View style={styles.footerLoader}>
-          <ActivityIndicator size="small" color={D.accent} />
+          <ActivityIndicator size="small" color={Colors.accent} />
           <Text style={styles.footerText}>Loading more...</Text>
         </View>
       );
@@ -305,7 +287,7 @@ export default function SearchScreen() {
     if (isSearchMode && allItems.length === 0) {
       return (
         <View style={styles.emptyState}>
-          <Ionicons name="search-outline" size={44} color={D.textMuted} />
+          <Ionicons name="search-outline" size={44} color={Colors.textMuted} />
           <Text style={styles.emptyTitle}>No results found</Text>
           <Text style={styles.emptySubtitle}>Try a different search term</Text>
         </View>
@@ -331,24 +313,24 @@ export default function SearchScreen() {
         : 'Popular Now';
 
   return (
-    <LinearGradient colors={[D.bg1, D.bg2, D.bg3]} style={styles.container}>
+    <LinearGradient colors={[Colors.background, Colors.backgroundDark, Colors.backgroundDeep]} style={styles.container}>
       <View style={{ paddingTop: Platform.OS === 'web' ? 67 : insets.top }}>
         <View style={styles.searchHeader}>
           <Text style={styles.screenTitle}>Discover</Text>
           <View style={styles.searchBar}>
-            <Ionicons name="search" size={18} color={D.textMuted} />
+            <Ionicons name="search" size={18} color={Colors.textMuted} />
             <TextInput
               style={styles.searchInput}
               placeholder="Search movies & TV shows..."
-              placeholderTextColor={D.textMuted}
+              placeholderTextColor={Colors.textMuted}
               value={query}
               onChangeText={setQuery}
               returnKeyType="search"
-              selectionColor={D.accent}
+              selectionColor={Colors.accent}
             />
             {query.length > 0 && (
               <Pressable onPress={clearSearch} hitSlop={10}>
-                <Ionicons name="close-circle" size={18} color={D.textSoft} />
+                <Ionicons name="close-circle" size={18} color={Colors.textSecondary} />
               </Pressable>
             )}
           </View>
@@ -426,25 +408,25 @@ const styles = StyleSheet.create({
   screenTitle: {
     fontSize: 28,
     fontFamily: 'DMSans_700Bold',
-    color: D.text,
+    color: Colors.text,
     marginBottom: 14,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: D.searchBg,
+    backgroundColor: Colors.inputBg,
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 12,
     gap: 10,
     borderWidth: 1,
-    borderColor: D.border,
+    borderColor: Colors.surfaceBorder,
   },
   searchInput: {
     flex: 1,
     fontSize: 15,
     fontFamily: 'DMSans_400Regular',
-    color: D.text,
+    color: Colors.text,
     padding: 0,
   },
   filters: {
@@ -460,18 +442,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 10,
-    backgroundColor: D.surface,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: D.border,
+    borderColor: Colors.surfaceBorder,
   },
   typeChipActive: {
-    backgroundColor: 'rgba(78,234,173,0.2)',
-    borderColor: 'rgba(78,234,173,0.4)',
+    backgroundColor: Colors.accentSoft,
+    borderColor: Colors.accentBorder,
   },
   typeChipText: {
     fontSize: 13,
     fontFamily: 'DMSans_500Medium',
-    color: D.textSoft,
+    color: Colors.textSecondary,
   },
   typeChipTextActive: {
     color: '#FFF',
@@ -485,21 +467,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 10,
-    backgroundColor: D.surface,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: D.border,
+    borderColor: Colors.surfaceBorder,
   },
   genreChipActive: {
-    backgroundColor: 'rgba(251,191,36,0.2)',
-    borderColor: 'rgba(251,191,36,0.4)',
+    backgroundColor: Colors.accentSoft,
+    borderColor: Colors.accentBorder,
   },
   genreChipText: {
     fontSize: 12,
     fontFamily: 'DMSans_500Medium',
-    color: D.textSoft,
+    color: Colors.textSecondary,
   },
   genreChipTextActive: {
-    color: D.gold,
+    color: Colors.accent,
   },
   grid: {
     paddingHorizontal: GRID_PAD,
@@ -516,9 +498,9 @@ const styles = StyleSheet.create({
     height: CARD_H,
     borderRadius: 14,
     overflow: 'hidden',
-    backgroundColor: D.surface,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: D.border,
+    borderColor: Colors.surfaceBorder,
   },
   posterImage: {
     width: '100%',
@@ -530,7 +512,7 @@ const styles = StyleSheet.create({
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: D.surface,
+    backgroundColor: Colors.surface,
   },
   addBtn: {
     position: 'absolute',
@@ -539,15 +521,15 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: D.addBtn,
+    backgroundColor: 'rgba(255,255,255,0.15)',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
+    borderColor: Colors.glassBorder,
   },
   addBtnActive: {
-    backgroundColor: D.addBtnActive,
-    borderColor: D.addBtnActive,
+    backgroundColor: Colors.accent,
+    borderColor: Colors.accent,
   },
   ratingPill: {
     position: 'absolute',
@@ -570,7 +552,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 6,
     left: 6,
-    backgroundColor: 'rgba(78,234,173,0.85)',
+    backgroundColor: Colors.accent,
     borderRadius: 4,
     paddingHorizontal: 6,
     paddingVertical: 2,
@@ -584,20 +566,20 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 13,
     fontFamily: 'DMSans_600SemiBold',
-    color: D.text,
+    color: Colors.text,
     marginTop: 8,
     lineHeight: 17,
   },
   cardSub: {
     fontSize: 11,
     fontFamily: 'DMSans_400Regular',
-    color: D.textMuted,
+    color: Colors.textMuted,
     marginTop: 2,
   },
   sectionLabel: {
     fontSize: 17,
     fontFamily: 'DMSans_700Bold',
-    color: D.textSoft,
+    color: Colors.textSecondary,
     marginBottom: 14,
     marginTop: 4,
   },
@@ -611,12 +593,12 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 13,
     fontFamily: 'DMSans_400Regular',
-    color: D.textSoft,
+    color: Colors.textSecondary,
   },
   footerTextEnd: {
     fontSize: 13,
     fontFamily: 'DMSans_400Regular',
-    color: D.textMuted,
+    color: Colors.textMuted,
   },
   emptyState: {
     alignItems: 'center',
@@ -626,12 +608,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 17,
     fontFamily: 'DMSans_600SemiBold',
-    color: D.text,
+    color: Colors.text,
   },
   emptySubtitle: {
     fontSize: 13,
     fontFamily: 'DMSans_400Regular',
-    color: D.textMuted,
+    color: Colors.textMuted,
   },
   skeletonGrid: {
     flexDirection: 'row',
@@ -646,20 +628,20 @@ const styles = StyleSheet.create({
     width: '100%',
     height: CARD_H,
     borderRadius: 14,
-    backgroundColor: D.skeleton,
+    backgroundColor: Colors.surface,
   },
   skeletonTitle: {
     width: '70%',
     height: 12,
     borderRadius: 4,
-    backgroundColor: D.skeleton,
+    backgroundColor: Colors.surface,
     marginTop: 10,
   },
   skeletonSub: {
     width: '45%',
     height: 10,
     borderRadius: 4,
-    backgroundColor: D.skeleton,
+    backgroundColor: Colors.surface,
     marginTop: 6,
   },
 });

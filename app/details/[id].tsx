@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import AppBackground from '@/components/AppBackground';
-import { DARK_THEME } from '@/components/AppBackground';
+import Colors from '@/theme/colors';
 import { useApp } from '@/context/AppContext';
 import { MediaItem, ListStatus, mapTmdbToMediaItem, getBackdropUrl, getPosterUrl, getGenreName, TmdbMovie } from '@/types/media';
 import { getApiUrl } from '@/lib/query-client';
@@ -16,7 +16,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const STATUS_CONFIG: { key: ListStatus; label: string; icon: keyof typeof Ionicons.glyphMap; color: string }[] = [
   { key: 'want', label: 'Want', icon: 'bookmark', color: '#E8935A' },
-  { key: 'watching', label: 'Watching', icon: 'play-circle', color: '#4EEAAD' },
+  { key: 'watching', label: 'Watching', icon: 'play-circle', color: Colors.accent },
   { key: 'watched', label: 'Watched', icon: 'checkmark-circle', color: '#7C3AED' },
 ];
 
@@ -70,7 +70,7 @@ export default function DetailsScreen() {
     return (
       <AppBackground>
         <View style={[styles.loadingContainer, { paddingTop: insets.top }]}>
-          <ActivityIndicator size="large" color="#4EEAAD" />
+          <ActivityIndicator size="large" color={Colors.accent} />
         </View>
       </AppBackground>
     );
@@ -99,17 +99,17 @@ export default function DetailsScreen() {
           {backdropUri ? (
             <Image source={{ uri: backdropUri }} style={styles.backdrop} contentFit="cover" transition={300} />
           ) : (
-            <View style={[styles.backdrop, { backgroundColor: 'rgba(255,255,255,0.06)' }]} />
+            <View style={[styles.backdrop, { backgroundColor: Colors.surface }]} />
           )}
           <LinearGradient
-            colors={['transparent', 'rgba(11,16,35,0.6)', '#0B1023']}
+            colors={['transparent', 'rgba(11,16,35,0.6)', Colors.backgroundDeep]}
             style={styles.gradient}
           />
           <Pressable
             onPress={() => router.back()}
             style={[styles.backButton, { top: Platform.OS === 'web' ? 67 : insets.top + 8 }]}
           >
-            <Ionicons name="arrow-back" size={22} color="#fff" />
+            <Ionicons name="arrow-back" size={22} color={Colors.text} />
           </Pressable>
         </View>
 
@@ -119,7 +119,7 @@ export default function DetailsScreen() {
               <Image source={{ uri: posterUri }} style={styles.poster} contentFit="cover" transition={200} />
             ) : (
               <View style={[styles.poster, styles.posterPlaceholder]}>
-                <Ionicons name="film-outline" size={32} color="rgba(255,255,255,0.35)" />
+                <Ionicons name="film-outline" size={32} color={Colors.textMuted} />
               </View>
             )}
             <View style={styles.titleArea}>
@@ -129,7 +129,7 @@ export default function DetailsScreen() {
                   <Text style={styles.metaText}>{new Date(item.releaseDate).getFullYear()}</Text>
                 ) : null}
                 <View style={styles.ratingChip}>
-                  <Ionicons name="star" size={12} color="#FBBF24" />
+                  <Ionicons name="star" size={12} color={Colors.star} />
                   <Text style={styles.ratingText}>{item.voteAverage.toFixed(1)}</Text>
                 </View>
                 <View style={styles.typeChip}>
@@ -154,8 +154,8 @@ export default function DetailsScreen() {
                     isActive && { backgroundColor: s.color, borderColor: s.color },
                   ]}
                 >
-                  <Ionicons name={s.icon} size={18} color={isActive ? '#fff' : s.color} />
-                  <Text style={[styles.statusBtnText, isActive && { color: '#fff' }]}>{s.label}</Text>
+                  <Ionicons name={s.icon} size={18} color={isActive ? Colors.text : s.color} />
+                  <Text style={[styles.statusBtnText, isActive && { color: Colors.text }]}>{s.label}</Text>
                 </Pressable>
               );
             })}
@@ -166,9 +166,9 @@ export default function DetailsScreen() {
               onPress={() => router.push({ pathname: '/progress/[id]', params: { id: item.id.toString() } })}
               style={({ pressed }) => [styles.progressBtn, { opacity: pressed ? 0.9 : 1 }]}
             >
-              <Ionicons name="layers" size={18} color="#fff" />
+              <Ionicons name="layers" size={18} color={Colors.text} />
               <Text style={styles.progressBtnText}>Track Progress</Text>
-              <Ionicons name="arrow-forward" size={16} color="#fff" />
+              <Ionicons name="arrow-forward" size={16} color={Colors.text} />
             </Pressable>
           )}
 
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 15,
     fontFamily: 'DMSans_400Regular',
-    color: 'rgba(255,255,255,0.6)',
+    color: Colors.textMuted,
   },
   heroContainer: {
     width: SCREEN_WIDTH,
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: 'rgba(0,0,0,0.45)',
+    backgroundColor: Colors.overlay,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   posterPlaceholder: {
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: Colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontFamily: 'DMSans_700Bold',
-    color: '#FFFFFF',
+    color: Colors.text,
     lineHeight: 28,
   },
   metaRow: {
@@ -266,13 +266,13 @@ const styles = StyleSheet.create({
   metaText: {
     fontSize: 13,
     fontFamily: 'DMSans_400Regular',
-    color: 'rgba(255,255,255,0.6)',
+    color: Colors.textMuted,
   },
   ratingChip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(251,191,36,0.12)',
+    backgroundColor: Colors.accentSoft,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 8,
@@ -280,10 +280,10 @@ const styles = StyleSheet.create({
   ratingText: {
     fontSize: 12,
     fontFamily: 'DMSans_600SemiBold',
-    color: '#FBBF24',
+    color: Colors.star,
   },
   typeChip: {
-    backgroundColor: '#4EEAAD',
+    backgroundColor: Colors.accent,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 8,
@@ -291,12 +291,12 @@ const styles = StyleSheet.create({
   typeText: {
     fontSize: 12,
     fontFamily: 'DMSans_500Medium',
-    color: '#fff',
+    color: Colors.text,
   },
   seasonsText: {
     fontSize: 13,
     fontFamily: 'DMSans_400Regular',
-    color: '#4EEAAD',
+    color: Colors.accent,
     marginTop: 4,
   },
   statusButtons: {
@@ -312,14 +312,14 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: 12,
     borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: Colors.glass,
     borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.14)',
+    borderColor: Colors.glassBorder,
   },
   statusBtnText: {
     fontSize: 13,
     fontFamily: 'DMSans_600SemiBold',
-    color: '#FFFFFF',
+    color: Colors.text,
   },
   progressBtn: {
     flexDirection: 'row',
@@ -328,13 +328,13 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 13,
     borderRadius: 12,
-    backgroundColor: '#4EEAAD',
+    backgroundColor: Colors.accent,
     marginTop: 10,
   },
   progressBtnText: {
     fontSize: 14,
     fontFamily: 'DMSans_600SemiBold',
-    color: '#fff',
+    color: Colors.text,
     flex: 1,
   },
   genreRow: {
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   genreTag: {
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: Colors.glass,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 10,
@@ -352,19 +352,19 @@ const styles = StyleSheet.create({
   genreTagText: {
     fontSize: 12,
     fontFamily: 'DMSans_500Medium',
-    color: 'rgba(255,255,255,0.6)',
+    color: Colors.textMuted,
   },
   sectionTitle: {
     fontSize: 17,
     fontFamily: 'DMSans_700Bold',
-    color: '#FFFFFF',
+    color: Colors.text,
     marginTop: 24,
     marginBottom: 8,
   },
   overview: {
     fontSize: 14,
     fontFamily: 'DMSans_400Regular',
-    color: 'rgba(255,255,255,0.6)',
+    color: Colors.textMuted,
     lineHeight: 22,
   },
 });

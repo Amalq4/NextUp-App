@@ -6,7 +6,7 @@ import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import AppBackground from '@/components/AppBackground';
-import { DARK_THEME } from '@/components/AppBackground';
+import Colors from '@/theme/colors';
 import { useApp } from '@/context/AppContext';
 import { TmdbTvDetails, TmdbSeasonDetails, getPosterUrl, ProgressEntry } from '@/types/media';
 import { getApiUrl } from '@/lib/query-client';
@@ -78,7 +78,7 @@ export default function ProgressScreen() {
     return (
       <AppBackground>
         <View style={[styles.center, { paddingTop: insets.top }]}>
-          <ActivityIndicator size="large" color="#E8935A" />
+          <ActivityIndicator size="large" color={Colors.accent} />
         </View>
       </AppBackground>
     );
@@ -99,7 +99,7 @@ export default function ProgressScreen() {
       <View style={[styles.container, { paddingTop: Platform.OS === 'web' ? 67 : insets.top }]}>
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={22} color="#FFFFFF" />
+            <Ionicons name="arrow-back" size={22} color={Colors.text} />
           </Pressable>
           <Text style={styles.headerTitle} numberOfLines={1}>Progress</Text>
           <View style={{ width: 40 }} />
@@ -116,7 +116,7 @@ export default function ProgressScreen() {
             </Text>
             {currentProgress && (
               <View style={styles.currentProgressRow}>
-                <Ionicons name="play-circle" size={16} color="#4EEAAD" />
+                <Ionicons name="play-circle" size={16} color={Colors.accent} />
                 <Text style={styles.currentProgressText}>
                   S{currentProgress.seasonNumber} E{currentProgress.episodeNumber}
                 </Text>
@@ -148,7 +148,7 @@ export default function ProgressScreen() {
           showsVerticalScrollIndicator={false}
         >
           {loadingSeason ? (
-            <ActivityIndicator size="small" color="#E8935A" style={{ marginTop: 30 }} />
+            <ActivityIndicator size="small" color={Colors.accent} style={{ marginTop: 30 }} />
           ) : seasonDetails?.episodes ? (
             seasonDetails.episodes.map(ep => {
               const isCurrent = currentProgress?.seasonNumber === selectedSeason && currentProgress?.episodeNumber === ep.episode_number;
@@ -165,7 +165,7 @@ export default function ProgressScreen() {
                 >
                   <View style={[styles.epNumber, isWatched && styles.epNumberWatched]}>
                     {isWatched ? (
-                      <Ionicons name="checkmark" size={14} color="#fff" />
+                      <Ionicons name="checkmark" size={14} color={Colors.text} />
                     ) : (
                       <Text style={styles.epNumberText}>{ep.episode_number}</Text>
                     )}
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 15,
     fontFamily: 'DMSans_400Regular',
-    color: 'rgba(255,255,255,0.6)',
+    color: Colors.textMuted,
   },
   header: {
     flexDirection: 'row',
@@ -219,16 +219,16 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: Colors.glass,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.14)',
+    borderColor: Colors.glassBorder,
   },
   headerTitle: {
     fontSize: 17,
     fontFamily: 'DMSans_600SemiBold',
-    color: '#FFFFFF',
+    color: Colors.text,
   },
   showInfo: {
     flexDirection: 'row',
@@ -249,12 +249,12 @@ const styles = StyleSheet.create({
   showTitle: {
     fontSize: 18,
     fontFamily: 'DMSans_700Bold',
-    color: '#FFFFFF',
+    color: Colors.text,
   },
   showMeta: {
     fontSize: 13,
     fontFamily: 'DMSans_400Regular',
-    color: 'rgba(255,255,255,0.6)',
+    color: Colors.textMuted,
     marginTop: 4,
   },
   currentProgressRow: {
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
   currentProgressText: {
     fontSize: 13,
     fontFamily: 'DMSans_600SemiBold',
-    color: '#4EEAAD',
+    color: Colors.accent,
   },
   seasonScroll: {
     maxHeight: 50,
@@ -280,27 +280,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 10,
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: Colors.glass,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.14)',
+    borderColor: Colors.glassBorder,
     alignItems: 'center',
   },
   seasonChipActive: {
-    backgroundColor: '#4EEAAD',
-    borderColor: '#4EEAAD',
+    backgroundColor: Colors.accent,
+    borderColor: Colors.accent,
   },
   seasonChipText: {
     fontSize: 14,
     fontFamily: 'DMSans_600SemiBold',
-    color: '#FFFFFF',
+    color: Colors.text,
   },
   seasonChipTextActive: {
-    color: '#fff',
+    color: Colors.text,
   },
   seasonEpCount: {
     fontSize: 10,
     fontFamily: 'DMSans_400Regular',
-    color: 'rgba(255,255,255,0.6)',
+    color: Colors.textMuted,
     marginTop: 1,
   },
   episodesList: {
@@ -310,32 +310,32 @@ const styles = StyleSheet.create({
   episodeCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: Colors.glass,
     borderRadius: 12,
     padding: 12,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.14)',
+    borderColor: Colors.glassBorder,
   },
   episodeCardCurrent: {
-    borderColor: '#4EEAAD',
-    backgroundColor: 'rgba(78,234,173,0.12)',
+    borderColor: Colors.accent,
+    backgroundColor: Colors.accentSoft,
   },
   epNumber: {
     width: 32,
     height: 32,
     borderRadius: 10,
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: Colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
   epNumberWatched: {
-    backgroundColor: '#4EEAAD',
+    backgroundColor: Colors.accent,
   },
   epNumberText: {
     fontSize: 13,
     fontFamily: 'DMSans_600SemiBold',
-    color: 'rgba(255,255,255,0.6)',
+    color: Colors.textMuted,
   },
   epInfo: {
     flex: 1,
@@ -344,16 +344,16 @@ const styles = StyleSheet.create({
   epTitle: {
     fontSize: 14,
     fontFamily: 'DMSans_500Medium',
-    color: '#FFFFFF',
+    color: Colors.text,
   },
   epDate: {
     fontSize: 11,
     fontFamily: 'DMSans_400Regular',
-    color: 'rgba(255,255,255,0.35)',
+    color: Colors.textMuted,
     marginTop: 2,
   },
   currentBadge: {
-    backgroundColor: '#4EEAAD',
+    backgroundColor: Colors.accent,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
@@ -361,12 +361,12 @@ const styles = StyleSheet.create({
   currentBadgeText: {
     fontSize: 10,
     fontFamily: 'DMSans_600SemiBold',
-    color: '#fff',
+    color: Colors.text,
   },
   noEpisodes: {
     fontSize: 14,
     fontFamily: 'DMSans_400Regular',
-    color: 'rgba(255,255,255,0.6)',
+    color: Colors.textMuted,
     textAlign: 'center',
     marginTop: 30,
   },
