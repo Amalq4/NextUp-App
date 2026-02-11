@@ -8,10 +8,10 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '@/context/AppContext';
 import Colors from '@/theme/colors';
 
@@ -59,10 +59,11 @@ export default function LoginScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.logoContainer}>
-          <View style={styles.logoIcon}>
-            <Ionicons name="play" size={28} color={Colors.text} />
-          </View>
-          <Text style={styles.logoText}>NextUp</Text>
+          <Image
+            source={require('@/assets/images/icon.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
         </View>
 
         <Text style={styles.title}>Welcome Back</Text>
@@ -136,24 +137,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logoContainer: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 40,
+    marginBottom: 32,
   },
-  logoIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: Colors.glassBorder,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  logoText: {
-    fontSize: 36,
-    fontFamily: 'DMSans_700Bold',
-    color: Colors.text,
+  logoImage: {
+    width: 140,
+    height: 140,
   },
   title: {
     fontSize: 28,
