@@ -15,29 +15,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
+import AppBackground, { DARK_THEME as DK } from '@/components/AppBackground';
 import { useApp } from '@/context/AppContext';
 import { getGenreName } from '@/types/media';
-
-const DARK = {
-  bg1: '#0B1023',
-  bg2: '#1A1040',
-  bg3: '#0D0D2B',
-  card: 'rgba(255,255,255,0.06)',
-  cardBorder: 'rgba(255,255,255,0.10)',
-  glass: 'rgba(255,255,255,0.08)',
-  glassBorder: 'rgba(255,255,255,0.14)',
-  text: '#FFFFFF',
-  textSoft: 'rgba(255,255,255,0.6)',
-  textMuted: 'rgba(255,255,255,0.35)',
-  accent: '#4EEAAD',
-  danger: '#EF4444',
-  dangerBg: 'rgba(239,68,68,0.12)',
-  row: 'rgba(255,255,255,0.05)',
-  rowBorder: 'rgba(255,255,255,0.08)',
-  divider: 'rgba(255,255,255,0.06)',
-  switchTrack: 'rgba(255,255,255,0.15)',
-  modalBg: 'rgba(0,0,0,0.7)',
-};
 
 interface SettingsRowProps {
   icon: keyof typeof Ionicons.glyphMap;
@@ -57,21 +37,21 @@ function SettingsRow({ icon, iconColor, iconBg, label, labelColor, subtitle, onP
       onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onPress(); }}
       style={({ pressed }) => [styles.row, !isLast && styles.rowDivider, { opacity: pressed ? 0.7 : 1 }]}
     >
-      <View style={[styles.rowIcon, { backgroundColor: iconBg || DARK.glass }]}>
-        <Ionicons name={icon} size={17} color={iconColor || DARK.accent} />
+      <View style={[styles.rowIcon, { backgroundColor: iconBg || DK.glass }]}>
+        <Ionicons name={icon} size={17} color={iconColor || DK.accent} />
       </View>
       <View style={styles.rowContent}>
         <Text style={[styles.rowLabel, labelColor ? { color: labelColor } : null]}>{label}</Text>
         {subtitle ? <Text style={styles.rowSub}>{subtitle}</Text> : null}
       </View>
-      {trailing || <Ionicons name="chevron-forward" size={16} color={DARK.textMuted} />}
+      {trailing || <Ionicons name="chevron-forward" size={16} color={DK.textMuted} />}
     </Pressable>
   );
 }
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
-  const { profile, lists, clearAllData, logout, authUser, saveProfile } = useApp();
+  const { profile, lists, clearAllData, logout, authUser } = useApp();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [showClearModal, setShowClearModal] = useState(false);
 
@@ -79,14 +59,11 @@ export default function SettingsScreen() {
     want: lists.filter(l => l.status === 'want').length,
     watching: lists.filter(l => l.status === 'watching').length,
     watched: lists.filter(l => l.status === 'watched').length,
-    total: lists.length,
   };
 
   const genreText = profile?.favoriteGenres?.length
     ? profile.favoriteGenres.slice(0, 3).map(id => getGenreName(id)).join(', ')
     : 'No genres selected';
-
-  const contentDefault = profile?.preferredMediaType === 'movie' ? 'Movies' : profile?.preferredMediaType === 'tv' ? 'Series' : 'Both';
 
   const handleLogout = () => {
     Alert.alert('Log Out', 'Are you sure you want to log out?', [
@@ -107,21 +84,6 @@ export default function SettingsScreen() {
     Alert.alert('Cache Cleared', 'App cache has been cleared successfully.');
   };
 
-  const handleReset = () => {
-    Alert.alert('Reset App', 'This will reset your preferences but keep your account. Continue?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Reset', style: 'destructive',
-        onPress: () => {
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-          if (profile) {
-            saveProfile({ ...profile, favoriteGenres: [], preferredMediaType: undefined, preferredProviders: undefined });
-          }
-        },
-      },
-    ]);
-  };
-
   const confirmClearAll = async () => {
     setShowClearModal(false);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
@@ -129,18 +91,8 @@ export default function SettingsScreen() {
     router.replace('/onboarding');
   };
 
-  const handleContentDefault = () => {
-    const options: ('movie' | 'tv' | 'both')[] = ['both', 'movie', 'tv'];
-    const current = profile?.preferredMediaType || 'both';
-    const nextIndex = (options.indexOf(current) + 1) % options.length;
-    if (profile) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      saveProfile({ ...profile, preferredMediaType: options[nextIndex] });
-    }
-  };
-
   return (
-    <LinearGradient colors={[DARK.bg1, DARK.bg2, DARK.bg3]} style={styles.container}>
+    <AppBackground>
       <ScrollView
         style={{ paddingTop: Platform.OS === 'web' ? 67 : insets.top }}
         contentContainerStyle={{ paddingBottom: Platform.OS === 'web' ? 34 : insets.bottom + 90 }}
@@ -170,15 +122,15 @@ export default function SettingsScreen() {
             </View>
           </View>
           <View style={styles.profileEditBtn}>
-            <Ionicons name="create-outline" size={18} color={DARK.accent} />
+            <Ionicons name="create-outline" size={18} color={DK.accent} />
           </View>
         </Pressable>
 
         <View style={styles.statsRow}>
           {[
-            { label: 'Want', value: stats.want, color: '#E8935A' },
-            { label: 'Watching', value: stats.watching, color: DARK.accent },
-            { label: 'Watched', value: stats.watched, color: '#7C3AED' },
+            { label: 'Want', value: stats.want, color: DK.copper },
+            { label: 'Watching', value: stats.watching, color: DK.accent },
+            { label: 'Watched', value: stats.watched, color: DK.indigo },
           ].map(stat => (
             <View key={stat.label} style={styles.statCard}>
               <Text style={[styles.statValue, { color: stat.color }]}>{stat.value}</Text>
@@ -188,26 +140,8 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>ACCOUNT</Text>
+          <Text style={styles.sectionHeader}>GENERAL</Text>
           <View style={styles.sectionCard}>
-            <SettingsRow icon="mail-outline" label="Change Email" subtitle={authUser?.email} onPress={() => router.push('/edit-profile')} />
-            <SettingsRow icon="lock-closed-outline" label="Change Password" onPress={() => router.push('/edit-profile')} />
-            <SettingsRow icon="person-circle-outline" label="Manage Avatar" onPress={() => router.push('/edit-profile')} />
-            <SettingsRow icon="log-out-outline" iconColor={DARK.danger} iconBg={DARK.dangerBg} label="Log Out" labelColor={DARK.danger} onPress={handleLogout} isLast />
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionHeader}>PREFERENCES</Text>
-          <View style={styles.sectionCard}>
-            <SettingsRow
-              icon="film-outline"
-              label="Content Type Default"
-              subtitle={contentDefault}
-              onPress={handleContentDefault}
-            />
-            <SettingsRow icon="heart-outline" label="Preferred Genres" subtitle={genreText} onPress={() => router.push('/edit-profile')} />
-            <SettingsRow icon="tv-outline" label="Streaming Providers" onPress={() => router.push('/edit-profile')} />
             <SettingsRow
               icon="notifications-outline"
               label="Notifications"
@@ -216,12 +150,12 @@ export default function SettingsScreen() {
                 <Switch
                   value={notificationsEnabled}
                   onValueChange={v => { setNotificationsEnabled(v); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
-                  trackColor={{ false: DARK.switchTrack, true: 'rgba(78,234,173,0.4)' }}
-                  thumbColor={notificationsEnabled ? DARK.accent : '#888'}
+                  trackColor={{ false: 'rgba(255,255,255,0.15)', true: 'rgba(78,234,173,0.4)' }}
+                  thumbColor={notificationsEnabled ? DK.accent : '#888'}
                 />
               }
-              isLast
             />
+            <SettingsRow icon="log-out-outline" iconColor={DK.danger} iconBg={DK.dangerBg} label="Log Out" labelColor={DK.danger} onPress={handleLogout} isLast />
           </View>
         </View>
 
@@ -229,8 +163,7 @@ export default function SettingsScreen() {
           <Text style={styles.sectionHeader}>DATA</Text>
           <View style={styles.sectionCard}>
             <SettingsRow icon="trash-bin-outline" label="Clear Cache" onPress={handleClearCache} />
-            <SettingsRow icon="refresh-outline" label="Reset App" onPress={handleReset} />
-            <SettingsRow icon="warning-outline" iconColor={DARK.danger} iconBg={DARK.dangerBg} label="Clear All Data" labelColor={DARK.danger} onPress={() => setShowClearModal(true)} isLast />
+            <SettingsRow icon="warning-outline" iconColor={DK.danger} iconBg={DK.dangerBg} label="Clear All Data" labelColor={DK.danger} onPress={() => setShowClearModal(true)} isLast />
           </View>
         </View>
 
@@ -244,7 +177,7 @@ export default function SettingsScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <View style={styles.modalIconWrap}>
-              <Ionicons name="warning" size={32} color={DARK.danger} />
+              <Ionicons name="warning" size={32} color={DK.danger} />
             </View>
             <Text style={styles.modalTitle}>Clear All Data?</Text>
             <Text style={styles.modalDesc}>
@@ -261,18 +194,15 @@ export default function SettingsScreen() {
           </View>
         </View>
       </Modal>
-    </LinearGradient>
+    </AppBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   screenTitle: {
     fontSize: 28,
     fontFamily: 'DMSans_700Bold',
-    color: DARK.text,
+    color: DK.text,
     paddingHorizontal: 20,
     paddingTop: 10,
     marginBottom: 20,
@@ -284,9 +214,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     borderRadius: 20,
     padding: 16,
-    backgroundColor: DARK.glass,
+    backgroundColor: DK.glass,
     borderWidth: 1,
-    borderColor: DARK.glassBorder,
+    borderColor: DK.glassBorder,
   },
   profileLeft: {
     flexDirection: 'row',
@@ -313,26 +243,26 @@ const styles = StyleSheet.create({
   profileName: {
     fontSize: 18,
     fontFamily: 'DMSans_700Bold',
-    color: DARK.text,
+    color: DK.text,
   },
   profileEmail: {
     fontSize: 13,
     fontFamily: 'DMSans_400Regular',
-    color: DARK.textSoft,
+    color: DK.textSoft,
   },
   profileGenres: {
     fontSize: 11,
     fontFamily: 'DMSans_400Regular',
-    color: DARK.textMuted,
+    color: DK.textMuted,
     marginTop: 2,
   },
   profileEditBtn: {
     width: 36,
     height: 36,
     borderRadius: 12,
-    backgroundColor: DARK.glass,
+    backgroundColor: DK.glass,
     borderWidth: 1,
-    borderColor: DARK.glassBorder,
+    borderColor: DK.glassBorder,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -344,12 +274,12 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: DARK.glass,
+    backgroundColor: DK.glass,
     borderRadius: 14,
     padding: 14,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: DARK.glassBorder,
+    borderColor: DK.glassBorder,
   },
   statValue: {
     fontSize: 24,
@@ -358,7 +288,7 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 11,
     fontFamily: 'DMSans_400Regular',
-    color: DARK.textMuted,
+    color: DK.textMuted,
     marginTop: 2,
   },
   section: {
@@ -368,16 +298,16 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 11,
     fontFamily: 'DMSans_700Bold',
-    color: DARK.textMuted,
+    color: DK.textMuted,
     letterSpacing: 1.5,
     marginBottom: 8,
     marginLeft: 4,
   },
   sectionCard: {
-    backgroundColor: DARK.glass,
+    backgroundColor: DK.glass,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: DARK.glassBorder,
+    borderColor: DK.glassBorder,
     overflow: 'hidden',
   },
   row: {
@@ -388,7 +318,7 @@ const styles = StyleSheet.create({
   },
   rowDivider: {
     borderBottomWidth: 1,
-    borderBottomColor: DARK.divider,
+    borderBottomColor: DK.divider,
   },
   rowIcon: {
     width: 34,
@@ -404,12 +334,12 @@ const styles = StyleSheet.create({
   rowLabel: {
     fontSize: 15,
     fontFamily: 'DMSans_500Medium',
-    color: DARK.text,
+    color: DK.text,
   },
   rowSub: {
     fontSize: 11,
     fontFamily: 'DMSans_400Regular',
-    color: DARK.textMuted,
+    color: DK.textMuted,
     marginTop: 1,
   },
   appInfo: {
@@ -420,11 +350,11 @@ const styles = StyleSheet.create({
   appInfoText: {
     fontSize: 12,
     fontFamily: 'DMSans_400Regular',
-    color: DARK.textMuted,
+    color: DK.textMuted,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: DARK.modalBg,
+    backgroundColor: 'rgba(0,0,0,0.7)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 30,
@@ -436,13 +366,13 @@ const styles = StyleSheet.create({
     padding: 24,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: DARK.glassBorder,
+    borderColor: DK.glassBorder,
   },
   modalIconWrap: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: DARK.dangerBg,
+    backgroundColor: DK.dangerBg,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -450,13 +380,13 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontFamily: 'DMSans_700Bold',
-    color: DARK.text,
+    color: DK.text,
     marginBottom: 8,
   },
   modalDesc: {
     fontSize: 14,
     fontFamily: 'DMSans_400Regular',
-    color: DARK.textSoft,
+    color: DK.textSoft,
     textAlign: 'center',
     lineHeight: 20,
     marginBottom: 24,
@@ -470,21 +400,21 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 14,
     borderRadius: 14,
-    backgroundColor: DARK.glass,
+    backgroundColor: DK.glass,
     borderWidth: 1,
-    borderColor: DARK.glassBorder,
+    borderColor: DK.glassBorder,
     alignItems: 'center',
   },
   modalCancelText: {
     fontSize: 15,
     fontFamily: 'DMSans_600SemiBold',
-    color: DARK.text,
+    color: DK.text,
   },
   modalDeleteBtn: {
     flex: 1,
     paddingVertical: 14,
     borderRadius: 14,
-    backgroundColor: DARK.dangerBg,
+    backgroundColor: DK.dangerBg,
     borderWidth: 1,
     borderColor: 'rgba(239,68,68,0.3)',
     alignItems: 'center',
@@ -492,6 +422,6 @@ const styles = StyleSheet.create({
   modalDeleteText: {
     fontSize: 15,
     fontFamily: 'DMSans_600SemiBold',
-    color: DARK.danger,
+    color: DK.danger,
   },
 });

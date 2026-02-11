@@ -1,0 +1,93 @@
+Refactor the Settings and Edit Profile structure.
+
+PROBLEM:
+Currently profile editing options are duplicated:
+- Edit button at top opens EditProfileScreen
+- But Change Email, Change Password, Manage Avatar, Preferred Genres and Providers are also listed below.
+
+This is redundant and not professional.
+
+FIX THIS COMPLETELY.
+
+------------------------------------
+1) SETTINGS SCREEN CLEANUP
+------------------------------------
+
+Keep:
+
+- Profile header card with Edit icon
+- Log Out
+- Clear All Data
+
+Remove completely:
+
+- Change Email
+- Change Password
+- Manage Avatar
+- Preferred Genres (from Settings main page)
+- Preferred Streaming Providers (from Settings main page)
+
+All profile-related editing must exist ONLY inside EditProfileScreen.
+
+------------------------------------
+2) EDIT PROFILE SCREEN (Single Source of Truth)
+------------------------------------
+
+EditProfileScreen should contain:
+
+- Avatar editing
+- Name editing
+- Email editing
+- Preferred Genres selection
+- Preferred Streaming Providers selection
+- Change Password section
+
+No duplication anywhere else.
+
+------------------------------------
+3) UNIFY BACKGROUND ACROSS APP
+------------------------------------
+
+Use EXACT same background as Settings screen for ALL screens:
+
+- Home
+- Search
+- My Lists
+- Friends
+- Spin
+- Edit Profile
+- Any modal screens
+
+Background style:
+- Same dark navy gradient
+- Same color tones
+- Same glow intensity
+- No beige anywhere
+- No mismatched backgrounds
+
+Create centralized background wrapper component:
+AppBackgroundLayout
+
+Wrap every screen inside it to ensure consistency.
+
+------------------------------------
+4) DESIGN RULES
+------------------------------------
+
+- Maintain dark premium theme
+- White primary text
+- Soft gray secondary text
+- Emerald accent for active states
+- Red only for destructive actions
+- Rounded glass-style cards
+- No UI duplication
+- No unnecessary navigation rows
+
+------------------------------------
+5) FINAL RESULT
+------------------------------------
+
+Settings should feel clean and minimal.
+All editing actions must be inside Edit Profile only.
+All screens must share identical background style.
+No mismatched themes anywhere.
