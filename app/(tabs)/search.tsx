@@ -1,181 +1,423 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { StyleSheet, View, Text, TextInput, FlatList, Pressable, ActivityIndicator, Platform } from 'react-native';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TextInput,
+  FlatList,
+  Pressable,
+  ActivityIndicator,
+  Platform,
+  Dimensions,
+  Animated as RNAnimated,
+} from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
-import { MediaCard } from '@/components/MediaCard';
-import { GenreChip } from '@/components/GenreChip';
-import { MediaItem, mapTmdbToMediaItem, GENRES, MediaType } from '@/types/media';
+import { useApp } from '@/context/AppContext';
+import { MediaItem, mapTmdbToMediaItem, getPosterUrl, getGenreName, GENRES, MediaType } from '@/types/media';
 import { getApiUrl } from '@/lib/query-client';
 
-const POPULAR_GENRES = GENRES.filter(g =>
-  [28, 35, 18, 27, 878, 10749, 53, 16, 14, 80].includes(g.id)
-);
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const GRID_GAP = 10;
+const GRID_PAD = 16;
+const COL_W = (SCREEN_WIDTH - GRID_PAD * 2 - GRID_GAP) / 2;
+const CARD_H = COL_W * 1.5;
+
+const D = {
+  bg1: '#0B1023',
+  bg2: '#111535',
+  bg3: '#0D0D2B',
+  surface: 'rgba(255,255,255,0.06)',
+  surfaceHover: 'rgba(255,255,255,0.10)',
+  border: 'rgba(255,255,255,0.08)',
+  text: '#FFFFFF',
+  textSoft: 'rgba(255,255,255,0.65)',
+  textMuted: 'rgba(255,255,255,0.35)',
+  accent: '#4EEAAD',
+  gold: '#FBBF24',
+  searchBg: 'rgba(255,255,255,0.08)',
+  skeleton: 'rgba(255,255,255,0.06)',
+  skeletonShine: 'rgba(255,255,255,0.12)',
+  addBtn: 'rgba(255,255,255,0.15)',
+  addBtnActive: '#4EEAAD',
+};
 
 type FilterType = 'all' | 'movie' | 'tv';
 
-export default function SearchScreen() {
-  const insets = useSafeAreaInsets();
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<MediaItem[]>([]);
-  const [trending, setTrending] = useState<MediaItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [filterType, setFilterType] = useState<FilterType>('all');
-  const [selectedGenre, setSelectedGenre] = useState<number | null>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+function useDebounce(value: string, delay: number) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return debounced;
+}
+
+function SkeletonCard({ index }: { index: number }) {
+  const opacity = useRef(new RNAnimated.Value(0.4)).current;
 
   useEffect(() => {
-    fetchTrending();
+    const anim = RNAnimated.loop(
+      RNAnimated.sequence([
+        RNAnimated.timing(opacity, { toValue: 1, duration: 800, useNativeDriver: true }),
+        RNAnimated.timing(opacity, { toValue: 0.4, duration: 800, useNativeDriver: true }),
+      ])
+    );
+    anim.start();
+    return () => anim.stop();
   }, []);
 
-  const fetchTrending = async () => {
-    try {
-      const baseUrl = getApiUrl();
-      const res = await fetch(`${baseUrl}api/tmdb/trending/all/week`);
-      const data = await res.json();
-      if (data.results) {
-        setTrending(data.results.map((r: any) => mapTmdbToMediaItem(r)));
+  return (
+    <View style={[styles.gridItem, index % 2 === 0 ? { paddingRight: GRID_GAP / 2 } : { paddingLeft: GRID_GAP / 2 }]}>
+      <RNAnimated.View style={[styles.skeletonCard, { opacity }]}>
+        <View style={styles.skeletonPoster} />
+        <View style={styles.skeletonTitle} />
+        <View style={styles.skeletonSub} />
+      </RNAnimated.View>
+    </View>
+  );
+}
+
+function DiscoverCard({
+  item,
+  index,
+  isInList,
+  onPress,
+  onAdd,
+}: {
+  item: MediaItem;
+  index: number;
+  isInList: boolean;
+  onPress: () => void;
+  onAdd: () => void;
+}) {
+  const posterUri = getPosterUrl(item.posterPath, 'w342');
+
+  return (
+    <View style={[styles.gridItem, index % 2 === 0 ? { paddingRight: GRID_GAP / 2 } : { paddingLeft: GRID_GAP / 2 }]}>
+      <Pressable
+        onPress={onPress}
+        style={({ pressed }) => [
+          styles.cardContainer,
+          { opacity: pressed ? 0.9 : 1, transform: [{ scale: pressed ? 0.97 : 1 }] },
+        ]}
+      >
+        <View style={styles.posterWrap}>
+          {posterUri ? (
+            <Image source={{ uri: posterUri }} style={styles.posterImage} contentFit="cover" transition={200} />
+          ) : (
+            <View style={styles.posterPlaceholder}>
+              <Ionicons name="film-outline" size={28} color={D.textMuted} />
+            </View>
+          )}
+          <Pressable
+            onPress={(e) => { e.stopPropagation(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onAdd(); }}
+            style={[styles.addBtn, isInList && styles.addBtnActive]}
+            hitSlop={8}
+          >
+            <Ionicons name={isInList ? 'checkmark' : 'add'} size={16} color="#FFF" />
+          </Pressable>
+          {item.voteAverage > 0 && (
+            <View style={styles.ratingPill}>
+              <Ionicons name="star" size={8} color={D.gold} />
+              <Text style={styles.ratingText}>{item.voteAverage.toFixed(1)}</Text>
+            </View>
+          )}
+          <View style={styles.typeBadge}>
+            <Text style={styles.typeText}>{item.mediaType === 'tv' ? 'TV' : 'FILM'}</Text>
+          </View>
+        </View>
+        <Text style={styles.cardTitle} numberOfLines={2}>{item.title}</Text>
+        <Text style={styles.cardSub} numberOfLines={1}>
+          {item.releaseDate ? new Date(item.releaseDate).getFullYear() : ''}
+          {item.genreIds.length > 0 ? ` \u00B7 ${getGenreName(item.genreIds[0])}` : ''}
+        </Text>
+      </Pressable>
+    </View>
+  );
+}
+
+const POPULAR_GENRES = GENRES.filter(g =>
+  [28, 35, 18, 27, 878, 10749, 53, 16, 14, 80, 9648, 99].includes(g.id)
+);
+
+export default function SearchScreen() {
+  const insets = useSafeAreaInsets();
+  const { profile, addToList, getListEntry } = useApp();
+  const baseUrl = getApiUrl();
+
+  const [query, setQuery] = useState('');
+  const [filterType, setFilterType] = useState<FilterType>('all');
+  const [selectedGenre, setSelectedGenre] = useState<number | null>(null);
+  const debouncedQuery = useDebounce(query, 300);
+
+  const isSearchMode = debouncedQuery.trim().length > 0;
+  const preferredGenres = profile?.favoriteGenres || [];
+  const mediaTypePref = profile?.preferredMediaType || 'both';
+
+  const discoverType: 'movie' | 'tv' = filterType === 'all'
+    ? (mediaTypePref === 'tv' ? 'tv' : 'movie')
+    : filterType as 'movie' | 'tv';
+
+  const genresForDiscover = useMemo(() => {
+    if (selectedGenre) return selectedGenre.toString();
+    if (preferredGenres.length > 0) return preferredGenres.join(',');
+    return '';
+  }, [selectedGenre, preferredGenres]);
+
+  const providerStr = useMemo(() => {
+    const pp = profile?.preferredProviders;
+    return pp && pp.length > 0 ? pp.join('|') : '';
+  }, [profile?.preferredProviders]);
+
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isFetching,
+  } = useInfiniteQuery({
+    queryKey: ['search-discover', isSearchMode ? 'search' : 'discover', debouncedQuery, filterType, genresForDiscover, providerStr],
+    queryFn: async ({ pageParam }) => {
+      if (isSearchMode) {
+        const res = await fetch(`${baseUrl}api/tmdb/search/multi?query=${encodeURIComponent(debouncedQuery)}&page=${pageParam}`);
+        if (!res.ok) throw new Error('Search failed');
+        return res.json();
+      } else {
+        const params = new URLSearchParams({
+          sort_by: 'popularity.desc',
+          page: pageParam.toString(),
+        });
+        if (genresForDiscover) params.set('with_genres', genresForDiscover);
+        if (providerStr) {
+          params.set('with_watch_providers', providerStr);
+          params.set('watch_region', profile?.region || 'US');
+        }
+        const res = await fetch(`${baseUrl}api/tmdb/discover/${discoverType}?${params}`);
+        if (!res.ok) throw new Error('Discover failed');
+        return res.json();
       }
-    } catch {}
-  };
-
-  const searchTmdb = useCallback(async (q: string) => {
-    if (!q.trim()) {
-      setResults([]);
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    try {
-      const baseUrl = getApiUrl();
-      const res = await fetch(`${baseUrl}api/tmdb/search/multi?query=${encodeURIComponent(q)}`);
-      const data = await res.json();
-      if (data.results) {
-        setResults(data.results.map((r: any) => mapTmdbToMediaItem(r)));
+    },
+    getNextPageParam: (lastPage: any) => {
+      if (lastPage.page < lastPage.total_pages && lastPage.page < 20) {
+        return lastPage.page + 1;
       }
-    } catch {
-      setResults([]);
-    }
-    setLoading(false);
-  }, []);
+      return undefined;
+    },
+    initialPageParam: 1,
+    staleTime: 5 * 60 * 1000,
+    retry: 1,
+  });
 
-  const onChangeText = (text: string) => {
-    setQuery(text);
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => searchTmdb(text), 400);
-  };
+  const allItems = useMemo(() => {
+    if (!data) return [];
+    const flat = data.pages.flatMap((page: any) =>
+      (page.results || []).map((r: any) =>
+        mapTmdbToMediaItem(r, isSearchMode ? undefined : discoverType)
+      )
+    );
 
-  const filterResults = (items: MediaItem[]) => {
-    let filtered = items;
-    if (filterType !== 'all') {
+    let filtered = flat;
+    if (isSearchMode && filterType !== 'all') {
       filtered = filtered.filter(i => i.mediaType === filterType);
     }
-    if (selectedGenre) {
-      filtered = filtered.filter(i => i.genreIds.includes(selectedGenre));
+
+    if (preferredGenres.length > 0 && !selectedGenre) {
+      filtered = [...filtered].sort((a, b) => {
+        const aBoost = a.genreIds.filter(g => preferredGenres.includes(g)).length;
+        const bBoost = b.genreIds.filter(g => preferredGenres.includes(g)).length;
+        if (aBoost !== bBoost) return bBoost - aBoost;
+        return 0;
+      });
     }
-    return filtered;
-  };
 
-  const displayItems = query.trim() ? filterResults(results) : filterResults(trending);
-  const isSearching = !!query.trim();
+    const seen = new Set<string>();
+    return filtered.filter(i => {
+      const key = `${i.id}-${i.mediaType}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [data, isSearchMode, filterType, preferredGenres, selectedGenre, discoverType]);
 
-  const renderItem = ({ item, index }: { item: MediaItem; index: number }) => (
-    <View style={[styles.gridItem, index % 2 === 0 ? { paddingRight: 6 } : { paddingLeft: 6 }]}>
-      <MediaCard
-        item={item}
-        size="large"
-        onPress={() => router.push({ pathname: '/details/[id]', params: { id: item.id.toString(), type: item.mediaType } })}
-      />
+  const handleAdd = useCallback((item: MediaItem) => {
+    if (getListEntry(item.id)) return;
+    addToList({
+      mediaId: item.id,
+      mediaType: item.mediaType,
+      status: 'want',
+      addedAt: new Date().toISOString(),
+      title: item.title,
+      posterPath: item.posterPath,
+      voteAverage: item.voteAverage,
+      genreIds: item.genreIds,
+    });
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  }, [addToList, getListEntry]);
+
+  const onEndReached = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const clearSearch = useCallback(() => {
+    setQuery('');
+  }, []);
+
+  const renderItem = useCallback(({ item, index }: { item: MediaItem; index: number }) => (
+    <DiscoverCard
+      item={item}
+      index={index}
+      isInList={!!getListEntry(item.id)}
+      onPress={() => router.push({ pathname: '/details/[id]', params: { id: item.id.toString(), type: item.mediaType } })}
+      onAdd={() => handleAdd(item)}
+    />
+  ), [getListEntry, handleAdd]);
+
+  const renderFooter = useCallback(() => {
+    if (isFetchingNextPage) {
+      return (
+        <View style={styles.footerLoader}>
+          <ActivityIndicator size="small" color={D.accent} />
+          <Text style={styles.footerText}>Loading more...</Text>
+        </View>
+      );
+    }
+    if (data && !hasNextPage && allItems.length > 0) {
+      return (
+        <View style={styles.footerLoader}>
+          <Text style={styles.footerTextEnd}>You've seen it all</Text>
+        </View>
+      );
+    }
+    return null;
+  }, [isFetchingNextPage, hasNextPage, data, allItems.length]);
+
+  const renderEmpty = useCallback(() => {
+    if (isLoading) return null;
+    if (isSearchMode && allItems.length === 0) {
+      return (
+        <View style={styles.emptyState}>
+          <Ionicons name="search-outline" size={44} color={D.textMuted} />
+          <Text style={styles.emptyTitle}>No results found</Text>
+          <Text style={styles.emptySubtitle}>Try a different search term</Text>
+        </View>
+      );
+    }
+    return null;
+  }, [isLoading, isSearchMode, allItems.length]);
+
+  const renderSkeletons = () => (
+    <View style={styles.skeletonGrid}>
+      {Array.from({ length: 6 }).map((_, i) => (
+        <SkeletonCard key={`sk-${i}`} index={i} />
+      ))}
     </View>
   );
 
+  const headerLabel = isSearchMode
+    ? `Results for "${debouncedQuery}"`
+    : selectedGenre
+      ? `${GENRES.find(g => g.id === selectedGenre)?.name || 'Genre'} Picks`
+      : preferredGenres.length > 0
+        ? 'For You'
+        : 'Popular Now';
+
   return (
-    <View style={[styles.container, { paddingTop: Platform.OS === 'web' ? 67 : insets.top }]}>
-      <View style={styles.searchHeader}>
-        <Text style={styles.screenTitle}>Discover</Text>
-        <View style={styles.searchBar}>
-          <Ionicons name="search" size={18} color={Colors.light.textTertiary} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search movies & TV shows..."
-            placeholderTextColor={Colors.light.textTertiary}
-            value={query}
-            onChangeText={onChangeText}
-            returnKeyType="search"
-          />
-          {query.length > 0 && (
-            <Pressable onPress={() => { setQuery(''); setResults([]); }}>
-              <Ionicons name="close-circle" size={18} color={Colors.light.textTertiary} />
-            </Pressable>
-          )}
-        </View>
-      </View>
-
-      <View style={styles.filters}>
-        <View style={styles.typeFilters}>
-          {(['all', 'movie', 'tv'] as FilterType[]).map(type => (
-            <Pressable
-              key={type}
-              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setFilterType(type); }}
-              style={[styles.typeChip, filterType === type && styles.typeChipActive]}
-            >
-              <Text style={[styles.typeChipText, filterType === type && styles.typeChipTextActive]}>
-                {type === 'all' ? 'All' : type === 'movie' ? 'Movies' : 'TV Shows'}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-        <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          data={POPULAR_GENRES}
-          keyExtractor={g => g.id.toString()}
-          contentContainerStyle={styles.genreScroll}
-          renderItem={({ item: g }) => (
-            <GenreChip
-              label={g.name}
-              selected={selectedGenre === g.id}
-              compact
-              onPress={() => setSelectedGenre(prev => prev === g.id ? null : g.id)}
+    <LinearGradient colors={[D.bg1, D.bg2, D.bg3]} style={styles.container}>
+      <View style={{ paddingTop: Platform.OS === 'web' ? 67 : insets.top }}>
+        <View style={styles.searchHeader}>
+          <Text style={styles.screenTitle}>Discover</Text>
+          <View style={styles.searchBar}>
+            <Ionicons name="search" size={18} color={D.textMuted} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search movies & TV shows..."
+              placeholderTextColor={D.textMuted}
+              value={query}
+              onChangeText={setQuery}
+              returnKeyType="search"
+              selectionColor={D.accent}
             />
-          )}
-        />
+            {query.length > 0 && (
+              <Pressable onPress={clearSearch} hitSlop={10}>
+                <Ionicons name="close-circle" size={18} color={D.textSoft} />
+              </Pressable>
+            )}
+          </View>
+        </View>
+
+        <View style={styles.filters}>
+          <View style={styles.typeFilters}>
+            {(['all', 'movie', 'tv'] as FilterType[]).map(type => (
+              <Pressable
+                key={type}
+                onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setFilterType(type); }}
+                style={[styles.typeChip, filterType === type && styles.typeChipActive]}
+              >
+                <Text style={[styles.typeChipText, filterType === type && styles.typeChipTextActive]}>
+                  {type === 'all' ? 'All' : type === 'movie' ? 'Movies' : 'TV Shows'}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={POPULAR_GENRES}
+            keyExtractor={g => g.id.toString()}
+            contentContainerStyle={styles.genreScroll}
+            renderItem={({ item: g }) => {
+              const isActive = selectedGenre === g.id;
+              return (
+                <Pressable
+                  onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setSelectedGenre(prev => prev === g.id ? null : g.id); }}
+                  style={[styles.genreChip, isActive && styles.genreChipActive]}
+                >
+                  <Text style={[styles.genreChipText, isActive && styles.genreChipTextActive]}>{g.name}</Text>
+                </Pressable>
+              );
+            }}
+          />
+        </View>
       </View>
 
-      {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={Colors.light.warm} />
-        </View>
+      {isLoading ? (
+        renderSkeletons()
       ) : (
         <FlatList
-          data={displayItems}
+          data={allItems}
           numColumns={2}
           keyExtractor={item => `${item.id}-${item.mediaType}`}
           renderItem={renderItem}
           contentContainerStyle={[styles.grid, { paddingBottom: Platform.OS === 'web' ? 34 : insets.bottom + 90 }]}
           showsVerticalScrollIndicator={false}
+          onEndReached={onEndReached}
+          onEndReachedThreshold={0.5}
           ListHeaderComponent={
-            !isSearching ? (
-              <Text style={styles.sectionLabel}>Trending This Week</Text>
-            ) : displayItems.length === 0 ? (
-              <View style={styles.emptyState}>
-                <Ionicons name="search-outline" size={48} color={Colors.light.textTertiary} />
-                <Text style={styles.emptyText}>No results found</Text>
-              </View>
-            ) : null
+            <Text style={styles.sectionLabel}>{headerLabel}</Text>
           }
+          ListFooterComponent={renderFooter}
+          ListEmptyComponent={renderEmpty}
+          initialNumToRender={8}
+          maxToRenderPerBatch={10}
+          windowSize={5}
         />
       )}
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
   },
   searchHeader: {
     paddingHorizontal: 20,
@@ -184,28 +426,25 @@ const styles = StyleSheet.create({
   screenTitle: {
     fontSize: 28,
     fontFamily: 'DMSans_700Bold',
-    color: Colors.light.text,
+    color: D.text,
     marginBottom: 14,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.light.surface,
+    backgroundColor: D.searchBg,
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 12,
     gap: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: D.border,
   },
   searchInput: {
     flex: 1,
     fontSize: 15,
     fontFamily: 'DMSans_400Regular',
-    color: Colors.light.text,
+    color: D.text,
     padding: 0,
   },
   filters: {
@@ -221,53 +460,206 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 10,
-    backgroundColor: Colors.light.surface,
+    backgroundColor: D.surface,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: D.border,
   },
   typeChipActive: {
-    backgroundColor: Colors.light.accent,
-    borderColor: Colors.light.accent,
+    backgroundColor: 'rgba(78,234,173,0.2)',
+    borderColor: 'rgba(78,234,173,0.4)',
   },
   typeChipText: {
     fontSize: 13,
     fontFamily: 'DMSans_500Medium',
-    color: Colors.light.text,
+    color: D.textSoft,
   },
   typeChipTextActive: {
-    color: '#fff',
+    color: '#FFF',
   },
   genreScroll: {
     paddingHorizontal: 20,
-    paddingBottom: 4,
+    paddingBottom: 6,
+    gap: 8,
+  },
+  genreChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 10,
+    backgroundColor: D.surface,
+    borderWidth: 1,
+    borderColor: D.border,
+  },
+  genreChipActive: {
+    backgroundColor: 'rgba(251,191,36,0.2)',
+    borderColor: 'rgba(251,191,36,0.4)',
+  },
+  genreChipText: {
+    fontSize: 12,
+    fontFamily: 'DMSans_500Medium',
+    color: D.textSoft,
+  },
+  genreChipTextActive: {
+    color: D.gold,
   },
   grid: {
-    paddingHorizontal: 20,
+    paddingHorizontal: GRID_PAD,
   },
   gridItem: {
     flex: 1,
-    marginBottom: 16,
+    marginBottom: 14,
+  },
+  cardContainer: {
+    flex: 1,
+  },
+  posterWrap: {
+    width: '100%',
+    height: CARD_H,
+    borderRadius: 14,
+    overflow: 'hidden',
+    backgroundColor: D.surface,
+    borderWidth: 1,
+    borderColor: D.border,
+  },
+  posterImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 14,
+  },
+  posterPlaceholder: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: D.surface,
+  },
+  addBtn: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: D.addBtn,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  addBtnActive: {
+    backgroundColor: D.addBtnActive,
+    borderColor: D.addBtnActive,
+  },
+  ratingPill: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    borderRadius: 6,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+  },
+  ratingText: {
+    fontSize: 10,
+    fontFamily: 'DMSans_600SemiBold',
+    color: '#FFF',
+  },
+  typeBadge: {
+    position: 'absolute',
+    top: 6,
+    left: 6,
+    backgroundColor: 'rgba(78,234,173,0.85)',
+    borderRadius: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  typeText: {
+    color: '#FFF',
+    fontSize: 8,
+    fontFamily: 'DMSans_700Bold',
+    letterSpacing: 0.5,
+  },
+  cardTitle: {
+    fontSize: 13,
+    fontFamily: 'DMSans_600SemiBold',
+    color: D.text,
+    marginTop: 8,
+    lineHeight: 17,
+  },
+  cardSub: {
+    fontSize: 11,
+    fontFamily: 'DMSans_400Regular',
+    color: D.textMuted,
+    marginTop: 2,
   },
   sectionLabel: {
-    fontSize: 16,
-    fontFamily: 'DMSans_600SemiBold',
-    color: Colors.light.text,
+    fontSize: 17,
+    fontFamily: 'DMSans_700Bold',
+    color: D.textSoft,
     marginBottom: 14,
     marginTop: 4,
   },
-  center: {
-    flex: 1,
+  footerLoader: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 20,
+  },
+  footerText: {
+    fontSize: 13,
+    fontFamily: 'DMSans_400Regular',
+    color: D.textSoft,
+  },
+  footerTextEnd: {
+    fontSize: 13,
+    fontFamily: 'DMSans_400Regular',
+    color: D.textMuted,
   },
   emptyState: {
     alignItems: 'center',
     paddingTop: 60,
-    gap: 12,
+    gap: 8,
   },
-  emptyText: {
-    fontSize: 15,
+  emptyTitle: {
+    fontSize: 17,
+    fontFamily: 'DMSans_600SemiBold',
+    color: D.text,
+  },
+  emptySubtitle: {
+    fontSize: 13,
     fontFamily: 'DMSans_400Regular',
-    color: Colors.light.textSecondary,
+    color: D.textMuted,
+  },
+  skeletonGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: GRID_PAD,
+    paddingTop: 16,
+  },
+  skeletonCard: {
+    flex: 1,
+  },
+  skeletonPoster: {
+    width: '100%',
+    height: CARD_H,
+    borderRadius: 14,
+    backgroundColor: D.skeleton,
+  },
+  skeletonTitle: {
+    width: '70%',
+    height: 12,
+    borderRadius: 4,
+    backgroundColor: D.skeleton,
+    marginTop: 10,
+  },
+  skeletonSub: {
+    width: '45%',
+    height: 10,
+    borderRadius: 4,
+    backgroundColor: D.skeleton,
+    marginTop: 6,
   },
 });
