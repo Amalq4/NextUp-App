@@ -59,7 +59,7 @@ export default function EditProfileScreen() {
       setSelectedGenres(profile.favoriteGenres);
     }
     if (authUser) setEmail(authUser.email);
-  }, []);
+  }, [profile?.name, authUser?.email]);
 
   const toggleGenre = (id: number) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
