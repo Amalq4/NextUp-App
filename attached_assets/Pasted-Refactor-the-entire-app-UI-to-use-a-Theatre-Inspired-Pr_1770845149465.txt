@@ -1,0 +1,136 @@
+Refactor the entire app UI to use a Theatre-Inspired Premium Color System.
+
+Replace ALL existing colors with the following palette:
+
+GOLD: #C9A24D
+CREAM: #E8DCC2
+BLACK: #1C1C1C
+VELVET (Deep Red): #7A0F14
+
+Remove all previous color systems completely.
+
+================================================
+GLOBAL DESIGN SYSTEM
+================================================
+
+Create centralized theme files:
+
+src/theme/colors.ts
+src/theme/typography.ts
+src/theme/components.ts
+
+No hardcoded colors anywhere.
+
+================================================
+BACKGROUND SYSTEM
+================================================
+
+Primary Background:
+#1C1C1C (Deep Black)
+
+Secondary Background:
+Very dark warm tone (slightly lighter than black)
+
+Cards:
+#2A2A2A (soft black surface)
+
+No blue tones.
+No pastel tones.
+No gradients unless subtle.
+
+The app must feel cinematic and dramatic.
+
+================================================
+ACCENT SYSTEM
+================================================
+
+Primary Accent:
+#C9A24D (Gold)
+
+Secondary Accent:
+#E8DCC2 (Cream)
+
+Destructive / Important:
+#7A0F14 (Velvet)
+
+Muted text:
+rgba(232,220,194,0.6)
+
+================================================
+TYPOGRAPHY
+================================================
+
+Primary text:
+#E8DCC2 (Cream)
+
+Secondary text:
+rgba(232,220,194,0.7)
+
+Section Titles:
+Gold (#C9A24D)
+
+No pure white text.
+Use warm tones only.
+
+================================================
+BUTTON SYSTEM
+================================================
+
+Primary Button:
+Background: Gold (#C9A24D)
+Text: Black (#1C1C1C)
+Rounded corners: 18px
+Subtle shadow
+
+Secondary Button:
+Background: transparent
+Border: 1px solid Gold
+Text: Gold
+
+Destructive Button:
+Background: Velvet (#7A0F14)
+Text: Cream
+
+================================================
+TOP 10 RANKING NUMBERS
+================================================
+
+Color:
+#C9A24D (Gold)
+
+Add strong shadow:
+rgba(0,0,0,0.8)
+
+Position:
+Overlay bottom-left on poster
+
+Make numbers large and theatrical.
+
+================================================
+BOTTOM TAB BAR
+================================================
+
+Background:
+#1C1C1C
+
+Active Icon:
+#C9A24D
+
+Inactive Icon:
+rgba(232,220,194,0.5)
+
+No light backgrounds.
+
+================================================
+FINAL RESULT
+================================================
+
+The app must feel:
+
+- Cinematic
+- Theatre-inspired
+- Premium
+- Dramatic
+- Elegant
+- Warm (not cold)
+- No blue or neon tones

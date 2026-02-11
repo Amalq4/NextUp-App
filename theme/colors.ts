@@ -1,44 +1,47 @@
 const Colors = {
-  spaceCadet: '#25344F',
-  slateGray: '#617891',
-  tan: '#D5B893',
-  coffee: '#6F4D38',
-  caputMortuum: '#632024',
+  gold: '#C9A24D',
+  cream: '#E8DCC2',
+  black: '#1C1C1C',
+  velvet: '#7A0F14',
 
-  background: '#25344F',
-  backgroundDark: '#1C2740',
-  backgroundDeep: '#162035',
+  background: '#1C1C1C',
+  backgroundDark: '#151515',
+  backgroundDeep: '#111111',
 
-  surface: 'rgba(255,255,255,0.06)',
-  surfaceBorder: 'rgba(255,255,255,0.08)',
-  glass: 'rgba(255,255,255,0.08)',
-  glassBorder: 'rgba(255,255,255,0.12)',
+  surface: '#2A2A2A',
+  surfaceBorder: 'rgba(201,162,77,0.12)',
+  glass: '#2A2A2A',
+  glassBorder: 'rgba(232,220,194,0.1)',
 
-  text: '#FFFFFF',
-  textSecondary: '#D5B893',
-  textMuted: '#617891',
+  text: '#E8DCC2',
+  textSecondary: 'rgba(232,220,194,0.7)',
+  textMuted: 'rgba(232,220,194,0.5)',
 
-  accent: '#D5B893',
-  accentSoft: 'rgba(213,184,147,0.2)',
-  accentBorder: 'rgba(213,184,147,0.4)',
+  accent: '#C9A24D',
+  accentSoft: 'rgba(201,162,77,0.15)',
+  accentBorder: 'rgba(201,162,77,0.35)',
 
-  danger: '#632024',
-  dangerBg: 'rgba(99,32,36,0.2)',
-  dangerBorder: 'rgba(99,32,36,0.4)',
+  danger: '#7A0F14',
+  dangerBg: 'rgba(122,15,20,0.2)',
+  dangerBorder: 'rgba(122,15,20,0.4)',
 
-  star: '#D5B893',
+  star: '#C9A24D',
 
-  inputBg: 'rgba(255,255,255,0.06)',
-  inputBorder: 'rgba(255,255,255,0.12)',
+  inputBg: '#2A2A2A',
+  inputBorder: 'rgba(232,220,194,0.12)',
 
-  divider: 'rgba(255,255,255,0.06)',
-  overlay: 'rgba(0,0,0,0.7)',
+  divider: 'rgba(232,220,194,0.08)',
+  overlay: 'rgba(0,0,0,0.8)',
 
-  tabActive: '#D5B893',
-  tabInactive: '#617891',
+  tabActive: '#C9A24D',
+  tabInactive: 'rgba(232,220,194,0.5)',
 
-  white: '#FFFFFF',
-  black: '#000000',
+  white: '#E8DCC2',
+  tan: '#C9A24D',
+  slateGray: 'rgba(232,220,194,0.5)',
+  spaceCadet: '#1C1C1C',
+  coffee: '#C9A24D',
+  caputMortuum: '#7A0F14',
 };
 
 export default Colors;

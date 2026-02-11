@@ -1,6 +1,5 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { StyleSheet, View } from 'react-native';
 import Colors from '@/theme/colors';
 
 export const DARK_THEME = {
@@ -18,22 +17,23 @@ export const DARK_THEME = {
   divider: Colors.divider,
   danger: Colors.danger,
   dangerBg: Colors.dangerBg,
-  copper: Colors.tan,
-  indigo: Colors.slateGray,
+  copper: Colors.gold,
+  indigo: Colors.textMuted,
   surface: Colors.surface,
   surfaceBorder: Colors.surfaceBorder,
 };
 
 export default function AppBackground({ children }: { children: React.ReactNode }) {
   return (
-    <LinearGradient colors={[Colors.background, Colors.backgroundDark, Colors.backgroundDeep]} style={styles.container}>
+    <View style={styles.container}>
       {children}
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background,
   },
 });

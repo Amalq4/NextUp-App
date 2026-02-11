@@ -4,22 +4,23 @@ import Colors from './colors';
 export const Buttons = {
   primary: {
     container: {
-      borderRadius: 20,
+      borderRadius: 18,
       overflow: 'hidden' as const,
     } as ViewStyle,
-    gradient: ['#6F4D38', '#632024'] as [string, string],
+    gradient: [Colors.gold, Colors.gold] as [string, string],
     inner: {
       flexDirection: 'row' as const,
       alignItems: 'center' as const,
       justifyContent: 'center' as const,
       gap: 10,
       paddingVertical: 16,
-      borderRadius: 20,
+      borderRadius: 18,
+      backgroundColor: Colors.gold,
     } as ViewStyle,
     text: {
       fontSize: 16,
       fontFamily: 'DMSans_600SemiBold',
-      color: '#FFFFFF',
+      color: Colors.black,
     } as TextStyle,
   },
 
@@ -30,15 +31,15 @@ export const Buttons = {
       justifyContent: 'center' as const,
       gap: 8,
       paddingVertical: 14,
-      borderRadius: 20,
-      backgroundColor: 'rgba(97,120,145,0.2)',
+      borderRadius: 18,
+      backgroundColor: 'transparent',
       borderWidth: 1,
-      borderColor: 'rgba(213,184,147,0.25)',
+      borderColor: Colors.gold,
     } as ViewStyle,
     text: {
       fontSize: 15,
       fontFamily: 'DMSans_600SemiBold',
-      color: Colors.textSecondary,
+      color: Colors.gold,
     } as TextStyle,
   },
 
@@ -47,9 +48,9 @@ export const Buttons = {
       width: 40,
       height: 40,
       borderRadius: 14,
-      backgroundColor: Colors.glass,
+      backgroundColor: Colors.surface,
       borderWidth: 1,
-      borderColor: Colors.glassBorder,
+      borderColor: Colors.surfaceBorder,
       alignItems: 'center' as const,
       justifyContent: 'center' as const,
     } as ViewStyle,
@@ -74,7 +75,7 @@ export const Buttons = {
       color: Colors.textMuted,
     } as TextStyle,
     textActive: {
-      color: Colors.text,
+      color: Colors.gold,
       fontFamily: 'DMSans_600SemiBold',
     } as TextStyle,
   },
@@ -82,16 +83,14 @@ export const Buttons = {
   danger: {
     container: {
       paddingVertical: 14,
-      borderRadius: 20,
-      backgroundColor: Colors.dangerBg,
-      borderWidth: 1,
-      borderColor: Colors.dangerBorder,
+      borderRadius: 18,
+      backgroundColor: Colors.velvet,
       alignItems: 'center' as const,
     } as ViewStyle,
     text: {
       fontSize: 15,
       fontFamily: 'DMSans_600SemiBold',
-      color: '#FF6B6B',
+      color: Colors.cream,
     } as TextStyle,
   },
 };

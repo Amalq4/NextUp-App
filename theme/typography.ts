@@ -5,26 +5,26 @@ export const Typography = {
   largeTitle: {
     fontSize: 28,
     fontFamily: 'DMSans_700Bold',
-    color: Colors.text,
+    color: Colors.cream,
   } as TextStyle,
 
   sectionTitle: {
     fontSize: 18,
     fontFamily: 'DMSans_700Bold',
-    color: Colors.text,
+    color: Colors.gold,
     letterSpacing: 0.2,
   } as TextStyle,
 
   cardTitle: {
     fontSize: 15,
     fontFamily: 'DMSans_600SemiBold',
-    color: Colors.text,
+    color: Colors.cream,
   } as TextStyle,
 
   bodyText: {
     fontSize: 14,
     fontFamily: 'DMSans_400Regular',
-    color: Colors.text,
+    color: Colors.cream,
     lineHeight: 22,
   } as TextStyle,
 
@@ -43,14 +43,14 @@ export const Typography = {
   sectionHeader: {
     fontSize: 11,
     fontFamily: 'DMSans_700Bold',
-    color: Colors.textMuted,
+    color: Colors.gold,
     letterSpacing: 1.5,
   } as TextStyle,
 
   buttonText: {
     fontSize: 16,
     fontFamily: 'DMSans_600SemiBold',
-    color: Colors.white,
+    color: Colors.black,
   } as TextStyle,
 
   chipText: {
@@ -62,7 +62,7 @@ export const Typography = {
   chipTextActive: {
     fontSize: 13,
     fontFamily: 'DMSans_600SemiBold',
-    color: Colors.white,
+    color: Colors.cream,
   } as TextStyle,
 
   caption: {
@@ -74,6 +74,6 @@ export const Typography = {
   headerTitle: {
     fontSize: 17,
     fontFamily: 'DMSans_600SemiBold',
-    color: Colors.text,
+    color: Colors.cream,
   } as TextStyle,
 };

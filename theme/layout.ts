@@ -3,17 +3,17 @@ import Colors from './colors';
 
 export const Layout = {
   card: {
-    backgroundColor: Colors.glass,
+    backgroundColor: Colors.surface,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: Colors.surfaceBorder,
   } as ViewStyle,
 
   cardSmall: {
-    backgroundColor: Colors.glass,
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: Colors.surfaceBorder,
   } as ViewStyle,
 
   screenPadding: {
@@ -44,12 +44,12 @@ export const Layout = {
     } as ViewStyle,
     card: {
       width: '100%' as const,
-      backgroundColor: Colors.backgroundDark,
+      backgroundColor: Colors.surface,
       borderRadius: 20,
       padding: 24,
       alignItems: 'center' as const,
       borderWidth: 1,
-      borderColor: Colors.glassBorder,
+      borderColor: Colors.surfaceBorder,
     } as ViewStyle,
   },
 
