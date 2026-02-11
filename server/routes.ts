@@ -4,6 +4,19 @@ import { createServer, type Server } from "node:http";
 const TMDB_BASE = "https://api.themoviedb.org/3";
 const TMDB_KEY = process.env.TMDB_API_KEY || "";
 
+const cache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL = 10 * 60 * 1000;
+
+function getCached(key: string) {
+  const entry = cache.get(key);
+  if (entry && Date.now() - entry.timestamp < CACHE_TTL) return entry.data;
+  return null;
+}
+
+function setCache(key: string, data: any) {
+  cache.set(key, { data, timestamp: Date.now() });
+}
+
 async function tmdbFetch(path: string, params: Record<string, string> = {}) {
   const url = new URL(`${TMDB_BASE}${path}`);
   url.searchParams.set("api_key", TMDB_KEY);
@@ -51,8 +64,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (req.query.with_genres) params.with_genres = req.query.with_genres as string;
       if (req.query.sort_by) params.sort_by = req.query.sort_by as string;
       if (req.query.page) params.page = req.query.page as string;
+      if (req.query.with_watch_providers) params.with_watch_providers = req.query.with_watch_providers as string;
+      if (req.query.watch_region) params.watch_region = req.query.watch_region as string;
       const data = await tmdbFetch(`/discover/${mediaType}`, params);
       res.json(data);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.get("/api/tmdb/provider/:providerId/top", async (req: Request, res: Response) => {
+    try {
+      const { providerId } = req.params;
+      const region = (req.query.region as string) || "US";
+      const cacheKey = `provider_top_${providerId}_${region}`;
+
+      const cached = getCached(cacheKey);
+      if (cached) {
+        return res.json(cached);
+      }
+
+      const pid = Array.isArray(providerId) ? providerId[0] : providerId;
+      const reg = Array.isArray(region) ? region[0] : region;
+
+      const [movies, tvShows] = await Promise.all([
+        tmdbFetch("/discover/movie", {
+          with_watch_providers: pid,
+          watch_region: reg,
+          sort_by: "popularity.desc",
+          page: "1",
+        }),
+        tmdbFetch("/discover/tv", {
+          with_watch_providers: pid,
+          watch_region: reg,
+          sort_by: "popularity.desc",
+          page: "1",
+        }),
+      ]);
+
+      const movieResults = (movies.results || []).slice(0, 10).map((r: any) => ({
+        ...r,
+        media_type: "movie",
+      }));
+      const tvResults = (tvShows.results || []).slice(0, 10).map((r: any) => ({
+        ...r,
+        media_type: "tv",
+      }));
+
+      const combined = [...movieResults, ...tvResults]
+        .sort((a: any, b: any) => (b.popularity || 0) - (a.popularity || 0))
+        .slice(0, 10);
+
+      const result = { results: combined, provider_id: providerId, region };
+      setCache(cacheKey, result);
+      res.json(result);
     } catch (e: any) {
       res.status(500).json({ error: e.message });
     }
