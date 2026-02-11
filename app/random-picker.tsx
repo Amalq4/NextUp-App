@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import {
   StyleSheet,
   View,
@@ -7,6 +7,9 @@ import {
   Platform,
   Dimensions,
   PanResponder,
+  ScrollView,
+  TextInput,
+  FlatList,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -24,7 +27,6 @@ import Animated, {
   Easing,
   interpolate,
   cancelAnimation,
-  type SharedValue,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useApp } from '@/context/AppContext';
@@ -36,6 +38,8 @@ const CARD_H = CARD_W * 1.5;
 const CENTER_CARD_W = Math.min(140, SCREEN_WIDTH * 0.34);
 const CENTER_CARD_H = CENTER_CARD_W * 1.5;
 const CARD_GAP = 8;
+const GRID_COL_W = (SCREEN_WIDTH - 32 - 24) / 3;
+const GRID_CARD_H = GRID_COL_W * 1.5;
 
 const FILTER_GENRES = GENRES.filter(g =>
   [28, 35, 18, 27, 878, 10749, 53, 16].includes(g.id)
@@ -63,22 +67,28 @@ const DARK = {
   dotActive: '#4EEAAD',
   success: '#22C55E',
   star: '#FBBF24',
+  segBg: 'rgba(255,255,255,0.06)',
+  segBorder: 'rgba(255,255,255,0.10)',
+  segInactive: 'rgba(255,255,255,0.04)',
+  searchBg: 'rgba(255,255,255,0.08)',
+  selected: 'rgba(78,234,173,0.35)',
+  selectedBorder: 'rgba(78,234,173,0.7)',
 };
+
+type SpinMode = 'guided' | 'custom';
 
 interface CarouselCardProps {
   item: ListEntry | null;
   position: number;
   isCenter: boolean;
-  glowOpacity: Animated.SharedValue<number>;
+  glowOpacity: ReturnType<typeof useSharedValue<number>>;
   isRevealed: boolean;
 }
 
 function CarouselCard({ item, position, isCenter, glowOpacity, isRevealed }: CarouselCardProps) {
   const animatedGlow = useAnimatedStyle(() => {
     if (!isCenter || !isRevealed) return { opacity: 0 };
-    return {
-      opacity: glowOpacity.value,
-    };
+    return { opacity: glowOpacity.value };
   });
 
   const scale = isCenter ? 1 : position === -1 || position === 1 ? 0.82 : 0.65;
@@ -86,7 +96,6 @@ function CarouselCard({ item, position, isCenter, glowOpacity, isRevealed }: Car
   const opacity = isCenter ? 1 : Math.abs(position) === 1 ? 0.75 : 0.45;
   const translateX = position * (CARD_W + CARD_GAP) * (isCenter ? 0 : 1);
   const zIndex = isCenter ? 10 : 5 - Math.abs(position);
-
   const cardWidth = isCenter ? CENTER_CARD_W : CARD_W;
   const cardHeight = isCenter ? CENTER_CARD_H : CARD_H;
 
@@ -94,16 +103,7 @@ function CarouselCard({ item, position, isCenter, glowOpacity, isRevealed }: Car
     <View
       style={[
         styles.carouselSlot,
-        {
-          transform: [
-            { translateX },
-            { scale },
-            { perspective: 800 },
-            { rotateY },
-          ],
-          opacity,
-          zIndex,
-        },
+        { transform: [{ translateX }, { scale }, { perspective: 800 }, { rotateY }], opacity, zIndex },
       ]}
     >
       {isCenter && isRevealed && (
@@ -111,21 +111,14 @@ function CarouselCard({ item, position, isCenter, glowOpacity, isRevealed }: Car
       )}
       <View style={[styles.carouselCard, { width: cardWidth, height: cardHeight }]}>
         {item?.posterPath ? (
-          <Image
-            source={{ uri: getPosterUrl(item.posterPath, 'w342')! }}
-            style={[styles.cardImage, { width: cardWidth, height: cardHeight }]}
-            contentFit="cover"
-          />
+          <Image source={{ uri: getPosterUrl(item.posterPath, 'w342')! }} style={[styles.cardImage, { width: cardWidth, height: cardHeight }]} contentFit="cover" />
         ) : (
           <View style={[styles.cardPlaceholder, { width: cardWidth, height: cardHeight }]}>
             <Ionicons name="film-outline" size={isCenter ? 32 : 24} color={DARK.textMuted} />
           </View>
         )}
         {isCenter && isRevealed && (
-          <LinearGradient
-            colors={['transparent', 'rgba(0,0,0,0.7)']}
-            style={styles.cardOverlay}
-          >
+          <LinearGradient colors={['transparent', 'rgba(0,0,0,0.7)']} style={styles.cardOverlay}>
             <Text style={styles.cardTitle} numberOfLines={2}>{item?.title}</Text>
           </LinearGradient>
         )}
@@ -159,13 +152,44 @@ function GlowDot({ index, isSpinning, activeIndex }: { index: number; isSpinning
   }));
 
   return (
-    <Animated.View
-      style={[
-        styles.glowDot,
-        index === activeIndex && !isSpinning && styles.glowDotActive,
-        animStyle,
+    <Animated.View style={[styles.glowDot, index === activeIndex && !isSpinning && styles.glowDotActive, animStyle]} />
+  );
+}
+
+function SelectableCard({
+  item,
+  isSelected,
+  onToggle,
+}: {
+  item: ListEntry;
+  isSelected: boolean;
+  onToggle: () => void;
+}) {
+  const posterUri = getPosterUrl(item.posterPath, 'w185');
+
+  return (
+    <Pressable
+      onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onToggle(); }}
+      style={({ pressed }) => [
+        styles.selectCard,
+        isSelected && styles.selectCardActive,
+        { opacity: pressed ? 0.85 : 1, transform: [{ scale: pressed ? 0.95 : 1 }] },
       ]}
-    />
+    >
+      {posterUri ? (
+        <Image source={{ uri: posterUri }} style={styles.selectImage} contentFit="cover" />
+      ) : (
+        <View style={styles.selectPlaceholder}>
+          <Ionicons name="film-outline" size={20} color={DARK.textMuted} />
+        </View>
+      )}
+      {isSelected && (
+        <View style={styles.selectCheck}>
+          <Ionicons name="checkmark-circle" size={22} color={DARK.accent} />
+        </View>
+      )}
+      <Text style={styles.selectTitle} numberOfLines={2}>{item.title}</Text>
+    </Pressable>
   );
 }
 
@@ -173,28 +197,44 @@ export default function SpinPickerScreen() {
   const insets = useSafeAreaInsets();
   const { lists } = useApp();
 
+  const [mode, setMode] = useState<SpinMode>('guided');
   const [selectedLists, setSelectedLists] = useState<ListStatus[]>(['want', 'watching']);
   const [selectedGenre, setSelectedGenre] = useState<number | null>(null);
   const [selectedType, setSelectedType] = useState<MediaType | null>(null);
-  const [showFilters, setShowFilters] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
   const [displayItems, setDisplayItems] = useState<(ListEntry | null)[]>([null, null, null, null, null]);
   const [selectedItem, setSelectedItem] = useState<ListEntry | null>(null);
   const [isRevealed, setIsRevealed] = useState(false);
   const spinTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const [customSearch, setCustomSearch] = useState('');
+  const [customSelected, setCustomSelected] = useState<Set<number>>(new Set());
+
+  const segIndicator = useSharedValue(0);
+
   const glowOpacity = useSharedValue(0);
   const resultScale = useSharedValue(0);
   const resultOpacity = useSharedValue(0);
+  const contentOpacity = useSharedValue(1);
 
-  const getEligibleItems = useCallback(() => {
+  const allItems = useMemo(() => lists.filter(e => e.status === 'want' || e.status === 'watching' || e.status === 'watched'), [lists]);
+
+  const customFilteredItems = useMemo(() => {
+    if (!customSearch.trim()) return allItems;
+    const q = customSearch.toLowerCase();
+    return allItems.filter(e => e.title.toLowerCase().includes(q));
+  }, [allItems, customSearch]);
+
+  const getGuidedEligible = useCallback(() => {
     let items = lists.filter(e => selectedLists.includes(e.status));
     if (selectedGenre) items = items.filter(e => e.genreIds.includes(selectedGenre));
     if (selectedType) items = items.filter(e => e.mediaType === selectedType);
     return items;
   }, [lists, selectedLists, selectedGenre, selectedType]);
 
-  const eligible = getEligibleItems();
+  const guidedEligible = getGuidedEligible();
+  const customEligible = useMemo(() => allItems.filter(e => customSelected.has(e.mediaId)), [allItems, customSelected]);
+  const eligible = mode === 'guided' ? guidedEligible : customEligible;
 
   useEffect(() => {
     if (eligible.length > 0 && !isSpinning && !selectedItem) {
@@ -204,7 +244,35 @@ export default function SpinPickerScreen() {
       }
       setDisplayItems(initial);
     }
-  }, [eligible.length]);
+  }, [eligible.length, mode]);
+
+  const switchMode = useCallback((newMode: SpinMode) => {
+    if (newMode === mode || isSpinning) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+    contentOpacity.value = withSequence(
+      withTiming(0, { duration: 150 }),
+      withTiming(1, { duration: 250 })
+    );
+
+    segIndicator.value = withTiming(newMode === 'custom' ? 1 : 0, { duration: 300, easing: Easing.bezier(0.4, 0, 0.2, 1) });
+
+    setSelectedItem(null);
+    setIsRevealed(false);
+    glowOpacity.value = 0;
+    resultScale.value = 0;
+    resultOpacity.value = 0;
+    setMode(newMode);
+  }, [mode, isSpinning]);
+
+  const segSlideStyle = useAnimatedStyle(() => ({
+    left: interpolate(segIndicator.value, [0, 1], [2, SCREEN_WIDTH / 2 - 16 + 2]),
+    width: (SCREEN_WIDTH - 32) / 2 - 4,
+  }));
+
+  const contentAnimStyle = useAnimatedStyle(() => ({
+    opacity: contentOpacity.value,
+  }));
 
   const triggerSpin = useCallback(() => {
     if (eligible.length === 0 || isSpinning) return;
@@ -224,13 +292,11 @@ export default function SpinPickerScreen() {
     function tick() {
       step++;
       offset++;
-
       const display: (ListEntry | null)[] = [];
       for (let i = 0; i < 5; i++) {
         display.push(eligible[(offset + i) % eligible.length]);
       }
       setDisplayItems(display);
-
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
       if (step >= totalSteps) {
@@ -238,9 +304,7 @@ export default function SpinPickerScreen() {
         const winner = eligible[(offset + 2) % eligible.length];
         setSelectedItem(winner);
         setIsRevealed(true);
-
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-
         glowOpacity.value = withRepeat(
           withSequence(
             withTiming(0.8, { duration: 800, easing: Easing.inOut(Easing.ease) }),
@@ -249,7 +313,6 @@ export default function SpinPickerScreen() {
           -1,
           true
         );
-
         resultScale.value = withSpring(1, { damping: 12, stiffness: 120 });
         resultOpacity.value = withTiming(1, { duration: 500 });
         return;
@@ -264,37 +327,47 @@ export default function SpinPickerScreen() {
   }, [eligible, isSpinning]);
 
   useEffect(() => {
-    return () => {
-      if (spinTimeoutRef.current) clearTimeout(spinTimeoutRef.current);
-    };
+    return () => { if (spinTimeoutRef.current) clearTimeout(spinTimeoutRef.current); };
   }, []);
 
   const panResponder = useRef(
     PanResponder.create({
-      onMoveShouldSetPanResponder: (_, gestureState) => {
-        return gestureState.dy < -30 && Math.abs(gestureState.dx) < Math.abs(gestureState.dy);
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dy < -50) {
-          triggerSpin();
-        }
-      },
+      onMoveShouldSetPanResponder: (_, gs) => gs.dy < -30 && Math.abs(gs.dx) < Math.abs(gs.dy),
+      onPanResponderRelease: (_, gs) => { if (gs.dy < -50) triggerSpin(); },
     })
   ).current;
 
   const toggleList = (status: ListStatus) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setSelectedLists(prev =>
-      prev.includes(status) ? prev.filter(s => s !== status) : [...prev, status]
-    );
+    setSelectedLists(prev => prev.includes(status) ? prev.filter(s => s !== status) : [...prev, status]);
     setSelectedItem(null);
     setIsRevealed(false);
   };
+
+  const toggleCustomItem = useCallback((mediaId: number) => {
+    setCustomSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(mediaId)) next.delete(mediaId); else next.add(mediaId);
+      return next;
+    });
+  }, []);
+
+  const selectAllCustom = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setCustomSelected(new Set(customFilteredItems.map(e => e.mediaId)));
+  }, [customFilteredItems]);
+
+  const deselectAllCustom = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setCustomSelected(new Set());
+  }, []);
 
   const resultAnimStyle = useAnimatedStyle(() => ({
     transform: [{ scale: resultScale.value }],
     opacity: resultOpacity.value,
   }));
+
+  const spinDisabled = eligible.length === 0 || isSpinning;
 
   return (
     <LinearGradient colors={[DARK.bg1, DARK.bg2, DARK.bg3]} style={styles.container}>
@@ -306,191 +379,244 @@ export default function SpinPickerScreen() {
           <Text style={styles.headerTitle}>Spin Picker</Text>
           <View style={{ width: 40 }} />
         </View>
-      </View>
 
-      <View style={styles.topButtons}>
-        <Pressable
-          onPress={() => { setShowFilters(!showFilters); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
-          style={styles.topBtnWrapper}
-        >
-          <LinearGradient
-            colors={['#254C42', '#1A3A5C']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.topBtn}
-          >
-            <Ionicons name="options-outline" size={18} color={DARK.accent} />
-            <Text style={styles.topBtnText}>I'm Looking For...</Text>
-          </LinearGradient>
-        </Pressable>
-        <Pressable
-          onPress={triggerSpin}
-          disabled={eligible.length === 0 || isSpinning}
-          style={[styles.topBtnWrapper, (eligible.length === 0 || isSpinning) && { opacity: 0.4 }]}
-        >
-          <LinearGradient
-            colors={['#C47955', '#9B4C34']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.topBtn}
-          >
-            <Ionicons name="flash-outline" size={18} color="#FFF" />
-            <Text style={styles.topBtnText}>Custom Spin</Text>
-          </LinearGradient>
-        </Pressable>
-      </View>
-
-      {showFilters && (
-        <View style={styles.filterPanel}>
-          <View style={styles.filterSection}>
-            <Text style={styles.filterLabel}>TYPE</Text>
-            <View style={styles.filterRow}>
-              {([null, 'movie', 'tv'] as (MediaType | null)[]).map(type => (
-                <Pressable
-                  key={type || 'all'}
-                  onPress={() => { setSelectedType(type); setSelectedItem(null); setIsRevealed(false); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
-                  style={[styles.filterChip, selectedType === type && styles.filterChipActive]}
-                >
-                  <Text style={[styles.filterChipText, selectedType === type && styles.filterChipTextActive]}>
-                    {type === null ? 'All' : type === 'movie' ? 'Movies' : 'TV Shows'}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-          </View>
-          <View style={styles.filterSection}>
-            <Text style={styles.filterLabel}>FROM</Text>
-            <View style={styles.filterRow}>
-              {(['want', 'watching'] as ListStatus[]).map(status => (
-                <Pressable
-                  key={status}
-                  onPress={() => toggleList(status)}
-                  style={[styles.filterChip, selectedLists.includes(status) && styles.filterChipActive]}
-                >
-                  <Ionicons
-                    name={status === 'want' ? 'bookmark' : 'play-circle'}
-                    size={14}
-                    color={selectedLists.includes(status) ? '#FFF' : DARK.textSoft}
-                    style={{ marginRight: 4 }}
-                  />
-                  <Text style={[styles.filterChipText, selectedLists.includes(status) && styles.filterChipTextActive]}>
-                    {status === 'want' ? 'Want' : 'Watching'}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-          </View>
-          <View style={styles.filterSection}>
-            <Text style={styles.filterLabel}>GENRE</Text>
-            <View style={[styles.filterRow, { flexWrap: 'wrap' }]}>
-              {FILTER_GENRES.map(g => (
-                <Pressable
-                  key={g.id}
-                  onPress={() => { setSelectedGenre(prev => prev === g.id ? null : g.id); setSelectedItem(null); setIsRevealed(false); }}
-                  style={[styles.genreChip, selectedGenre === g.id && styles.genreChipActive]}
-                >
-                  <Text style={[styles.genreChipText, selectedGenre === g.id && styles.genreChipTextActive]}>
-                    {g.name}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-          </View>
-          <Text style={styles.eligibleText}>{eligible.length} eligible title{eligible.length !== 1 ? 's' : ''}</Text>
-        </View>
-      )}
-
-      <View style={styles.wheelSection} {...panResponder.panHandlers}>
-        {eligible.length === 0 ? (
-          <View style={styles.emptyState}>
-            <View style={styles.emptyIcon}>
-              <Ionicons name="film-outline" size={48} color={DARK.textMuted} />
-            </View>
-            <Text style={styles.emptyTitle}>Nothing to Spin</Text>
-            <Text style={styles.emptySubtitle}>
-              Add movies or shows to your Want or Watching list first
-            </Text>
-          </View>
-        ) : (
-          <>
-            <View style={styles.pointerContainer}>
-              <View style={styles.pointer} />
-              <View style={styles.pointerGlow} />
-            </View>
-
-            <View style={styles.carouselContainer}>
-              <View style={styles.carouselTrack}>
-                <CarouselCard item={displayItems[0]} position={-2} isCenter={false} glowOpacity={glowOpacity} isRevealed={false} />
-                <CarouselCard item={displayItems[1]} position={-1} isCenter={false} glowOpacity={glowOpacity} isRevealed={false} />
-                <CarouselCard item={displayItems[2]} position={0} isCenter={true} glowOpacity={glowOpacity} isRevealed={isRevealed} />
-                <CarouselCard item={displayItems[3]} position={1} isCenter={false} glowOpacity={glowOpacity} isRevealed={false} />
-                <CarouselCard item={displayItems[4]} position={2} isCenter={false} glowOpacity={glowOpacity} isRevealed={false} />
-              </View>
-            </View>
-
-            <View style={styles.dotsRow}>
-              {Array.from({ length: 9 }).map((_, i) => (
-                <GlowDot key={i} index={i} isSpinning={isSpinning} activeIndex={4} />
-              ))}
-            </View>
-
-            <Text style={styles.swipeHint}>
-              {isSpinning ? 'Spinning...' : 'Swipe Up to Spin Again'}
-            </Text>
-          </>
-        )}
-      </View>
-
-      {selectedItem && isRevealed && (
-        <Animated.View style={[styles.resultPanel, resultAnimStyle]}>
-          <Pressable
-            onPress={() => router.push({ pathname: '/details/[id]', params: { id: selectedItem.mediaId.toString(), type: selectedItem.mediaType } })}
-            style={styles.resultCard}
-          >
+        <View style={styles.segContainer}>
+          <Animated.View style={[styles.segIndicator, segSlideStyle]}>
             <LinearGradient
-              colors={['rgba(78,234,173,0.08)', 'rgba(124,58,237,0.08)']}
+              colors={['#254C42', '#4C2744']}
               start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.resultCardInner}
-            >
-              {selectedItem.posterPath ? (
-                <Image source={{ uri: getPosterUrl(selectedItem.posterPath, 'w185')! }} style={styles.resultPoster} contentFit="cover" />
-              ) : (
-                <View style={[styles.resultPoster, styles.resultPosterEmpty]}>
-                  <Ionicons name="film-outline" size={20} color={DARK.textMuted} />
-                </View>
-              )}
-              <View style={styles.resultInfo}>
-                <Text style={styles.resultTitle} numberOfLines={1}>{selectedItem.title}</Text>
-                <Text style={styles.resultMeta}>
-                  {selectedItem.mediaType === 'tv' ? 'TV Series' : 'Movie'}
-                  {selectedItem.genreIds.length > 0 ? ` \u00B7 ${getGenreName(selectedItem.genreIds[0])}` : ''}
-                </Text>
-                <View style={styles.resultRating}>
-                  <Ionicons name="star" size={12} color={DARK.star} />
-                  <Text style={styles.resultRatingText}>{selectedItem.voteAverage.toFixed(1)}</Text>
-                </View>
-              </View>
-              <View style={styles.resultArrow}>
-                <Ionicons name="arrow-forward" size={18} color={DARK.accent} />
-              </View>
-            </LinearGradient>
+              end={{ x: 1, y: 0 }}
+              style={styles.segIndicatorGrad}
+            />
+          </Animated.View>
+          <Pressable onPress={() => switchMode('guided')} style={styles.segBtn}>
+            <Ionicons name="options-outline" size={16} color={mode === 'guided' ? '#FFF' : DARK.textSoft} style={{ marginRight: 6 }} />
+            <Text style={[styles.segText, mode === 'guided' && styles.segTextActive]}>I'm Looking For...</Text>
           </Pressable>
-        </Animated.View>
-      )}
+          <Pressable onPress={() => switchMode('custom')} style={styles.segBtn}>
+            <Ionicons name="grid-outline" size={16} color={mode === 'custom' ? '#FFF' : DARK.textSoft} style={{ marginRight: 6 }} />
+            <Text style={[styles.segText, mode === 'custom' && styles.segTextActive]}>Custom Spin</Text>
+          </Pressable>
+        </View>
+      </View>
+
+      <Animated.View style={[{ flex: 1 }, contentAnimStyle]}>
+        {mode === 'guided' ? (
+          <ScrollView
+            style={styles.modeContent}
+            contentContainerStyle={{ paddingBottom: 10 }}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.filterPanel}>
+              <View style={styles.filterSection}>
+                <Text style={styles.filterLabel}>CONTENT TYPE</Text>
+                <View style={styles.filterRow}>
+                  {([null, 'movie', 'tv'] as (MediaType | null)[]).map(type => (
+                    <Pressable
+                      key={type || 'all'}
+                      onPress={() => { setSelectedType(type); setSelectedItem(null); setIsRevealed(false); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
+                      style={[styles.filterChip, selectedType === type && styles.filterChipActive]}
+                    >
+                      <Text style={[styles.filterChipText, selectedType === type && styles.filterChipTextActive]}>
+                        {type === null ? 'Both' : type === 'movie' ? 'Movie' : 'Series'}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+
+              <View style={styles.filterSection}>
+                <Text style={styles.filterLabel}>FROM LIST</Text>
+                <View style={styles.filterRow}>
+                  {(['want', 'watching'] as ListStatus[]).map(status => (
+                    <Pressable
+                      key={status}
+                      onPress={() => toggleList(status)}
+                      style={[styles.filterChip, selectedLists.includes(status) && styles.filterChipActive]}
+                    >
+                      <Ionicons
+                        name={status === 'want' ? 'bookmark' : 'play-circle'}
+                        size={14}
+                        color={selectedLists.includes(status) ? '#FFF' : DARK.textSoft}
+                        style={{ marginRight: 4 }}
+                      />
+                      <Text style={[styles.filterChipText, selectedLists.includes(status) && styles.filterChipTextActive]}>
+                        {status === 'want' ? 'Want' : 'Watching'}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+
+              <View style={styles.filterSection}>
+                <Text style={styles.filterLabel}>GENRE</Text>
+                <View style={[styles.filterRow, { flexWrap: 'wrap' }]}>
+                  {FILTER_GENRES.map(g => (
+                    <Pressable
+                      key={g.id}
+                      onPress={() => { setSelectedGenre(prev => prev === g.id ? null : g.id); setSelectedItem(null); setIsRevealed(false); }}
+                      style={[styles.genreChip, selectedGenre === g.id && styles.genreChipActive]}
+                    >
+                      <Text style={[styles.genreChipText, selectedGenre === g.id && styles.genreChipTextActive]}>
+                        {g.name}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+
+              <Text style={styles.eligibleText}>{guidedEligible.length} eligible title{guidedEligible.length !== 1 ? 's' : ''}</Text>
+            </View>
+
+            <View style={styles.wheelSection} {...panResponder.panHandlers}>
+              {eligible.length === 0 ? (
+                <View style={styles.emptyState}>
+                  <View style={styles.emptyIcon}>
+                    <Ionicons name="film-outline" size={44} color={DARK.textMuted} />
+                  </View>
+                  <Text style={styles.emptyTitle}>Nothing to Spin</Text>
+                  <Text style={styles.emptySubtitle}>Add movies or shows to your list first</Text>
+                </View>
+              ) : (
+                <>
+                  <View style={styles.pointerContainer}>
+                    <View style={styles.pointer} />
+                    <View style={styles.pointerGlow} />
+                  </View>
+                  <View style={styles.carouselContainer}>
+                    <View style={styles.carouselTrack}>
+                      {[0, 1, 2, 3, 4].map(i => (
+                        <CarouselCard
+                          key={i}
+                          item={displayItems[i]}
+                          position={i - 2}
+                          isCenter={i === 2}
+                          glowOpacity={glowOpacity}
+                          isRevealed={isRevealed && i === 2}
+                        />
+                      ))}
+                    </View>
+                  </View>
+                  <View style={styles.dotsRow}>
+                    {Array.from({ length: 9 }).map((_, i) => (
+                      <GlowDot key={i} index={i} isSpinning={isSpinning} activeIndex={4} />
+                    ))}
+                  </View>
+                  <Text style={styles.swipeHint}>
+                    {isSpinning ? 'Spinning...' : 'Swipe Up to Spin'}
+                  </Text>
+                </>
+              )}
+            </View>
+
+            {selectedItem && isRevealed && (
+              <Animated.View style={[styles.resultPanel, resultAnimStyle]}>
+                <Pressable
+                  onPress={() => router.push({ pathname: '/details/[id]', params: { id: selectedItem.mediaId.toString(), type: selectedItem.mediaType } })}
+                  style={styles.resultCard}
+                >
+                  <LinearGradient
+                    colors={['rgba(78,234,173,0.08)', 'rgba(124,58,237,0.08)']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.resultCardInner}
+                  >
+                    {selectedItem.posterPath ? (
+                      <Image source={{ uri: getPosterUrl(selectedItem.posterPath, 'w185')! }} style={styles.resultPoster} contentFit="cover" />
+                    ) : (
+                      <View style={[styles.resultPoster, styles.resultPosterEmpty]}>
+                        <Ionicons name="film-outline" size={20} color={DARK.textMuted} />
+                      </View>
+                    )}
+                    <View style={styles.resultInfo}>
+                      <Text style={styles.resultTitle} numberOfLines={1}>{selectedItem.title}</Text>
+                      <Text style={styles.resultMeta}>
+                        {selectedItem.mediaType === 'tv' ? 'TV Series' : 'Movie'}
+                        {selectedItem.genreIds.length > 0 ? ` \u00B7 ${getGenreName(selectedItem.genreIds[0])}` : ''}
+                      </Text>
+                      <View style={styles.resultRating}>
+                        <Ionicons name="star" size={12} color={DARK.star} />
+                        <Text style={styles.resultRatingText}>{selectedItem.voteAverage.toFixed(1)}</Text>
+                      </View>
+                    </View>
+                    <View style={styles.resultArrow}>
+                      <Ionicons name="arrow-forward" size={18} color={DARK.accent} />
+                    </View>
+                  </LinearGradient>
+                </Pressable>
+              </Animated.View>
+            )}
+          </ScrollView>
+        ) : (
+          <View style={styles.modeContent}>
+            <View style={styles.customHeader}>
+              <View style={styles.customSearchBar}>
+                <Ionicons name="search" size={16} color={DARK.textMuted} />
+                <TextInput
+                  style={styles.customSearchInput}
+                  placeholder="Search your titles..."
+                  placeholderTextColor={DARK.textMuted}
+                  value={customSearch}
+                  onChangeText={setCustomSearch}
+                  selectionColor={DARK.accent}
+                />
+                {customSearch.length > 0 && (
+                  <Pressable onPress={() => setCustomSearch('')} hitSlop={10}>
+                    <Ionicons name="close-circle" size={16} color={DARK.textSoft} />
+                  </Pressable>
+                )}
+              </View>
+
+              <View style={styles.customActions}>
+                <Pressable onPress={selectAllCustom} style={styles.customActBtn}>
+                  <Ionicons name="checkmark-done" size={14} color={DARK.accent} />
+                  <Text style={styles.customActText}>Select All</Text>
+                </Pressable>
+                <Pressable onPress={deselectAllCustom} style={styles.customActBtn}>
+                  <Ionicons name="close" size={14} color={DARK.textSoft} />
+                  <Text style={[styles.customActText, { color: DARK.textSoft }]}>Deselect All</Text>
+                </Pressable>
+                <Text style={styles.customCount}>{customSelected.size} selected</Text>
+              </View>
+            </View>
+
+            <FlatList
+              data={customFilteredItems}
+              numColumns={3}
+              keyExtractor={item => `cs-${item.mediaId}`}
+              contentContainerStyle={styles.customGrid}
+              showsVerticalScrollIndicator={false}
+              renderItem={({ item }) => (
+                <SelectableCard
+                  item={item}
+                  isSelected={customSelected.has(item.mediaId)}
+                  onToggle={() => toggleCustomItem(item.mediaId)}
+                />
+              )}
+              ListEmptyComponent={
+                <View style={styles.emptyState}>
+                  <Ionicons name="film-outline" size={40} color={DARK.textMuted} />
+                  <Text style={styles.emptyTitle}>No titles in your lists</Text>
+                  <Text style={styles.emptySubtitle}>Add movies or shows first to use custom spin</Text>
+                </View>
+              }
+            />
+          </View>
+        )}
+      </Animated.View>
 
       <View style={[styles.footer, { paddingBottom: Platform.OS === 'web' ? 34 : insets.bottom + 12 }]}>
         <Pressable
           onPress={triggerSpin}
-          disabled={eligible.length === 0 || isSpinning}
+          disabled={spinDisabled}
           style={({ pressed }) => [
             styles.spinBtnWrapper,
-            (eligible.length === 0 || isSpinning) && { opacity: 0.4 },
-            pressed && { opacity: 0.85 },
+            spinDisabled && { opacity: 0.4 },
+            pressed && !spinDisabled && { opacity: 0.85 },
           ]}
         >
           <LinearGradient
-            colors={isSpinning ? ['#6B21A8', '#7C3AED'] : ['#254C42', '#1A5C3A']}
+            colors={isSpinning ? ['#6B21A8', '#7C3AED'] : ['#254C42', '#4C2744']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.spinBtn}
@@ -533,33 +659,52 @@ const styles = StyleSheet.create({
     color: DARK.text,
     letterSpacing: 0.5,
   },
-  topButtons: {
+  segContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
-    gap: 10,
+    marginHorizontal: 16,
     marginTop: 4,
+    marginBottom: 8,
+    backgroundColor: DARK.segBg,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: DARK.segBorder,
+    height: 48,
+    position: 'relative',
+    overflow: 'hidden',
   },
-  topBtnWrapper: {
+  segIndicator: {
+    position: 'absolute',
+    top: 2,
+    bottom: 2,
+    borderRadius: 14,
+    overflow: 'hidden',
+  },
+  segIndicatorGrad: {
     flex: 1,
+    borderRadius: 14,
   },
-  topBtn: {
+  segBtn: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 14,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
+    zIndex: 1,
   },
-  topBtnText: {
-    fontSize: 14,
-    fontFamily: 'DMSans_600SemiBold',
-    color: '#FFFFFF',
+  segText: {
+    fontSize: 13,
+    fontFamily: 'DMSans_500Medium',
+    color: DARK.textSoft,
+  },
+  segTextActive: {
+    fontFamily: 'DMSans_700Bold',
+    color: '#FFF',
+  },
+  modeContent: {
+    flex: 1,
   },
   filterPanel: {
     marginHorizontal: 16,
-    marginTop: 12,
+    marginTop: 4,
     backgroundColor: DARK.glass,
     borderRadius: 16,
     borderWidth: 1,
@@ -632,10 +777,11 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   wheelSection: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 10,
+    paddingVertical: 16,
+    minHeight: CENTER_CARD_H + 100,
   },
   pointerContainer: {
     alignItems: 'center',
@@ -681,9 +827,9 @@ const styles = StyleSheet.create({
   carouselCard: {
     borderRadius: 14,
     overflow: 'hidden',
+    backgroundColor: DARK.card,
     borderWidth: 1,
     borderColor: DARK.cardBorder,
-    backgroundColor: DARK.card,
   },
   cardImage: {
     borderRadius: 14,
@@ -695,11 +841,9 @@ const styles = StyleSheet.create({
   },
   cardGlow: {
     position: 'absolute',
-    top: -15,
-    left: -15,
-    right: -15,
-    bottom: -15,
-    borderRadius: 24,
+    width: CENTER_CARD_W + 30,
+    height: CENTER_CARD_H + 30,
+    borderRadius: 22,
     backgroundColor: DARK.accentGlow,
     zIndex: -1,
   },
@@ -708,21 +852,23 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    padding: 8,
+    padding: 10,
+    paddingTop: 30,
     borderBottomLeftRadius: 14,
     borderBottomRightRadius: 14,
   },
   cardTitle: {
-    fontSize: 11,
-    fontFamily: 'DMSans_600SemiBold',
-    color: '#FFFFFF',
+    fontSize: 13,
+    fontFamily: 'DMSans_700Bold',
+    color: '#FFF',
     textAlign: 'center',
   },
   dotsRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    marginTop: 16,
+    gap: 6,
+    marginTop: 12,
   },
   glowDot: {
     width: 6,
@@ -734,60 +880,60 @@ const styles = StyleSheet.create({
     backgroundColor: DARK.dotActive,
   },
   swipeHint: {
-    fontSize: 13,
+    fontSize: 12,
     fontFamily: 'DMSans_400Regular',
     color: DARK.textMuted,
     textAlign: 'center',
-    marginTop: 14,
-    letterSpacing: 0.3,
+    marginTop: 10,
   },
   emptyState: {
     alignItems: 'center',
-    paddingHorizontal: 40,
+    justifyContent: 'center',
+    paddingVertical: 40,
+    gap: 8,
   },
   emptyIcon: {
     width: 80,
     height: 80,
     borderRadius: 40,
     backgroundColor: DARK.glass,
-    borderWidth: 1,
-    borderColor: DARK.glassBorder,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
+    marginBottom: 4,
   },
   emptyTitle: {
-    fontSize: 20,
-    fontFamily: 'DMSans_700Bold',
+    fontSize: 17,
+    fontFamily: 'DMSans_600SemiBold',
     color: DARK.text,
-    marginBottom: 8,
   },
   emptySubtitle: {
-    fontSize: 14,
+    fontSize: 13,
     fontFamily: 'DMSans_400Regular',
-    color: DARK.textSoft,
+    color: DARK.textMuted,
     textAlign: 'center',
-    lineHeight: 20,
+    paddingHorizontal: 40,
   },
   resultPanel: {
     paddingHorizontal: 16,
-    marginBottom: 8,
+    paddingTop: 6,
+    paddingBottom: 8,
   },
   resultCard: {
     borderRadius: 16,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(78,234,173,0.2)',
+    borderColor: DARK.glassBorder,
   },
   resultCardInner: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
+    padding: 10,
+    gap: 12,
   },
   resultPoster: {
-    width: 50,
-    height: 75,
-    borderRadius: 10,
+    width: 44,
+    height: 66,
+    borderRadius: 8,
   },
   resultPosterEmpty: {
     backgroundColor: DARK.card,
@@ -796,7 +942,7 @@ const styles = StyleSheet.create({
   },
   resultInfo: {
     flex: 1,
-    marginLeft: 12,
+    gap: 3,
   },
   resultTitle: {
     fontSize: 15,
@@ -807,13 +953,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: 'DMSans_400Regular',
     color: DARK.textSoft,
-    marginTop: 3,
   },
   resultRating: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginTop: 5,
   },
   resultRatingText: {
     fontSize: 12,
@@ -823,30 +967,120 @@ const styles = StyleSheet.create({
   resultArrow: {
     width: 32,
     height: 32,
-    borderRadius: 10,
-    backgroundColor: 'rgba(78,234,173,0.12)',
+    borderRadius: 16,
+    backgroundColor: DARK.glass,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  customHeader: {
+    paddingHorizontal: 16,
+    paddingTop: 4,
+  },
+  customSearchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: DARK.searchBg,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: DARK.segBorder,
+  },
+  customSearchInput: {
+    flex: 1,
+    fontSize: 14,
+    fontFamily: 'DMSans_400Regular',
+    color: DARK.text,
+    padding: 0,
+  },
+  customActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingTop: 10,
+    paddingBottom: 6,
+  },
+  customActBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  customActText: {
+    fontSize: 12,
+    fontFamily: 'DMSans_600SemiBold',
+    color: DARK.accent,
+  },
+  customCount: {
+    flex: 1,
+    fontSize: 11,
+    fontFamily: 'DMSans_400Regular',
+    color: DARK.textMuted,
+    textAlign: 'right',
+  },
+  customGrid: {
+    paddingHorizontal: 16,
+    paddingTop: 4,
+    paddingBottom: 120,
+  },
+  selectCard: {
+    width: GRID_COL_W,
+    marginRight: 8,
+    marginBottom: 12,
+  },
+  selectCardActive: {
+    opacity: 1,
+  },
+  selectImage: {
+    width: GRID_COL_W,
+    height: GRID_CARD_H,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  selectPlaceholder: {
+    width: GRID_COL_W,
+    height: GRID_CARD_H,
+    borderRadius: 12,
+    backgroundColor: DARK.card,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  selectCheck: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 12,
+  },
+  selectTitle: {
+    fontSize: 10,
+    fontFamily: 'DMSans_500Medium',
+    color: DARK.textSoft,
+    marginTop: 4,
+    lineHeight: 14,
+  },
   footer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingTop: 8,
   },
-  spinBtnWrapper: {},
+  spinBtnWrapper: {
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
   spinBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    borderRadius: 16,
     paddingVertical: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
+    borderRadius: 16,
   },
   spinBtnText: {
-    fontSize: 16,
-    fontFamily: 'DMSans_600SemiBold',
-    color: '#FFFFFF',
-    letterSpacing: 0.3,
+    fontSize: 17,
+    fontFamily: 'DMSans_700Bold',
+    color: '#FFF',
   },
 });
