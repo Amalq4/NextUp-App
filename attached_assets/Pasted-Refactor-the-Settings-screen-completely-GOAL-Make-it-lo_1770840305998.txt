@@ -1,0 +1,128 @@
+Refactor the Settings screen completely.
+
+GOAL:
+Make it look like a real production streaming app settings screen.
+Use the SAME dark gradient background as the Home screen.
+Do NOT use beige background.
+
+BACKGROUND:
+- Same dark navy/indigo gradient as Home
+- Subtle glow accents
+- Maintain design consistency across app
+
+STRUCTURE:
+
+Use a clean vertical layout with section headers.
+
+-------------------------
+1) PROFILE HEADER CARD
+-------------------------
+
+Top large card with:
+
+- Circular Avatar (editable)
+- User name
+- Email
+- Small subtitle (favorite genres)
+
+Right side:
+- Edit button icon
+
+Style:
+- Glassmorphism card
+- Rounded corners (20)
+- Soft border
+- Slight blur background
+- Elegant spacing
+
+When clicking:
+→ Navigate to EditProfileScreen
+
+-------------------------
+2) ACCOUNT SECTION
+-------------------------
+
+Section header: ACCOUNT
+
+Rows:
+- Change Email
+- Change Password
+- Manage Avatar
+- Log Out (red text)
+
+Each row:
+- Left icon
+- Title
+- Chevron arrow on right
+- Touchable
+- Slight highlight on press
+
+-------------------------
+3) PREFERENCES SECTION
+-------------------------
+
+Section header: PREFERENCES
+
+Rows:
+- Content Type Default (Movie / Series / Both)
+- Preferred Genres
+- Preferred Streaming Providers
+- Notifications (toggle switch)
+
+-------------------------
+4) DATA SECTION
+-------------------------
+
+Section header: DATA
+
+Rows:
+- Clear Cache
+- Reset App
+- Clear All Data (red, destructive)
+
+Clear All Data:
+→ Show confirmation modal
+→ Require confirmation before deleting
+
+-------------------------
+EDIT PROFILE SCREEN
+-------------------------
+
+Pre-fill existing values.
+Do NOT reset user data.
+
+Editable:
+- Name
+- Email
+- Avatar (image picker)
+- Change password section:
+   - Current password
+   - New password
+   - Confirm new password
+
+Validation:
+- Email format
+- Password length
+- Matching confirmation
+
+Save button:
+- Gradient style (same as primary CTA)
+- Update AsyncStorage
+- Show success toast
+- Navigate back
+
+-------------------------
+DESIGN RULES
+-------------------------
+
+- Keep dark premium look
+- White primary text
+- Soft gray secondary text
+- Green accent for active elements
+- Red only for destructive actions
+- Rounded cards
+- Proper spacing
+- No beige background
+
+Make it feel like Netflix / Apple TV settings.
+Clean. Minimal. Professional.
