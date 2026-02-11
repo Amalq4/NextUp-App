@@ -51,7 +51,7 @@ export default function OnboardingScreen() {
   return (
     <View style={[styles.container, { paddingTop: Platform.OS === 'web' ? 67 : insets.top }]}>
       <LinearGradient
-        colors={[Colors.light.accent, '#FF8E8E', Colors.light.background]}
+        colors={['#254C42', '#4C2744', Colors.light.background]}
         locations={[0, 0.3, 0.6]}
         style={StyleSheet.absoluteFill}
       />
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 20,
-    backgroundColor: Colors.light.accent,
+    backgroundColor: Colors.light.warm,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,

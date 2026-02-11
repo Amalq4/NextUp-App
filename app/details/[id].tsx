@@ -14,8 +14,8 @@ import { getApiUrl } from '@/lib/query-client';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const STATUS_CONFIG: { key: ListStatus; label: string; icon: keyof typeof Ionicons.glyphMap; color: string }[] = [
-  { key: 'want', label: 'Want', icon: 'bookmark', color: Colors.light.accent },
-  { key: 'watching', label: 'Watching', icon: 'play-circle', color: Colors.light.teal },
+  { key: 'want', label: 'Want', icon: 'bookmark', color: Colors.light.warm },
+  { key: 'watching', label: 'Watching', icon: 'play-circle', color: Colors.light.accent },
   { key: 'watched', label: 'Watched', icon: 'checkmark-circle', color: Colors.light.success },
 ];
 
@@ -97,7 +97,7 @@ export default function DetailsScreen() {
             <View style={[styles.backdrop, { backgroundColor: Colors.light.surfaceSecondary }]} />
           )}
           <LinearGradient
-            colors={['transparent', 'rgba(245,246,250,0.6)', Colors.light.background]}
+            colors={['transparent', 'rgba(243,232,222,0.6)', Colors.light.background]}
             style={styles.gradient}
           />
           <Pressable
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
     color: Colors.light.star,
   },
   typeChip: {
-    backgroundColor: Colors.light.surfaceSecondary,
+    backgroundColor: Colors.light.accent,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 8,
@@ -290,12 +290,12 @@ const styles = StyleSheet.create({
   typeText: {
     fontSize: 12,
     fontFamily: 'DMSans_500Medium',
-    color: Colors.light.textSecondary,
+    color: '#fff',
   },
   seasonsText: {
     fontSize: 13,
     fontFamily: 'DMSans_400Regular',
-    color: Colors.light.teal,
+    color: Colors.light.accent,
     marginTop: 4,
   },
   statusButtons: {
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 13,
     borderRadius: 12,
-    backgroundColor: Colors.light.teal,
+    backgroundColor: Colors.light.accent,
     marginTop: 10,
   },
   progressBtnText: {
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   genreTag: {
-    backgroundColor: Colors.light.surfaceSecondary,
+    backgroundColor: Colors.light.surfaceTertiary,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 10,

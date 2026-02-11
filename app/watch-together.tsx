@@ -217,8 +217,8 @@ const styles = StyleSheet.create({
     borderColor: Colors.light.border,
   },
   friendAvatarSelected: {
-    backgroundColor: Colors.light.teal,
-    borderColor: Colors.light.teal,
+    backgroundColor: Colors.light.accent,
+    borderColor: Colors.light.accent,
   },
   friendAvatarText: {
     fontSize: 18,
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.surface,
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: Colors.light.teal,
+    borderColor: Colors.light.accent,
     overflow: 'hidden',
     marginBottom: 16,
   },
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    backgroundColor: Colors.light.teal,
+    backgroundColor: Colors.light.accent,
     borderRadius: 14,
     paddingVertical: 16,
   },

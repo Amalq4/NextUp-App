@@ -13,7 +13,7 @@ export function SectionHeader({ title, onSeeAll, icon }: SectionHeaderProps) {
   return (
     <View style={styles.container}>
       <View style={styles.left}>
-        {icon && <Ionicons name={icon} size={18} color={Colors.light.accent} style={{ marginRight: 6 }} />}
+        {icon && <Ionicons name={icon} size={18} color={Colors.light.warm} style={{ marginRight: 6 }} />}
         <Text style={styles.title}>{title}</Text>
       </View>
       {onSeeAll && (
@@ -37,6 +37,9 @@ const styles = StyleSheet.create({
   left: {
     flexDirection: 'row',
     alignItems: 'center',
+    borderLeftWidth: 3,
+    borderLeftColor: Colors.light.warm,
+    paddingLeft: 8,
   },
   title: {
     fontSize: 18,
@@ -46,6 +49,6 @@ const styles = StyleSheet.create({
   seeAll: {
     fontSize: 13,
     fontFamily: 'DMSans_500Medium',
-    color: Colors.light.accent,
+    color: Colors.light.warm,
   },
 });

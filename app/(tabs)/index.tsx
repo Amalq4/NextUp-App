@@ -60,23 +60,23 @@ export default function HomeScreen() {
           onPress={() => router.push('/random-picker')}
           style={({ pressed }) => [styles.shuffleBtn, { opacity: pressed ? 0.8 : 1 }]}
         >
-          <Ionicons name="shuffle" size={20} color={Colors.light.accent} />
+          <Ionicons name="shuffle" size={20} color={Colors.light.warm} />
         </Pressable>
       </View>
 
       <View style={styles.quickActions}>
         {[
-          { icon: 'search' as const, label: 'Search', color: Colors.light.accent, onPress: () => router.push('/(tabs)/search') },
-          { icon: 'list' as const, label: 'My Lists', color: Colors.light.teal, onPress: () => router.push('/(tabs)/lists') },
-          { icon: 'shuffle' as const, label: 'Random', color: '#8B5CF6', onPress: () => router.push('/random-picker') },
-          { icon: 'people' as const, label: 'Friends', color: '#F59E0B', onPress: () => router.push('/(tabs)/friends') },
+          { icon: 'search' as const, label: 'Search', color: Colors.light.accent, bg: Colors.light.accentLight, onPress: () => router.push('/(tabs)/search') },
+          { icon: 'list' as const, label: 'My Lists', color: Colors.light.warm, bg: Colors.light.warmLight, onPress: () => router.push('/(tabs)/lists') },
+          { icon: 'shuffle' as const, label: 'Random', color: Colors.light.deepAccent, bg: Colors.light.deepAccentLight, onPress: () => router.push('/random-picker') },
+          { icon: 'people' as const, label: 'Friends', color: Colors.light.brick, bg: Colors.light.brickLight, onPress: () => router.push('/(tabs)/friends') },
         ].map(action => (
           <Pressable
             key={action.label}
             onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); action.onPress(); }}
             style={({ pressed }) => [styles.quickAction, { opacity: pressed ? 0.8 : 1, transform: [{ scale: pressed ? 0.95 : 1 }] }]}
           >
-            <View style={[styles.quickActionIcon, { backgroundColor: `${action.color}15` }]}>
+            <View style={[styles.quickActionIcon, { backgroundColor: action.bg }]}>
               <Ionicons name={action.icon} size={20} color={action.color} />
             </View>
             <Text style={styles.quickActionLabel}>{action.label}</Text>
@@ -120,7 +120,7 @@ export default function HomeScreen() {
       <SectionHeader title="Trending Today" icon="trending-up" />
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors.light.accent} />
+          <ActivityIndicator size="large" color={Colors.light.warm} />
         </View>
       ) : (
         <FlatList
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 14,
-    backgroundColor: Colors.light.accentLight,
+    backgroundColor: Colors.light.warmLight,
     alignItems: 'center',
     justifyContent: 'center',
   },

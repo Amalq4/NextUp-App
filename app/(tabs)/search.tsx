@@ -146,7 +146,7 @@ export default function SearchScreen() {
 
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color={Colors.light.accent} />
+          <ActivityIndicator size="large" color={Colors.light.warm} />
         </View>
       ) : (
         <FlatList
@@ -195,8 +195,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 12,
     gap: 10,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
   searchInput: {
     flex: 1,

@@ -62,7 +62,7 @@ export default function FriendsScreen() {
           onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setShowAdd(!showAdd); }}
           style={styles.addBtn}
         >
-          <Ionicons name={showAdd ? 'close' : 'person-add'} size={20} color={Colors.light.accent} />
+          <Ionicons name={showAdd ? 'close' : 'person-add'} size={20} color={Colors.light.warm} />
         </Pressable>
       </View>
 
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 14,
-    backgroundColor: Colors.light.accentLight,
+    backgroundColor: Colors.light.warmLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingVertical: 14,
     borderRadius: 14,
-    backgroundColor: Colors.light.teal,
+    backgroundColor: Colors.light.accent,
   },
   watchBtnText: {
     fontSize: 15,
@@ -207,14 +207,14 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Colors.light.tealLight,
+    backgroundColor: Colors.light.pinkLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarText: {
     fontSize: 18,
     fontFamily: 'DMSans_700Bold',
-    color: Colors.light.teal,
+    color: Colors.light.warm,
   },
   friendInfo: {
     flex: 1,

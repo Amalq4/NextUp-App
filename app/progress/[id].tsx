@@ -76,7 +76,7 @@ export default function ProgressScreen() {
   if (loading) {
     return (
       <View style={[styles.center, { paddingTop: insets.top }]}>
-        <ActivityIndicator size="large" color={Colors.light.accent} />
+        <ActivityIndicator size="large" color={Colors.light.warm} />
       </View>
     );
   }
@@ -110,7 +110,7 @@ export default function ProgressScreen() {
           </Text>
           {currentProgress && (
             <View style={styles.currentProgressRow}>
-              <Ionicons name="play-circle" size={16} color={Colors.light.teal} />
+              <Ionicons name="play-circle" size={16} color={Colors.light.accent} />
               <Text style={styles.currentProgressText}>
                 S{currentProgress.seasonNumber} E{currentProgress.episodeNumber}
               </Text>
@@ -142,7 +142,7 @@ export default function ProgressScreen() {
         showsVerticalScrollIndicator={false}
       >
         {loadingSeason ? (
-          <ActivityIndicator size="small" color={Colors.light.accent} style={{ marginTop: 30 }} />
+          <ActivityIndicator size="small" color={Colors.light.warm} style={{ marginTop: 30 }} />
         ) : seasonDetails?.episodes ? (
           seasonDetails.episodes.map(ep => {
             const isCurrent = currentProgress?.seasonNumber === selectedSeason && currentProgress?.episodeNumber === ep.episode_number;
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
   currentProgressText: {
     fontSize: 13,
     fontFamily: 'DMSans_600SemiBold',
-    color: Colors.light.teal,
+    color: Colors.light.accent,
   },
   seasonScroll: {
     maxHeight: 50,
@@ -312,8 +312,8 @@ const styles = StyleSheet.create({
     borderColor: Colors.light.border,
   },
   episodeCardCurrent: {
-    borderColor: Colors.light.teal,
-    backgroundColor: Colors.light.tealLight,
+    borderColor: Colors.light.accent,
+    backgroundColor: Colors.light.accentLight,
   },
   epNumber: {
     width: 32,
@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   epNumberWatched: {
-    backgroundColor: Colors.light.teal,
+    backgroundColor: Colors.light.accent,
   },
   epNumberText: {
     fontSize: 13,
@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   currentBadge: {
-    backgroundColor: Colors.light.teal,
+    backgroundColor: Colors.light.accent,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,

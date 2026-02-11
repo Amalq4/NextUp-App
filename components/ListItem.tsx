@@ -40,7 +40,7 @@ export function ListItem({ entry, progress, onPress, onRemove }: ListItemProps) 
         </Text>
         {progress && entry.mediaType === 'tv' && (
           <View style={styles.progressRow}>
-            <Ionicons name="play-circle" size={14} color={Colors.light.teal} />
+            <Ionicons name="play-circle" size={14} color={Colors.light.accent} />
             <Text style={styles.progressText}>
               S{progress.seasonNumber} E{progress.episodeNumber}
             </Text>
@@ -65,11 +65,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.light.surface,
-    borderRadius: 14,
+    borderRadius: 16,
     padding: 10,
     marginBottom: 10,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
   posterWrap: {
     width: 56,

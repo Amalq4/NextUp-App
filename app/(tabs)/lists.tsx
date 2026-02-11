@@ -9,10 +9,10 @@ import { useApp } from '@/context/AppContext';
 import { ListItem } from '@/components/ListItem';
 import { ListStatus, ListEntry } from '@/types/media';
 
-const TABS: { key: ListStatus; label: string; icon: keyof typeof Ionicons.glyphMap }[] = [
-  { key: 'want', label: 'Want', icon: 'bookmark' },
-  { key: 'watching', label: 'Watching', icon: 'play-circle' },
-  { key: 'watched', label: 'Watched', icon: 'checkmark-circle' },
+const TABS: { key: ListStatus; label: string; icon: keyof typeof Ionicons.glyphMap; color: string; bg: string }[] = [
+  { key: 'want', label: 'Want', icon: 'bookmark', color: Colors.light.warm, bg: Colors.light.warmLight },
+  { key: 'watching', label: 'Watching', icon: 'play-circle', color: Colors.light.accent, bg: Colors.light.accentLight },
+  { key: 'watched', label: 'Watched', icon: 'checkmark-circle', color: Colors.light.success, bg: Colors.light.successLight },
 ];
 
 export default function ListsScreen() {
@@ -42,27 +42,30 @@ export default function ListsScreen() {
       <Text style={styles.screenTitle}>My Lists</Text>
 
       <View style={styles.tabBar}>
-        {TABS.map(tab => (
-          <Pressable
-            key={tab.key}
-            onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setActiveTab(tab.key); }}
-            style={[styles.tab, activeTab === tab.key && styles.tabActive]}
-          >
-            <Ionicons
-              name={tab.icon}
-              size={18}
-              color={activeTab === tab.key ? Colors.light.accent : Colors.light.textTertiary}
-            />
-            <Text style={[styles.tabText, activeTab === tab.key && styles.tabTextActive]}>
-              {tab.label}
-            </Text>
-            <View style={[styles.countBadge, activeTab === tab.key && styles.countBadgeActive]}>
-              <Text style={[styles.countText, activeTab === tab.key && styles.countTextActive]}>
-                {counts[tab.key]}
+        {TABS.map(tab => {
+          const isActive = activeTab === tab.key;
+          return (
+            <Pressable
+              key={tab.key}
+              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setActiveTab(tab.key); }}
+              style={[styles.tab, isActive && { backgroundColor: tab.bg, borderColor: tab.color }]}
+            >
+              <Ionicons
+                name={tab.icon}
+                size={18}
+                color={isActive ? tab.color : Colors.light.textTertiary}
+              />
+              <Text style={[styles.tabText, isActive && { color: tab.color, fontFamily: 'DMSans_600SemiBold' as const }]}>
+                {tab.label}
               </Text>
-            </View>
-          </Pressable>
-        ))}
+              <View style={[styles.countBadge, isActive && { backgroundColor: tab.color }]}>
+                <Text style={[styles.countText, isActive && styles.countTextActive]}>
+                  {counts[tab.key]}
+                </Text>
+              </View>
+            </Pressable>
+          );
+        })}
       </View>
 
       <FlatList
@@ -134,18 +137,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.light.border,
   },
-  tabActive: {
-    backgroundColor: Colors.light.accentLight,
-    borderColor: Colors.light.accent,
-  },
   tabText: {
     fontSize: 13,
     fontFamily: 'DMSans_500Medium',
     color: Colors.light.textSecondary,
-  },
-  tabTextActive: {
-    color: Colors.light.accent,
-    fontFamily: 'DMSans_600SemiBold',
   },
   countBadge: {
     backgroundColor: Colors.light.surfaceSecondary,
@@ -154,9 +149,6 @@ const styles = StyleSheet.create({
     paddingVertical: 1,
     minWidth: 20,
     alignItems: 'center',
-  },
-  countBadgeActive: {
-    backgroundColor: Colors.light.accent,
   },
   countText: {
     fontSize: 11,

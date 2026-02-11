@@ -10,7 +10,7 @@ import { getGenreName } from '@/types/media';
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
-  const { profile, lists, clearAllData } = useApp();
+  const { profile, lists, clearAllData, logout } = useApp();
 
   const handleClearData = () => {
     Alert.alert(
@@ -61,8 +61,8 @@ export default function SettingsScreen() {
 
       <View style={styles.statsRow}>
         {[
-          { label: 'Want', value: stats.want, color: Colors.light.accent },
-          { label: 'Watching', value: stats.watching, color: Colors.light.teal },
+          { label: 'Want', value: stats.want, color: Colors.light.warm },
+          { label: 'Watching', value: stats.watching, color: Colors.light.accent },
           { label: 'Watched', value: stats.watched, color: Colors.light.success },
         ].map(stat => (
           <View key={stat.label} style={styles.statCard}>
@@ -79,8 +79,8 @@ export default function SettingsScreen() {
           onPress={() => router.push('/random-picker')}
           style={({ pressed }) => [styles.menuItem, { opacity: pressed ? 0.7 : 1 }]}
         >
-          <View style={[styles.menuIcon, { backgroundColor: Colors.light.accentLight }]}>
-            <Ionicons name="shuffle" size={18} color={Colors.light.accent} />
+          <View style={[styles.menuIcon, { backgroundColor: Colors.light.warmLight }]}>
+            <Ionicons name="shuffle" size={18} color={Colors.light.warm} />
           </View>
           <Text style={styles.menuLabel}>Random Picker</Text>
           <Ionicons name="chevron-forward" size={18} color={Colors.light.textTertiary} />
@@ -90,10 +90,41 @@ export default function SettingsScreen() {
           onPress={() => router.push('/onboarding')}
           style={({ pressed }) => [styles.menuItem, { opacity: pressed ? 0.7 : 1 }]}
         >
-          <View style={[styles.menuIcon, { backgroundColor: Colors.light.tealLight }]}>
-            <Ionicons name="person" size={18} color={Colors.light.teal} />
+          <View style={[styles.menuIcon, { backgroundColor: Colors.light.accentLight }]}>
+            <Ionicons name="person" size={18} color={Colors.light.accent} />
           </View>
           <Text style={styles.menuLabel}>Edit Profile</Text>
+          <Ionicons name="chevron-forward" size={18} color={Colors.light.textTertiary} />
+        </Pressable>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Account</Text>
+        <Pressable
+          onPress={() => {
+            Alert.alert(
+              'Log Out',
+              'Are you sure you want to log out?',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Log Out',
+                  style: 'destructive',
+                  onPress: async () => {
+                    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+                    await logout();
+                    router.replace('/(auth)/login');
+                  },
+                },
+              ]
+            );
+          }}
+          style={({ pressed }) => [styles.menuItem, { opacity: pressed ? 0.7 : 1 }]}
+        >
+          <View style={[styles.menuIcon, { backgroundColor: Colors.light.dangerLight }]}>
+            <Ionicons name="log-out-outline" size={18} color={Colors.light.danger} />
+          </View>
+          <Text style={[styles.menuLabel, { color: Colors.light.danger }]}>Log Out</Text>
           <Ionicons name="chevron-forward" size={18} color={Colors.light.textTertiary} />
         </Pressable>
       </View>
@@ -104,7 +135,7 @@ export default function SettingsScreen() {
           onPress={handleClearData}
           style={({ pressed }) => [styles.menuItem, { opacity: pressed ? 0.7 : 1 }]}
         >
-          <View style={[styles.menuIcon, { backgroundColor: 'rgba(239,68,68,0.1)' }]}>
+          <View style={[styles.menuIcon, { backgroundColor: Colors.light.dangerLight }]}>
             <Ionicons name="trash" size={18} color={Colors.light.danger} />
           </View>
           <Text style={[styles.menuLabel, { color: Colors.light.danger }]}>Clear All Data</Text>
