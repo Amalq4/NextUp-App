@@ -18,7 +18,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
 import { useApp } from '@/context/AppContext';
 import { MediaItem, mapTmdbToMediaItem, getPosterUrl, getGenreName } from '@/types/media';
 import { getApiUrl } from '@/lib/query-client';
@@ -221,24 +220,6 @@ export default function HomeScreen() {
           </Pressable>
         </View>
 
-        <View style={styles.quickActions}>
-          {[
-            { icon: 'search' as keyof typeof Ionicons.glyphMap, label: 'Search', onPress: () => router.push('/(tabs)/search') },
-            { icon: 'list' as keyof typeof Ionicons.glyphMap, label: 'My Lists', onPress: () => router.push('/(tabs)/lists') },
-            { icon: 'shuffle' as keyof typeof Ionicons.glyphMap, label: 'Spin', onPress: () => router.push('/random-picker') },
-            { icon: 'people' as keyof typeof Ionicons.glyphMap, label: 'Friends', onPress: () => router.push('/(tabs)/friends') },
-          ].map(a => (
-            <Pressable
-              key={a.label}
-              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); a.onPress(); }}
-              style={({ pressed }) => [styles.quickAction, { opacity: pressed ? 0.8 : 1, transform: [{ scale: pressed ? 0.95 : 1 }] }]}
-            >
-              <Ionicons name={a.icon} size={18} color={D.textSoft} />
-              <Text style={styles.quickLabel}>{a.label}</Text>
-            </Pressable>
-          ))}
-        </View>
-
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -352,29 +333,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  quickActions: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    gap: 8,
-    marginBottom: 16,
-  },
-  quickAction: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    backgroundColor: D.surface,
-    borderRadius: 12,
-    paddingVertical: 10,
-    borderWidth: 1,
-    borderColor: D.surfaceBorder,
-  },
-  quickLabel: {
-    fontSize: 12,
-    fontFamily: 'DMSans_500Medium',
-    color: D.textSoft,
-  },
   providerRow: {
     paddingHorizontal: 16,
     gap: 8,
@@ -446,13 +404,16 @@ const styles = StyleSheet.create({
   },
   rankNumber: {
     position: 'absolute',
-    left: -4,
-    bottom: 52,
+    left: -2,
+    bottom: 50,
     fontSize: RANK_SIZE,
     fontFamily: 'DMSans_700Bold',
-    color: 'rgba(255,255,255,0.08)',
+    color: 'rgba(255,255,255,0.9)',
     zIndex: 0,
     lineHeight: RANK_SIZE,
+    textShadowColor: 'rgba(0,0,0,0.8)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 6,
   },
   top10Poster: {
     width: CARD_W,
