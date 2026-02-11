@@ -38,6 +38,8 @@ export interface UserProfile {
   id: string;
   name: string;
   favoriteGenres: number[];
+  preferredMediaType?: 'movie' | 'tv' | 'both';
+  preferredProviders?: number[];
   language: string;
   region: string;
   onboarded: boolean;
