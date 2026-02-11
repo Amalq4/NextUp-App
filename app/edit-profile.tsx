@@ -15,29 +15,26 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
+import AppBackground, { DARK_THEME as DARK } from '@/components/AppBackground';
 import { useApp } from '@/context/AppContext';
 import { getGenreName, GENRES } from '@/types/media';
-
-const DARK = {
-  bg1: '#0B1023',
-  bg2: '#1A1040',
-  bg3: '#0D0D2B',
-  glass: 'rgba(255,255,255,0.08)',
-  glassBorder: 'rgba(255,255,255,0.14)',
-  text: '#FFFFFF',
-  textSoft: 'rgba(255,255,255,0.6)',
-  textMuted: 'rgba(255,255,255,0.35)',
-  accent: '#4EEAAD',
-  danger: '#EF4444',
-  inputBg: 'rgba(255,255,255,0.06)',
-  inputBorder: 'rgba(255,255,255,0.12)',
-  inputFocus: 'rgba(78,234,173,0.3)',
-  divider: 'rgba(255,255,255,0.06)',
-};
 
 const EDIT_GENRES = GENRES.filter(g =>
   [28, 35, 18, 27, 878, 10749, 53, 16, 12, 14, 10402, 9648, 10770].includes(g.id)
 );
+
+const STREAMING_PROVIDERS = [
+  { id: 8, name: 'Netflix' },
+  { id: 9, name: 'Amazon Prime' },
+  { id: 337, name: 'Disney+' },
+  { id: 384, name: 'HBO Max' },
+  { id: 15, name: 'Hulu' },
+  { id: 350, name: 'Apple TV+' },
+  { id: 386, name: 'Peacock' },
+  { id: 531, name: 'Paramount+' },
+  { id: 283, name: 'Crunchyroll' },
+  { id: 1899, name: 'Max' },
+];
 
 export default function EditProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -46,6 +43,7 @@ export default function EditProfileScreen() {
   const [name, setName] = useState(profile?.name || '');
   const [email, setEmail] = useState(authUser?.email || '');
   const [selectedGenres, setSelectedGenres] = useState<number[]>(profile?.favoriteGenres || []);
+  const [selectedProviders, setSelectedProviders] = useState<number[]>(profile?.preferredProviders || []);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -57,6 +55,7 @@ export default function EditProfileScreen() {
     if (profile) {
       setName(profile.name);
       setSelectedGenres(profile.favoriteGenres);
+      setSelectedProviders(profile.preferredProviders || []);
     }
     if (authUser) setEmail(authUser.email);
   }, [profile?.name, authUser?.email]);
@@ -65,6 +64,13 @@ export default function EditProfileScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setSelectedGenres(prev =>
       prev.includes(id) ? prev.filter(g => g !== id) : [...prev, id]
+    );
+  };
+
+  const toggleProvider = (id: number) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setSelectedProviders(prev =>
+      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
     );
   };
 
@@ -100,6 +106,7 @@ export default function EditProfileScreen() {
         ...profile,
         name: name.trim(),
         favoriteGenres: selectedGenres,
+        preferredProviders: selectedProviders,
       });
     }
 
@@ -110,7 +117,7 @@ export default function EditProfileScreen() {
   };
 
   return (
-    <LinearGradient colors={[DARK.bg1, DARK.bg2, DARK.bg3]} style={styles.container}>
+    <AppBackground>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -203,6 +210,25 @@ export default function EditProfileScreen() {
           </View>
 
           <View style={styles.formSection}>
+            <Text style={styles.sectionLabel}>STREAMING SERVICES</Text>
+            <View style={styles.genreGrid}>
+              {STREAMING_PROVIDERS.map(p => {
+                const active = selectedProviders.includes(p.id);
+                return (
+                  <Pressable
+                    key={p.id}
+                    onPress={() => toggleProvider(p.id)}
+                    style={[styles.providerChip, active && styles.providerChipActive]}
+                  >
+                    <Ionicons name="tv-outline" size={14} color={active ? '#FFF' : DARK.textMuted} />
+                    <Text style={[styles.genreChipText, active && styles.providerChipTextActive]}>{p.name}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+
+          <View style={styles.formSection}>
             <Text style={styles.sectionLabel}>CHANGE PASSWORD</Text>
             <View style={styles.fieldGroup}>
               <View style={styles.field}>
@@ -286,7 +312,7 @@ export default function EditProfileScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </LinearGradient>
+    </AppBackground>
   );
 }
 
@@ -426,6 +452,25 @@ const styles = StyleSheet.create({
   },
   genreChipTextActive: {
     color: DARK.accent,
+    fontFamily: 'DMSans_600SemiBold',
+  },
+  providerChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 10,
+    backgroundColor: DARK.glass,
+    borderWidth: 1,
+    borderColor: DARK.glassBorder,
+  },
+  providerChipActive: {
+    backgroundColor: 'rgba(124,58,237,0.25)',
+    borderColor: 'rgba(124,58,237,0.5)',
+  },
+  providerChipTextActive: {
+    color: '#C4B5FD',
     fontFamily: 'DMSans_600SemiBold',
   },
   saveSection: {

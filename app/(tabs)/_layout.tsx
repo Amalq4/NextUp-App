@@ -9,6 +9,7 @@ import React, { useEffect } from "react";
 import { router } from "expo-router";
 import { useApp } from "@/context/AppContext";
 import Colors from "@/constants/colors";
+import { DARK_THEME } from "@/components/AppBackground";
 
 function NativeTabLayout() {
   return (
@@ -45,28 +46,28 @@ function ClassicTabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: Colors.light.accent,
-        tabBarInactiveTintColor: Colors.light.tabIconDefault,
+        tabBarActiveTintColor: DARK_THEME.accent,
+        tabBarInactiveTintColor: DARK_THEME.textMuted,
         tabBarStyle: {
           position: "absolute",
-          backgroundColor: isIOS ? "transparent" : Colors.light.surface,
+          backgroundColor: isIOS ? "transparent" : DARK_THEME.bg1,
           borderTopWidth: isWeb ? 1 : 0,
-          borderTopColor: Colors.light.border,
+          borderTopColor: DARK_THEME.glassBorder,
           elevation: 0,
           ...(isWeb ? { height: 84 } : {}),
         },
         tabBarBackground: () =>
           isIOS ? (
             <BlurView
-              intensity={100}
-              tint="light"
+              intensity={80}
+              tint="dark"
               style={StyleSheet.absoluteFill}
             />
           ) : isWeb ? (
             <View
               style={[
                 StyleSheet.absoluteFill,
-                { backgroundColor: Colors.light.surface },
+                { backgroundColor: DARK_THEME.bg1 },
               ]}
             />
           ) : null,
