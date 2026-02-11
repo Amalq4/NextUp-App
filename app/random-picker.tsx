@@ -28,7 +28,6 @@ import Animated, {
   interpolate,
   cancelAnimation,
 } from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useApp } from '@/context/AppContext';
 import Colors from '@/theme/colors';
 import { ListEntry, ListStatus, MediaType, GENRES, getGenreName, getPosterUrl } from '@/types/media';
@@ -89,9 +88,9 @@ function CarouselCard({ item, position, isCenter, glowOpacity, isRevealed }: Car
           </View>
         )}
         {isCenter && isRevealed && (
-          <LinearGradient colors={['transparent', Colors.overlay]} style={styles.cardOverlay}>
+          <View style={[styles.cardOverlay, { backgroundColor: Colors.overlay }]}>
             <Text style={styles.cardTitle} numberOfLines={2}>{item?.title}</Text>
-          </LinearGradient>
+          </View>
         )}
       </View>
     </View>
@@ -341,7 +340,7 @@ export default function SpinPickerScreen() {
   const spinDisabled = eligible.length === 0 || isSpinning;
 
   return (
-    <LinearGradient colors={[Colors.background, Colors.backgroundDark, Colors.backgroundDeep]} style={styles.container}>
+    <View style={[styles.container, { backgroundColor: Colors.background }]}>
       <View style={{ paddingTop: Platform.OS === 'web' ? 67 : insets.top }}>
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} style={styles.backBtn}>
@@ -353,19 +352,14 @@ export default function SpinPickerScreen() {
 
         <View style={styles.segContainer}>
           <Animated.View style={[styles.segIndicator, segSlideStyle]}>
-            <LinearGradient
-              colors={[Colors.background, Colors.backgroundDark]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.segIndicatorGrad}
-            />
+            <View style={[styles.segIndicatorGrad, { backgroundColor: Colors.gold }]} />
           </Animated.View>
           <Pressable onPress={() => switchMode('guided')} style={styles.segBtn}>
-            <Ionicons name="options-outline" size={16} color={mode === 'guided' ? Colors.text : Colors.textSecondary} style={{ marginRight: 6 }} />
+            <Ionicons name="options-outline" size={16} color={mode === 'guided' ? Colors.black : Colors.textSecondary} style={{ marginRight: 6 }} />
             <Text style={[styles.segText, mode === 'guided' && styles.segTextActive]}>I'm Looking For...</Text>
           </Pressable>
           <Pressable onPress={() => switchMode('custom')} style={styles.segBtn}>
-            <Ionicons name="grid-outline" size={16} color={mode === 'custom' ? Colors.text : Colors.textSecondary} style={{ marginRight: 6 }} />
+            <Ionicons name="grid-outline" size={16} color={mode === 'custom' ? Colors.black : Colors.textSecondary} style={{ marginRight: 6 }} />
             <Text style={[styles.segText, mode === 'custom' && styles.segTextActive]}>Custom Spin</Text>
           </Pressable>
         </View>
@@ -486,12 +480,7 @@ export default function SpinPickerScreen() {
                   onPress={() => router.push({ pathname: '/details/[id]', params: { id: selectedItem.mediaId.toString(), type: selectedItem.mediaType } })}
                   style={styles.resultCard}
                 >
-                  <LinearGradient
-                    colors={[Colors.accentSoft, Colors.accentSoft]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.resultCardInner}
-                  >
+                  <View style={[styles.resultCardInner, { backgroundColor: Colors.accentSoft }]}>
                     {selectedItem.posterPath ? (
                       <Image source={{ uri: getPosterUrl(selectedItem.posterPath, 'w185')! }} style={styles.resultPoster} contentFit="cover" />
                     ) : (
@@ -513,7 +502,7 @@ export default function SpinPickerScreen() {
                     <View style={styles.resultArrow}>
                       <Ionicons name="arrow-forward" size={18} color={Colors.accent} />
                     </View>
-                  </LinearGradient>
+                  </View>
                 </Pressable>
               </Animated.View>
             )}
@@ -586,20 +575,15 @@ export default function SpinPickerScreen() {
             pressed && !spinDisabled && { opacity: 0.85 },
           ]}
         >
-          <LinearGradient
-            colors={isSpinning ? [Colors.slateGray, Colors.slateGray] : [Colors.background, Colors.backgroundDark]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.spinBtn}
-          >
-            <Ionicons name={isSpinning ? 'sync' : 'shuffle'} size={22} color={Colors.text} />
-            <Text style={styles.spinBtnText}>
+          <View style={[styles.spinBtn, { backgroundColor: isSpinning ? Colors.surface : Colors.gold }]}>
+            <Ionicons name={isSpinning ? 'sync' : 'shuffle'} size={22} color={isSpinning ? Colors.text : Colors.black} />
+            <Text style={[styles.spinBtnText, { color: isSpinning ? Colors.text : Colors.black }]}>
               {isSpinning ? 'Spinning...' : selectedItem ? 'Spin Again' : 'Spin the Wheel'}
             </Text>
-          </LinearGradient>
+          </View>
         </Pressable>
       </View>
-    </LinearGradient>
+    </View>
   );
 }
 
@@ -668,7 +652,7 @@ const styles = StyleSheet.create({
   },
   segTextActive: {
     fontFamily: 'DMSans_700Bold',
-    color: Colors.text,
+    color: Colors.black,
   },
   modeContent: {
     flex: 1,

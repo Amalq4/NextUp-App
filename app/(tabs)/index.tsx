@@ -15,7 +15,7 @@ import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import { useApp } from '@/context/AppContext';
@@ -80,7 +80,7 @@ function Top10Card({
           style={[styles.addBtn, isInList && styles.addBtnActive]}
           hitSlop={8}
         >
-          <Ionicons name={isInList ? 'checkmark' : 'add'} size={18} color="#FFF" />
+          <Ionicons name={isInList ? 'checkmark' : 'add'} size={18} color={Colors.cream} />
         </Pressable>
         {item.voteAverage > 0 && (
           <View style={styles.ratingPill}>
@@ -183,7 +183,7 @@ export default function HomeScreen() {
   }, [queryClient]);
 
   return (
-    <LinearGradient colors={[Colors.background, Colors.backgroundDark, Colors.backgroundDeep]} style={styles.container}>
+    <View style={styles.container}>
       <ScrollView
         style={{ paddingTop: Platform.OS === 'web' ? 67 : insets.top }}
         contentContainerStyle={{ paddingBottom: Platform.OS === 'web' ? 34 : insets.bottom + 90 }}
@@ -225,7 +225,7 @@ export default function HomeScreen() {
                 activeProvider === p.id && { backgroundColor: p.color, borderColor: p.color },
               ]}
             >
-              <Ionicons name={p.iconName} size={14} color={activeProvider === p.id ? '#FFF' : Colors.textSecondary} style={{ marginRight: 5 }} />
+              <Ionicons name={p.iconName} size={14} color={activeProvider === p.id ? Colors.cream : Colors.textSecondary} style={{ marginRight: 5 }} />
               <Text style={[styles.providerChipText, activeProvider === p.id && styles.providerChipTextActive]}>{p.name}</Text>
             </Pressable>
           ))}
@@ -281,13 +281,14 @@ export default function HomeScreen() {
           <ProviderSection key={provider.id} provider={provider} />
         ))}
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background,
   },
   headerRow: {
     flexDirection: 'row',
@@ -344,7 +345,7 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
   },
   providerChipTextActive: {
-    color: '#FFF',
+    color: Colors.cream,
   },
   sectionContainer: {
     marginTop: 12,
@@ -365,7 +366,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     fontFamily: 'DMSans_700Bold',
-    color: Colors.text,
+    color: Colors.gold,
     letterSpacing: 0.2,
   },
   seeAll: {
@@ -393,7 +394,7 @@ const styles = StyleSheet.create({
     bottom: 44,
     fontSize: 60,
     fontFamily: 'DMSans_700Bold',
-    color: 'rgba(255,255,255,0.95)',
+    color: Colors.gold,
     zIndex: 2,
     lineHeight: 60,
     textShadowColor: 'rgba(0,0,0,0.9)',
@@ -454,7 +455,7 @@ const styles = StyleSheet.create({
   ratingText: {
     fontSize: 10,
     fontFamily: 'DMSans_600SemiBold',
-    color: '#FFF',
+    color: Colors.cream,
   },
   top10Title: {
     fontSize: 12,

@@ -3,7 +3,6 @@ import { StyleSheet, View, Text, TextInput, ScrollView, Pressable, Platform } fr
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import * as Crypto from 'expo-crypto';
 import Colors from '@/theme/colors';
@@ -50,11 +49,7 @@ export default function OnboardingScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: Platform.OS === 'web' ? 67 : insets.top }]}>
-      <LinearGradient
-        colors={[Colors.background, Colors.backgroundDark, Colors.backgroundDeep]}
-        locations={[0, 0.3, 0.6]}
-        style={StyleSheet.absoluteFill}
-      />
+      <View style={[StyleSheet.absoluteFill, { backgroundColor: Colors.background }]} />
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={[styles.scrollContent, { paddingBottom: Platform.OS === 'web' ? 34 : insets.bottom + 20 }]}
@@ -127,7 +122,7 @@ export default function OnboardingScreen() {
           <Text style={styles.continueBtnText}>
             {step === 0 ? 'Continue' : 'Get Started'}
           </Text>
-          <Ionicons name="arrow-forward" size={18} color={Colors.text} />
+          <Ionicons name="arrow-forward" size={18} color={Colors.black} />
         </Pressable>
       </View>
     </View>
@@ -263,6 +258,6 @@ const styles = StyleSheet.create({
   continueBtnText: {
     fontSize: 16,
     fontFamily: 'DMSans_600SemiBold',
-    color: Colors.text,
+    color: Colors.black,
   },
 });

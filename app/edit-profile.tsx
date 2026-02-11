@@ -14,7 +14,6 @@ import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { LinearGradient } from 'expo-linear-gradient';
 import AppBackground from '@/components/AppBackground';
 import Colors from '@/theme/colors';
 import { useApp } from '@/context/AppContext';
@@ -140,14 +139,9 @@ export default function EditProfileScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.avatarSection}>
-            <LinearGradient
-              colors={[Colors.background, Colors.backgroundDark]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.avatar}
-            >
+            <View style={[styles.avatar, { backgroundColor: Colors.surface }]}>
               <Text style={styles.avatarText}>{name?.charAt(0)?.toUpperCase() || '?'}</Text>
-            </LinearGradient>
+            </View>
             <Text style={styles.avatarHint}>Tap to change avatar</Text>
           </View>
 
@@ -300,15 +294,10 @@ export default function EditProfileScreen() {
               onPress={handleSave}
               style={({ pressed }) => [styles.saveBtnWrap, pressed && { opacity: 0.85 }]}
             >
-              <LinearGradient
-                colors={[Colors.background, Colors.backgroundDark]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.saveBtn}
-              >
-                <Ionicons name="checkmark" size={20} color={Colors.text} />
+              <View style={[styles.saveBtn, { backgroundColor: Colors.gold }]}>
+                <Ionicons name="checkmark" size={20} color={Colors.black} />
                 <Text style={styles.saveBtnText}>Save Changes</Text>
-              </LinearGradient>
+              </View>
             </Pressable>
           </View>
         </ScrollView>
@@ -467,11 +456,11 @@ const styles = StyleSheet.create({
     borderColor: Colors.glassBorder,
   },
   providerChipActive: {
-    backgroundColor: 'rgba(124,58,237,0.25)',
-    borderColor: 'rgba(124,58,237,0.5)',
+    backgroundColor: Colors.accentSoft,
+    borderColor: Colors.accentBorder,
   },
   providerChipTextActive: {
-    color: '#C4B5FD',
+    color: Colors.gold,
     fontFamily: 'DMSans_600SemiBold',
   },
   saveSection: {
@@ -492,6 +481,6 @@ const styles = StyleSheet.create({
   saveBtnText: {
     fontSize: 17,
     fontFamily: 'DMSans_700Bold',
-    color: Colors.text,
+    color: Colors.black,
   },
 });

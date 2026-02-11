@@ -9,7 +9,6 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -54,7 +53,7 @@ export default function SignUpScreen() {
   };
 
   return (
-    <LinearGradient colors={[Colors.background, Colors.backgroundDark]} style={styles.gradient}>
+    <View style={[styles.gradient, { backgroundColor: Colors.background }]}>
       <ScrollView
         contentContainerStyle={[
           styles.container,
@@ -131,18 +130,13 @@ export default function SignUpScreen() {
           activeOpacity={0.8}
           style={styles.buttonWrapper}
         >
-          <LinearGradient
-            colors={[Colors.tan, Colors.coffee]}
-            style={styles.button}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-          >
+          <View style={[styles.button, { backgroundColor: Colors.gold }]}>
             {loading ? (
-              <ActivityIndicator color={Colors.text} />
+              <ActivityIndicator color={Colors.black} />
             ) : (
               <Text style={styles.buttonText}>Sign Up</Text>
             )}
-          </LinearGradient>
+          </View>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -155,7 +149,7 @@ export default function SignUpScreen() {
           </Text>
         </TouchableOpacity>
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 }
 
@@ -239,7 +233,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonText: {
-    color: Colors.text,
+    color: Colors.black,
     fontSize: 17,
     fontFamily: 'DMSans_600SemiBold',
   },
@@ -253,7 +247,7 @@ const styles = StyleSheet.create({
     fontFamily: 'DMSans_400Regular',
   },
   linkHighlight: {
-    color: Colors.tan,
+    color: Colors.gold,
     fontFamily: 'DMSans_600SemiBold',
   },
 });

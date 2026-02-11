@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontFamily: 'DMSans_700Bold',
-    color: Colors.text,
+    color: Colors.gold,
   },
   seeAll: {
     fontSize: 13,

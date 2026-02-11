@@ -4,7 +4,6 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import AppBackground from '@/components/AppBackground';
 import Colors from '@/theme/colors';
@@ -15,9 +14,9 @@ import { getApiUrl } from '@/lib/query-client';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const STATUS_CONFIG: { key: ListStatus; label: string; icon: keyof typeof Ionicons.glyphMap; color: string }[] = [
-  { key: 'want', label: 'Want', icon: 'bookmark', color: '#E8935A' },
+  { key: 'want', label: 'Want', icon: 'bookmark', color: Colors.gold },
   { key: 'watching', label: 'Watching', icon: 'play-circle', color: Colors.accent },
-  { key: 'watched', label: 'Watched', icon: 'checkmark-circle', color: '#7C3AED' },
+  { key: 'watched', label: 'Watched', icon: 'checkmark-circle', color: Colors.textMuted },
 ];
 
 export default function DetailsScreen() {
@@ -101,10 +100,7 @@ export default function DetailsScreen() {
           ) : (
             <View style={[styles.backdrop, { backgroundColor: Colors.surface }]} />
           )}
-          <LinearGradient
-            colors={['transparent', 'rgba(11,16,35,0.6)', Colors.backgroundDeep]}
-            style={styles.gradient}
-          />
+          <View style={[styles.gradient, { backgroundColor: 'rgba(0,0,0,0.6)' }]} />
           <Pressable
             onPress={() => router.back()}
             style={[styles.backButton, { top: Platform.OS === 'web' ? 67 : insets.top + 8 }]}
@@ -357,7 +353,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 17,
     fontFamily: 'DMSans_700Bold',
-    color: Colors.text,
+    color: Colors.gold,
     marginTop: 24,
     marginBottom: 8,
   },

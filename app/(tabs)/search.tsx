@@ -15,7 +15,7 @@ import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import { useApp } from '@/context/AppContext';
@@ -102,7 +102,7 @@ function DiscoverCard({
             style={[styles.addBtn, isInList && styles.addBtnActive]}
             hitSlop={8}
           >
-            <Ionicons name={isInList ? 'checkmark' : 'add'} size={16} color="#FFF" />
+            <Ionicons name={isInList ? 'checkmark' : 'add'} size={16} color={Colors.cream} />
           </Pressable>
           {item.voteAverage > 0 && (
             <View style={styles.ratingPill}>
@@ -313,7 +313,7 @@ export default function SearchScreen() {
         : 'Popular Now';
 
   return (
-    <LinearGradient colors={[Colors.background, Colors.backgroundDark, Colors.backgroundDeep]} style={styles.container}>
+    <View style={styles.container}>
       <View style={{ paddingTop: Platform.OS === 'web' ? 67 : insets.top }}>
         <View style={styles.searchHeader}>
           <Text style={styles.screenTitle}>Discover</Text>
@@ -393,13 +393,14 @@ export default function SearchScreen() {
           windowSize={5}
         />
       )}
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background,
   },
   searchHeader: {
     paddingHorizontal: 20,
@@ -456,7 +457,7 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
   },
   typeChipTextActive: {
-    color: '#FFF',
+    color: Colors.cream,
   },
   genreScroll: {
     paddingHorizontal: 20,
@@ -546,19 +547,19 @@ const styles = StyleSheet.create({
   ratingText: {
     fontSize: 10,
     fontFamily: 'DMSans_600SemiBold',
-    color: '#FFF',
+    color: Colors.cream,
   },
   typeBadge: {
     position: 'absolute',
     top: 6,
     left: 6,
-    backgroundColor: Colors.accent,
+    backgroundColor: Colors.gold,
     borderRadius: 4,
     paddingHorizontal: 6,
     paddingVertical: 2,
   },
   typeText: {
-    color: '#FFF',
+    color: Colors.black,
     fontSize: 8,
     fontFamily: 'DMSans_700Bold',
     letterSpacing: 0.5,

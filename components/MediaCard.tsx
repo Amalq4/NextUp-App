@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
   posterContainer: {
     overflow: 'hidden',
     backgroundColor: Colors.surface,
-    shadowColor: '#8B7355',
+    shadowColor: Colors.gold,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.10,
     shadowRadius: 8,

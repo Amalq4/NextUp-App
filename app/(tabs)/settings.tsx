@@ -14,7 +14,7 @@ import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import AppBackground from '@/components/AppBackground';
 import Colors from '@/theme/colors';
 import { useApp } from '@/context/AppContext';
@@ -106,16 +106,11 @@ export default function SettingsScreen() {
           style={({ pressed }) => [styles.profileCard, { opacity: pressed ? 0.9 : 1 }]}
         >
           <View style={styles.profileLeft}>
-            <LinearGradient
-              colors={[Colors.spaceCadet, Colors.coffee]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.profileAvatar}
-            >
+            <View style={styles.profileAvatar}>
               <Text style={styles.profileAvatarText}>
                 {profile?.name?.charAt(0)?.toUpperCase() || '?'}
               </Text>
-            </LinearGradient>
+            </View>
             <View style={styles.profileInfo}>
               <Text style={styles.profileName}>{profile?.name || 'User'}</Text>
               <Text style={styles.profileEmail}>{authUser?.email || 'No email'}</Text>
@@ -230,6 +225,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: Colors.surface,
   },
   profileAvatarText: {
     fontSize: 24,
