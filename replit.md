@@ -26,7 +26,7 @@ Preferred communication style: Simple, everyday language.
   - `random-picker` and `watch-together` - Feature screens
 - **State Management**: React Context (`AppContext`) for global app state including profile, lists, progress, friends, and auth state
 - **Data Persistence**: AsyncStorage for all user data (profile, watchlists, progress, friends, auth)
-- **Styling**: StyleSheet with a centralized theme system under `theme/` directory (colors, gradients, spacing). The design palette uses warm earthy tones (beige, emerald, copper, indigo, etc.)
+- **Styling**: StyleSheet with a centralized theme system under `theme/` directory. All colors are defined in `theme/colors.ts` and imported as `Colors` across all screens and components. The design palette uses: Space Cadet (#25344F - primary bg), Slate Gray (#617891 - muted text/icons), Tan (#D5B893 - accent/secondary), Coffee (#6F4D38 - button gradient start), Caput Mortuum (#632024 - button gradient end/danger). No hardcoded colors should be used in screens.
 - **Fonts**: DM Sans (Google Fonts) loaded via expo-font
 - **UI Libraries**: expo-image, expo-linear-gradient, expo-haptics, react-native-reanimated, expo-blur, expo-glass-effect
 - **Data Fetching**: @tanstack/react-query is set up with a query client, but most data fetching currently uses plain fetch calls to the Express backend
