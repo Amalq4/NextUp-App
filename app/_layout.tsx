@@ -20,6 +20,7 @@ function RootLayoutNav() {
       <Stack.Screen name="details/[id]" />
       <Stack.Screen name="progress/[id]" />
       <Stack.Screen name="random-picker" />
+      <Stack.Screen name="edit-profile" />
       <Stack.Screen name="watch-together" />
     </Stack>
   );
