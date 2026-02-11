@@ -6,7 +6,8 @@ import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
+import AppBackground from '@/components/AppBackground';
+import { DARK_THEME } from '@/components/AppBackground';
 import { useApp } from '@/context/AppContext';
 import { MediaItem, ListStatus, mapTmdbToMediaItem, getBackdropUrl, getPosterUrl, getGenreName, TmdbMovie } from '@/types/media';
 import { getApiUrl } from '@/lib/query-client';
@@ -14,9 +15,9 @@ import { getApiUrl } from '@/lib/query-client';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const STATUS_CONFIG: { key: ListStatus; label: string; icon: keyof typeof Ionicons.glyphMap; color: string }[] = [
-  { key: 'want', label: 'Want', icon: 'bookmark', color: Colors.light.warm },
-  { key: 'watching', label: 'Watching', icon: 'play-circle', color: Colors.light.accent },
-  { key: 'watched', label: 'Watched', icon: 'checkmark-circle', color: Colors.light.success },
+  { key: 'want', label: 'Want', icon: 'bookmark', color: '#E8935A' },
+  { key: 'watching', label: 'Watching', icon: 'play-circle', color: '#4EEAAD' },
+  { key: 'watched', label: 'Watched', icon: 'checkmark-circle', color: '#7C3AED' },
 ];
 
 export default function DetailsScreen() {
@@ -67,17 +68,21 @@ export default function DetailsScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.loadingContainer, { paddingTop: insets.top }]}>
-        <ActivityIndicator size="large" color={Colors.light.accent} />
-      </View>
+      <AppBackground>
+        <View style={[styles.loadingContainer, { paddingTop: insets.top }]}>
+          <ActivityIndicator size="large" color="#4EEAAD" />
+        </View>
+      </AppBackground>
     );
   }
 
   if (!item) {
     return (
-      <View style={[styles.loadingContainer, { paddingTop: insets.top }]}>
-        <Text style={styles.errorText}>Could not load details</Text>
-      </View>
+      <AppBackground>
+        <View style={[styles.loadingContainer, { paddingTop: insets.top }]}>
+          <Text style={styles.errorText}>Could not load details</Text>
+        </View>
+      </AppBackground>
     );
   }
 
@@ -85,7 +90,7 @@ export default function DetailsScreen() {
   const posterUri = getPosterUrl(item.posterPath, 'w500');
 
   return (
-    <View style={styles.container}>
+    <AppBackground>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: Platform.OS === 'web' ? 34 : insets.bottom + 20 }}
@@ -94,10 +99,10 @@ export default function DetailsScreen() {
           {backdropUri ? (
             <Image source={{ uri: backdropUri }} style={styles.backdrop} contentFit="cover" transition={300} />
           ) : (
-            <View style={[styles.backdrop, { backgroundColor: Colors.light.surfaceSecondary }]} />
+            <View style={[styles.backdrop, { backgroundColor: 'rgba(255,255,255,0.06)' }]} />
           )}
           <LinearGradient
-            colors={['transparent', 'rgba(243,232,222,0.6)', Colors.light.background]}
+            colors={['transparent', 'rgba(11,16,35,0.6)', '#0B1023']}
             style={styles.gradient}
           />
           <Pressable
@@ -114,7 +119,7 @@ export default function DetailsScreen() {
               <Image source={{ uri: posterUri }} style={styles.poster} contentFit="cover" transition={200} />
             ) : (
               <View style={[styles.poster, styles.posterPlaceholder]}>
-                <Ionicons name="film-outline" size={32} color={Colors.light.textTertiary} />
+                <Ionicons name="film-outline" size={32} color="rgba(255,255,255,0.35)" />
               </View>
             )}
             <View style={styles.titleArea}>
@@ -124,7 +129,7 @@ export default function DetailsScreen() {
                   <Text style={styles.metaText}>{new Date(item.releaseDate).getFullYear()}</Text>
                 ) : null}
                 <View style={styles.ratingChip}>
-                  <Ionicons name="star" size={12} color={Colors.light.star} />
+                  <Ionicons name="star" size={12} color="#FBBF24" />
                   <Text style={styles.ratingText}>{item.voteAverage.toFixed(1)}</Text>
                 </View>
                 <View style={styles.typeChip}>
@@ -179,25 +184,21 @@ export default function DetailsScreen() {
           <Text style={styles.overview}>{item.overview || 'No overview available.'}</Text>
         </View>
       </ScrollView>
-    </View>
+    </AppBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.light.background,
-  },
   loadingContainer: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
   },
   errorText: {
     fontSize: 15,
     fontFamily: 'DMSans_400Regular',
-    color: Colors.light.textSecondary,
+    color: 'rgba(255,255,255,0.6)',
   },
   heroContainer: {
     width: SCREEN_WIDTH,
@@ -240,7 +241,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   posterPlaceholder: {
-    backgroundColor: Colors.light.surfaceSecondary,
+    backgroundColor: 'rgba(255,255,255,0.06)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -252,7 +253,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontFamily: 'DMSans_700Bold',
-    color: Colors.light.text,
+    color: '#FFFFFF',
     lineHeight: 28,
   },
   metaRow: {
@@ -265,7 +266,7 @@ const styles = StyleSheet.create({
   metaText: {
     fontSize: 13,
     fontFamily: 'DMSans_400Regular',
-    color: Colors.light.textSecondary,
+    color: 'rgba(255,255,255,0.6)',
   },
   ratingChip: {
     flexDirection: 'row',
@@ -279,10 +280,10 @@ const styles = StyleSheet.create({
   ratingText: {
     fontSize: 12,
     fontFamily: 'DMSans_600SemiBold',
-    color: Colors.light.star,
+    color: '#FBBF24',
   },
   typeChip: {
-    backgroundColor: Colors.light.accent,
+    backgroundColor: '#4EEAAD',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 8,
@@ -295,7 +296,7 @@ const styles = StyleSheet.create({
   seasonsText: {
     fontSize: 13,
     fontFamily: 'DMSans_400Regular',
-    color: Colors.light.accent,
+    color: '#4EEAAD',
     marginTop: 4,
   },
   statusButtons: {
@@ -311,14 +312,14 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: 12,
     borderRadius: 12,
-    backgroundColor: Colors.light.surface,
+    backgroundColor: 'rgba(255,255,255,0.08)',
     borderWidth: 1.5,
-    borderColor: Colors.light.border,
+    borderColor: 'rgba(255,255,255,0.14)',
   },
   statusBtnText: {
     fontSize: 13,
     fontFamily: 'DMSans_600SemiBold',
-    color: Colors.light.text,
+    color: '#FFFFFF',
   },
   progressBtn: {
     flexDirection: 'row',
@@ -327,7 +328,7 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 13,
     borderRadius: 12,
-    backgroundColor: Colors.light.accent,
+    backgroundColor: '#4EEAAD',
     marginTop: 10,
   },
   progressBtnText: {
@@ -343,7 +344,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   genreTag: {
-    backgroundColor: Colors.light.surfaceTertiary,
+    backgroundColor: 'rgba(255,255,255,0.08)',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 10,
@@ -351,19 +352,19 @@ const styles = StyleSheet.create({
   genreTagText: {
     fontSize: 12,
     fontFamily: 'DMSans_500Medium',
-    color: Colors.light.textSecondary,
+    color: 'rgba(255,255,255,0.6)',
   },
   sectionTitle: {
     fontSize: 17,
     fontFamily: 'DMSans_700Bold',
-    color: Colors.light.text,
+    color: '#FFFFFF',
     marginTop: 24,
     marginBottom: 8,
   },
   overview: {
     fontSize: 14,
     fontFamily: 'DMSans_400Regular',
-    color: Colors.light.textSecondary,
+    color: 'rgba(255,255,255,0.6)',
     lineHeight: 22,
   },
 });

@@ -4,15 +4,16 @@ import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
+import AppBackground from '@/components/AppBackground';
+import { DARK_THEME } from '@/components/AppBackground';
 import { useApp } from '@/context/AppContext';
 import { ListItem } from '@/components/ListItem';
 import { ListStatus, ListEntry } from '@/types/media';
 
 const TABS: { key: ListStatus; label: string; icon: keyof typeof Ionicons.glyphMap; color: string; bg: string }[] = [
-  { key: 'want', label: 'Want', icon: 'bookmark', color: Colors.light.warm, bg: Colors.light.warmLight },
-  { key: 'watching', label: 'Watching', icon: 'play-circle', color: Colors.light.accent, bg: Colors.light.accentLight },
-  { key: 'watched', label: 'Watched', icon: 'checkmark-circle', color: Colors.light.success, bg: Colors.light.successLight },
+  { key: 'want', label: 'Want', icon: 'bookmark', color: '#E8935A', bg: 'rgba(232,147,90,0.15)' },
+  { key: 'watching', label: 'Watching', icon: 'play-circle', color: '#4EEAAD', bg: 'rgba(78,234,173,0.15)' },
+  { key: 'watched', label: 'Watched', icon: 'checkmark-circle', color: '#7C3AED', bg: 'rgba(124,58,237,0.15)' },
 ];
 
 export default function ListsScreen() {
@@ -38,83 +39,84 @@ export default function ListsScreen() {
   }), [lists]);
 
   return (
-    <View style={[styles.container, { paddingTop: Platform.OS === 'web' ? 67 : insets.top }]}>
-      <Text style={styles.screenTitle}>My Lists</Text>
+    <AppBackground>
+      <View style={[styles.container, { paddingTop: Platform.OS === 'web' ? 67 : insets.top }]}>
+        <Text style={styles.screenTitle}>My Lists</Text>
 
-      <View style={styles.tabBar}>
-        {TABS.map(tab => {
-          const isActive = activeTab === tab.key;
-          return (
-            <Pressable
-              key={tab.key}
-              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setActiveTab(tab.key); }}
-              style={[styles.tab, isActive && { backgroundColor: tab.bg, borderColor: tab.color }]}
-            >
-              <Ionicons
-                name={tab.icon}
-                size={18}
-                color={isActive ? tab.color : Colors.light.textTertiary}
-              />
-              <Text style={[styles.tabText, isActive && { color: tab.color, fontFamily: 'DMSans_600SemiBold' as const }]}>
-                {tab.label}
-              </Text>
-              <View style={[styles.countBadge, isActive && { backgroundColor: tab.color }]}>
-                <Text style={[styles.countText, isActive && styles.countTextActive]}>
-                  {counts[tab.key]}
+        <View style={styles.tabBar}>
+          {TABS.map(tab => {
+            const isActive = activeTab === tab.key;
+            return (
+              <Pressable
+                key={tab.key}
+                onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setActiveTab(tab.key); }}
+                style={[styles.tab, isActive && { backgroundColor: tab.bg, borderColor: tab.color }]}
+              >
+                <Ionicons
+                  name={tab.icon}
+                  size={18}
+                  color={isActive ? tab.color : DARK_THEME.textMuted}
+                />
+                <Text style={[styles.tabText, isActive && { color: tab.color, fontFamily: 'DMSans_600SemiBold' as const }]}>
+                  {tab.label}
                 </Text>
-              </View>
-            </Pressable>
-          );
-        })}
-      </View>
+                <View style={[styles.countBadge, isActive && { backgroundColor: tab.color }]}>
+                  <Text style={[styles.countText, isActive && styles.countTextActive]}>
+                    {counts[tab.key]}
+                  </Text>
+                </View>
+              </Pressable>
+            );
+          })}
+        </View>
 
-      <FlatList
-        data={filteredItems}
-        keyExtractor={item => `${item.mediaId}`}
-        renderItem={({ item }) => (
-          <ListItem
-            entry={item}
-            progress={progress.find(p => p.mediaId === item.mediaId)}
-            onPress={() => router.push({ pathname: '/details/[id]', params: { id: item.mediaId.toString(), type: item.mediaType } })}
-            onRemove={() => handleRemove(item)}
-          />
-        )}
-        contentContainerStyle={[
-          styles.listContent,
-          { paddingBottom: Platform.OS === 'web' ? 34 : insets.bottom + 90 },
-        ]}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Ionicons
-              name={activeTab === 'want' ? 'bookmark-outline' : activeTab === 'watching' ? 'play-circle-outline' : 'checkmark-circle-outline'}
-              size={52}
-              color={Colors.light.textTertiary}
+        <FlatList
+          data={filteredItems}
+          keyExtractor={item => `${item.mediaId}`}
+          renderItem={({ item }) => (
+            <ListItem
+              entry={item}
+              progress={progress.find(p => p.mediaId === item.mediaId)}
+              onPress={() => router.push({ pathname: '/details/[id]', params: { id: item.mediaId.toString(), type: item.mediaType } })}
+              onRemove={() => handleRemove(item)}
             />
-            <Text style={styles.emptyTitle}>No titles yet</Text>
-            <Text style={styles.emptyText}>
-              {activeTab === 'want'
-                ? 'Add movies and shows you want to watch'
-                : activeTab === 'watching'
-                ? 'Start tracking what you\'re watching'
-                : 'Mark titles as watched when you finish'}
-            </Text>
-          </View>
-        }
-      />
-    </View>
+          )}
+          contentContainerStyle={[
+            styles.listContent,
+            { paddingBottom: Platform.OS === 'web' ? 34 : insets.bottom + 90 },
+          ]}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <Ionicons
+                name={activeTab === 'want' ? 'bookmark-outline' : activeTab === 'watching' ? 'play-circle-outline' : 'checkmark-circle-outline'}
+                size={52}
+                color={DARK_THEME.textMuted}
+              />
+              <Text style={styles.emptyTitle}>No titles yet</Text>
+              <Text style={styles.emptyText}>
+                {activeTab === 'want'
+                  ? 'Add movies and shows you want to watch'
+                  : activeTab === 'watching'
+                  ? 'Start tracking what you\'re watching'
+                  : 'Mark titles as watched when you finish'}
+              </Text>
+            </View>
+          }
+        />
+      </View>
+    </AppBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
   },
   screenTitle: {
     fontSize: 28,
     fontFamily: 'DMSans_700Bold',
-    color: Colors.light.text,
+    color: DARK_THEME.text,
     paddingHorizontal: 20,
     paddingTop: 10,
     marginBottom: 16,
@@ -133,17 +135,17 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: 10,
     borderRadius: 12,
-    backgroundColor: Colors.light.surface,
+    backgroundColor: DARK_THEME.glass,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: DARK_THEME.glassBorder,
   },
   tabText: {
     fontSize: 13,
     fontFamily: 'DMSans_500Medium',
-    color: Colors.light.textSecondary,
+    color: DARK_THEME.textSoft,
   },
   countBadge: {
-    backgroundColor: Colors.light.surfaceSecondary,
+    backgroundColor: 'rgba(255,255,255,0.1)',
     borderRadius: 8,
     paddingHorizontal: 6,
     paddingVertical: 1,
@@ -153,7 +155,7 @@ const styles = StyleSheet.create({
   countText: {
     fontSize: 11,
     fontFamily: 'DMSans_600SemiBold',
-    color: Colors.light.textSecondary,
+    color: DARK_THEME.textSoft,
   },
   countTextActive: {
     color: '#fff',
@@ -169,12 +171,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 17,
     fontFamily: 'DMSans_600SemiBold',
-    color: Colors.light.text,
+    color: DARK_THEME.text,
   },
   emptyText: {
     fontSize: 14,
     fontFamily: 'DMSans_400Regular',
-    color: Colors.light.textSecondary,
+    color: DARK_THEME.textSoft,
     textAlign: 'center',
     paddingHorizontal: 40,
   },

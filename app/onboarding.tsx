@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import * as Crypto from 'expo-crypto';
-import Colors from '@/constants/colors';
+import { DARK_THEME } from '@/components/AppBackground';
 import { useApp } from '@/context/AppContext';
 import { GENRES, UserProfile } from '@/types/media';
 
@@ -51,7 +51,7 @@ export default function OnboardingScreen() {
   return (
     <View style={[styles.container, { paddingTop: Platform.OS === 'web' ? 67 : insets.top }]}>
       <LinearGradient
-        colors={['#254C42', '#4C2744', Colors.light.background]}
+        colors={['#254C42', '#1A1040', '#0B1023']}
         locations={[0, 0.3, 0.6]}
         style={StyleSheet.absoluteFill}
       />
@@ -76,7 +76,7 @@ export default function OnboardingScreen() {
             <TextInput
               style={styles.input}
               placeholder="Your name"
-              placeholderTextColor={Colors.light.textTertiary}
+              placeholderTextColor={'rgba(255,255,255,0.35)'}
               value={name}
               onChangeText={setName}
               autoFocus
@@ -112,7 +112,7 @@ export default function OnboardingScreen() {
       <View style={[styles.footer, { paddingBottom: Platform.OS === 'web' ? 34 : insets.bottom + 10 }]}>
         {step === 1 && (
           <Pressable onPress={() => setStep(0)} style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={22} color={Colors.light.text} />
+            <Ionicons name="arrow-back" size={22} color="#FFFFFF" />
           </Pressable>
         )}
         <Pressable
@@ -137,7 +137,6 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
   },
   scroll: {
     flex: 1,
@@ -154,7 +153,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 20,
-    backgroundColor: Colors.light.warm,
+    backgroundColor: '#E8935A',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -171,34 +170,36 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.85)',
   },
   card: {
-    backgroundColor: Colors.light.surface,
+    backgroundColor: 'rgba(255,255,255,0.08)',
     borderRadius: 20,
     padding: 24,
     marginTop: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.14)',
   },
   cardTitle: {
     fontSize: 20,
     fontFamily: 'DMSans_700Bold',
-    color: Colors.light.text,
+    color: '#FFFFFF',
     marginBottom: 6,
   },
   cardSub: {
     fontSize: 13,
     fontFamily: 'DMSans_400Regular',
-    color: Colors.light.textSecondary,
+    color: 'rgba(255,255,255,0.6)',
     marginBottom: 16,
   },
   input: {
     borderWidth: 1.5,
-    borderColor: Colors.light.border,
+    borderColor: 'rgba(255,255,255,0.12)',
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
     fontFamily: 'DMSans_500Medium',
-    color: Colors.light.text,
+    color: '#FFFFFF',
     marginTop: 10,
-    backgroundColor: Colors.light.surfaceSecondary,
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
   genreGrid: {
     flexDirection: 'row',
@@ -212,18 +213,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: Colors.light.surfaceSecondary,
+    backgroundColor: 'rgba(255,255,255,0.08)',
     borderWidth: 1.5,
-    borderColor: Colors.light.border,
+    borderColor: 'rgba(255,255,255,0.14)',
   },
   genreChipSelected: {
-    backgroundColor: Colors.light.accent,
-    borderColor: Colors.light.accent,
+    backgroundColor: '#4EEAAD',
+    borderColor: '#4EEAAD',
   },
   genreLabel: {
     fontSize: 13,
     fontFamily: 'DMSans_500Medium',
-    color: Colors.light.text,
+    color: '#FFFFFF',
   },
   genreLabelSelected: {
     color: '#fff',
@@ -233,18 +234,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 12,
-    backgroundColor: Colors.light.background,
+    backgroundColor: '#0B1023',
     gap: 12,
   },
   backBtn: {
     width: 48,
     height: 48,
     borderRadius: 14,
-    backgroundColor: Colors.light.surface,
+    backgroundColor: 'rgba(255,255,255,0.08)',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: 'rgba(255,255,255,0.14)',
   },
   continueBtn: {
     flex: 1,
@@ -252,7 +253,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: Colors.light.accent,
+    backgroundColor: '#4EEAAD',
     borderRadius: 14,
     paddingVertical: 15,
   },

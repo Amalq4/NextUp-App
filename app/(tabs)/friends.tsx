@@ -5,7 +5,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import * as Crypto from 'expo-crypto';
-import Colors from '@/constants/colors';
+import AppBackground from '@/components/AppBackground';
+import { DARK_THEME } from '@/components/AppBackground';
 import { useApp } from '@/context/AppContext';
 import { Friend } from '@/types/media';
 
@@ -49,81 +50,82 @@ export default function FriendsScreen() {
         <Text style={styles.friendId}>ID: {item.id.slice(0, 8)}</Text>
       </View>
       <Pressable onPress={() => handleRemove(item)} hitSlop={10}>
-        <Ionicons name="trash-outline" size={20} color={Colors.light.danger} />
+        <Ionicons name="trash-outline" size={20} color={DARK_THEME.danger} />
       </Pressable>
     </View>
   );
 
   return (
-    <View style={[styles.container, { paddingTop: Platform.OS === 'web' ? 67 : insets.top }]}>
-      <View style={styles.header}>
-        <Text style={styles.screenTitle}>Friends</Text>
-        <Pressable
-          onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setShowAdd(!showAdd); }}
-          style={styles.addBtn}
-        >
-          <Ionicons name={showAdd ? 'close' : 'person-add'} size={20} color={Colors.light.warm} />
-        </Pressable>
-      </View>
-
-      {showAdd && (
-        <View style={styles.addCard}>
-          <TextInput
-            style={styles.addInput}
-            placeholder="Friend's name"
-            placeholderTextColor={Colors.light.textTertiary}
-            value={friendName}
-            onChangeText={setFriendName}
-            autoFocus
-            returnKeyType="done"
-            onSubmitEditing={handleAdd}
-          />
+    <AppBackground>
+      <View style={[styles.container, { paddingTop: Platform.OS === 'web' ? 67 : insets.top }]}>
+        <View style={styles.header}>
+          <Text style={styles.screenTitle}>Friends</Text>
           <Pressable
-            onPress={handleAdd}
-            disabled={!friendName.trim()}
-            style={[styles.addConfirmBtn, !friendName.trim() && { opacity: 0.4 }]}
+            onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setShowAdd(!showAdd); }}
+            style={styles.addBtn}
           >
-            <Ionicons name="checkmark" size={22} color="#fff" />
+            <Ionicons name={showAdd ? 'close' : 'person-add'} size={20} color={DARK_THEME.copper} />
           </Pressable>
         </View>
-      )}
 
-      {friends.length > 0 && (
-        <Pressable
-          onPress={() => router.push('/watch-together')}
-          style={({ pressed }) => [styles.watchBtn, { opacity: pressed ? 0.9 : 1 }]}
-        >
-          <Ionicons name="people" size={20} color="#fff" />
-          <Text style={styles.watchBtnText}>Watch Together</Text>
-          <Ionicons name="arrow-forward" size={18} color="#fff" />
-        </Pressable>
-      )}
-
-      <FlatList
-        data={friends}
-        keyExtractor={item => item.id}
-        renderItem={renderFriend}
-        contentContainerStyle={[
-          styles.listContent,
-          { paddingBottom: Platform.OS === 'web' ? 34 : insets.bottom + 90 },
-        ]}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Ionicons name="people-outline" size={52} color={Colors.light.textTertiary} />
-            <Text style={styles.emptyTitle}>No friends yet</Text>
-            <Text style={styles.emptyText}>Add friends to start watching together</Text>
+        {showAdd && (
+          <View style={styles.addCard}>
+            <TextInput
+              style={styles.addInput}
+              placeholder="Friend's name"
+              placeholderTextColor={DARK_THEME.textMuted}
+              value={friendName}
+              onChangeText={setFriendName}
+              autoFocus
+              returnKeyType="done"
+              onSubmitEditing={handleAdd}
+            />
+            <Pressable
+              onPress={handleAdd}
+              disabled={!friendName.trim()}
+              style={[styles.addConfirmBtn, !friendName.trim() && { opacity: 0.4 }]}
+            >
+              <Ionicons name="checkmark" size={22} color="#fff" />
+            </Pressable>
           </View>
-        }
-      />
-    </View>
+        )}
+
+        {friends.length > 0 && (
+          <Pressable
+            onPress={() => router.push('/watch-together')}
+            style={({ pressed }) => [styles.watchBtn, { opacity: pressed ? 0.9 : 1 }]}
+          >
+            <Ionicons name="people" size={20} color="#fff" />
+            <Text style={styles.watchBtnText}>Watch Together</Text>
+            <Ionicons name="arrow-forward" size={18} color="#fff" />
+          </Pressable>
+        )}
+
+        <FlatList
+          data={friends}
+          keyExtractor={item => item.id}
+          renderItem={renderFriend}
+          contentContainerStyle={[
+            styles.listContent,
+            { paddingBottom: Platform.OS === 'web' ? 34 : insets.bottom + 90 },
+          ]}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <Ionicons name="people-outline" size={52} color={DARK_THEME.textMuted} />
+              <Text style={styles.emptyTitle}>No friends yet</Text>
+              <Text style={styles.emptyText}>Add friends to start watching together</Text>
+            </View>
+          }
+        />
+      </View>
+    </AppBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
   },
   header: {
     flexDirection: 'row',
@@ -136,13 +138,13 @@ const styles = StyleSheet.create({
   screenTitle: {
     fontSize: 28,
     fontFamily: 'DMSans_700Bold',
-    color: Colors.light.text,
+    color: DARK_THEME.text,
   },
   addBtn: {
     width: 42,
     height: 42,
     borderRadius: 14,
-    backgroundColor: Colors.light.warmLight,
+    backgroundColor: 'rgba(232,147,90,0.15)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -156,20 +158,20 @@ const styles = StyleSheet.create({
   addInput: {
     flex: 1,
     borderWidth: 1.5,
-    borderColor: Colors.light.border,
+    borderColor: DARK_THEME.inputBorder,
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 15,
     fontFamily: 'DMSans_400Regular',
-    color: Colors.light.text,
-    backgroundColor: Colors.light.surface,
+    color: DARK_THEME.text,
+    backgroundColor: DARK_THEME.inputBg,
   },
   addConfirmBtn: {
     width: 46,
     height: 46,
     borderRadius: 14,
-    backgroundColor: Colors.light.accent,
+    backgroundColor: DARK_THEME.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -182,7 +184,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingVertical: 14,
     borderRadius: 14,
-    backgroundColor: Colors.light.accent,
+    backgroundColor: DARK_THEME.accent,
   },
   watchBtnText: {
     fontSize: 15,
@@ -196,25 +198,25 @@ const styles = StyleSheet.create({
   friendCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.light.surface,
+    backgroundColor: DARK_THEME.glass,
     borderRadius: 14,
     padding: 14,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: DARK_THEME.glassBorder,
   },
   avatar: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Colors.light.pinkLight,
+    backgroundColor: 'rgba(232,147,90,0.15)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarText: {
     fontSize: 18,
     fontFamily: 'DMSans_700Bold',
-    color: Colors.light.warm,
+    color: DARK_THEME.copper,
   },
   friendInfo: {
     flex: 1,
@@ -223,12 +225,12 @@ const styles = StyleSheet.create({
   friendName: {
     fontSize: 15,
     fontFamily: 'DMSans_600SemiBold',
-    color: Colors.light.text,
+    color: DARK_THEME.text,
   },
   friendId: {
     fontSize: 12,
     fontFamily: 'DMSans_400Regular',
-    color: Colors.light.textTertiary,
+    color: DARK_THEME.textMuted,
     marginTop: 2,
   },
   emptyState: {
@@ -239,12 +241,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 17,
     fontFamily: 'DMSans_600SemiBold',
-    color: Colors.light.text,
+    color: DARK_THEME.text,
   },
   emptyText: {
     fontSize: 14,
     fontFamily: 'DMSans_400Regular',
-    color: Colors.light.textSecondary,
+    color: DARK_THEME.textSoft,
     textAlign: 'center',
     paddingHorizontal: 40,
   },

@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, Pressable } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import Colors from '@/constants/colors';
+import { DARK_THEME } from '@/components/AppBackground';
 import { ListEntry, getPosterUrl, getGenreName, ProgressEntry } from '@/types/media';
 
 interface ListItemProps {
@@ -28,7 +28,7 @@ export function ListItem({ entry, progress, onPress, onRemove }: ListItemProps) 
           <Image source={{ uri: posterUri }} style={styles.poster} contentFit="cover" transition={200} />
         ) : (
           <View style={styles.posterPlaceholder}>
-            <Ionicons name="film-outline" size={20} color={Colors.light.textTertiary} />
+            <Ionicons name="film-outline" size={20} color={DARK_THEME.textMuted} />
           </View>
         )}
       </View>
@@ -40,20 +40,20 @@ export function ListItem({ entry, progress, onPress, onRemove }: ListItemProps) 
         </Text>
         {progress && entry.mediaType === 'tv' && (
           <View style={styles.progressRow}>
-            <Ionicons name="play-circle" size={14} color={Colors.light.accent} />
+            <Ionicons name="play-circle" size={14} color="#4EEAAD" />
             <Text style={styles.progressText}>
               S{progress.seasonNumber} E{progress.episodeNumber}
             </Text>
           </View>
         )}
         <View style={styles.ratingRow}>
-          <Ionicons name="star" size={12} color={Colors.light.star} />
+          <Ionicons name="star" size={12} color="#FBBF24" />
           <Text style={styles.ratingText}>{entry.voteAverage.toFixed(1)}</Text>
         </View>
       </View>
       {onRemove && (
         <Pressable onPress={onRemove} hitSlop={10} style={styles.removeBtn}>
-          <Ionicons name="close-circle" size={22} color={Colors.light.textTertiary} />
+          <Ionicons name="close-circle" size={22} color={DARK_THEME.textMuted} />
         </Pressable>
       )}
     </Pressable>
@@ -64,22 +64,17 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.light.surface,
+    backgroundColor: DARK_THEME.glass,
     borderRadius: 16,
     padding: 10,
     marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
   },
   posterWrap: {
     width: 56,
     height: 84,
     borderRadius: 10,
     overflow: 'hidden',
-    backgroundColor: Colors.light.surfaceSecondary,
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
   poster: {
     width: '100%',
@@ -99,12 +94,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 15,
     fontFamily: 'DMSans_600SemiBold',
-    color: Colors.light.text,
+    color: DARK_THEME.text,
   },
   meta: {
     fontSize: 12,
     fontFamily: 'DMSans_400Regular',
-    color: Colors.light.textSecondary,
+    color: DARK_THEME.textSoft,
   },
   progressRow: {
     flexDirection: 'row',
@@ -114,7 +109,7 @@ const styles = StyleSheet.create({
   progressText: {
     fontSize: 12,
     fontFamily: 'DMSans_500Medium',
-    color: Colors.light.teal,
+    color: '#4EEAAD',
   },
   ratingRow: {
     flexDirection: 'row',
@@ -124,7 +119,7 @@ const styles = StyleSheet.create({
   ratingText: {
     fontSize: 11,
     fontFamily: 'DMSans_400Regular',
-    color: Colors.light.textSecondary,
+    color: DARK_THEME.textSoft,
   },
   removeBtn: {
     padding: 4,
