@@ -1,55 +1,44 @@
 const Colors = {
-  beige: '#F3E8DE',
-  softGreen: '#818E6E',
-  pink: '#EFCABB',
-  emerald: '#254C42',
-  copper: '#C47955',
-  indigo: '#4C2744',
-  brick: '#9B4C34',
+  spaceCadet: '#25344F',
+  slateGray: '#617891',
+  tan: '#D5B893',
+  coffee: '#6F4D38',
+  caputMortuum: '#632024',
+
+  background: '#25344F',
+  backgroundDark: '#1C2740',
+  backgroundDeep: '#162035',
+
+  surface: 'rgba(255,255,255,0.06)',
+  surfaceBorder: 'rgba(255,255,255,0.08)',
+  glass: 'rgba(255,255,255,0.08)',
+  glassBorder: 'rgba(255,255,255,0.12)',
+
+  text: '#FFFFFF',
+  textSecondary: '#D5B893',
+  textMuted: '#617891',
+
+  accent: '#D5B893',
+  accentSoft: 'rgba(213,184,147,0.2)',
+  accentBorder: 'rgba(213,184,147,0.4)',
+
+  danger: '#632024',
+  dangerBg: 'rgba(99,32,36,0.2)',
+  dangerBorder: 'rgba(99,32,36,0.4)',
+
+  star: '#D5B893',
+
+  inputBg: 'rgba(255,255,255,0.06)',
+  inputBorder: 'rgba(255,255,255,0.12)',
+
+  divider: 'rgba(255,255,255,0.06)',
+  overlay: 'rgba(0,0,0,0.7)',
+
+  tabActive: '#D5B893',
+  tabInactive: '#617891',
+
   white: '#FFFFFF',
   black: '#000000',
-
-  background: '#F3E8DE',
-  surface: '#FFFFFF',
-  surfaceSecondary: '#F9F3EE',
-  surfaceTertiary: '#EDE3D8',
-
-  text: '#1A1A1A',
-  textSecondary: '#5C5550',
-  textTertiary: '#9A918A',
-  textOnDark: '#FFFFFF',
-  textOnAccent: '#FFFFFF',
-
-  accent: '#254C42',
-  accentLight: 'rgba(37, 76, 66, 0.10)',
-  accentSoft: '#818E6E',
-  accentSoftLight: 'rgba(129, 142, 110, 0.12)',
-
-  warm: '#C47955',
-  warmLight: 'rgba(196, 121, 85, 0.12)',
-  pinkAccent: '#EFCABB',
-  pinkLight: 'rgba(239, 202, 187, 0.3)',
-
-  deepAccent: '#4C2744',
-  deepAccentLight: 'rgba(76, 39, 68, 0.10)',
-
-  brickAccent: '#9B4C34',
-  brickLight: 'rgba(155, 76, 52, 0.10)',
-
-  border: '#E5DDD5',
-  borderLight: '#F0E8DF',
-
-  star: '#D4A73A',
-  danger: '#C44B4B',
-  dangerLight: 'rgba(196, 75, 75, 0.10)',
-  success: '#4A8B6E',
-  successLight: 'rgba(74, 139, 110, 0.12)',
-
-  overlay: 'rgba(0, 0, 0, 0.4)',
-  skeleton: '#E8DDD4',
-
-  tabActive: '#254C42',
-  tabInactive: '#9A918A',
 };
 
 export default Colors;

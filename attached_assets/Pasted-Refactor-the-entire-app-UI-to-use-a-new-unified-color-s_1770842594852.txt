@@ -1,0 +1,139 @@
+Refactor the entire app UI to use a new unified color system and enforce full visual consistency.
+
+================================================
+REMOVE FROM HOME
+================================================
+
+Remove the "Max Top 10" section completely from the Home screen.
+
+- Delete the entire Max Top 10 block
+- Remove related data fetching logic
+- Remove unused styles and imports
+- Keep other Top 10 sections intact (Netflix, Disney+, etc.)
+
+================================================
+NEW COLOR PALETTE (REPLACE EVERYTHING)
+================================================
+
+Space Cadet: #25344F
+Slate Gray: #617891
+Tan: #D5B893
+Coffee: #6F4D38
+Caput Mortuum: #632024
+
+Remove all previous colors (emerald, beige, green, old blues, etc).
+
+================================================
+GLOBAL DESIGN SYSTEM
+================================================
+
+Create centralized theme files:
+
+src/theme/colors.ts
+src/theme/typography.ts
+src/theme/buttons.ts
+src/theme/layout.ts
+
+No hardcoded colors anywhere in the app.
+
+================================================
+BACKGROUND
+================================================
+
+All screens must use the SAME background:
+
+Primary background:
+#25344F
+
+Optional gradient:
+#25344F → darker variation
+
+Wrap all screens in a shared layout component to ensure consistency.
+
+================================================
+TYPOGRAPHY
+================================================
+
+Use ONE font family across entire app.
+Define clear hierarchy:
+
+- LargeTitle
+- SectionTitle
+- CardTitle
+- BodyText
+- SecondaryText
+
+Text colors:
+
+Primary text: white
+Secondary text: #D5B893
+Muted text: #617891
+
+No random font sizes.
+No inconsistent weights.
+
+================================================
+BUTTON SYSTEM
+================================================
+
+Primary buttons:
+Gradient: #6F4D38 → #632024
+Text: white
+Rounded corners: 20px
+
+Secondary buttons:
+Background: subtle Slate Gray tone
+Text: #D5B893
+Border: light Tan tone
+
+All buttons must share same padding, radius, and shadow.
+
+================================================
+TOP 10 RANKING NUMBERS (IMPORTANT)
+================================================
+
+Fix Top 10 numbers visibility.
+
+Requirements:
+
+- Position number OVER the poster image (overlay style)
+- Bottom-left corner
+- Large bold font
+- Color: #D5B893 (Tan)
+- Add strong dark shadow:
+  textShadowColor: rgba(0,0,0,0.85)
+  textShadowOffset: { width: 0, height: 4 }
+  textShadowRadius: 8
+
+- Ensure number is always readable regardless of poster color
+- Maintain cinematic premium look
+- No flat white numbers without shadow
+
+================================================
+BOTTOM TAB BAR
+================================================
+
+Background:
+#25344F (no light background)
+
+Active icon:
+#D5B893
+
+Inactive icon:
+#617891
+
+Must visually blend with dark theme.
+
+================================================
+FINAL RESULT
+================================================
+
+The entire app must:
+
+- Look cohesive
+- Use the new color palette only
+- Have consistent backgrounds
+- Have consistent typography
+- Have consistent button styles
+- Have readable Top 10 numbers
+- Feel cinematic, warm, and premium
