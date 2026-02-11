@@ -17,12 +17,20 @@ import {
   MediaType,
 } from "@/types/media";
 
+export interface AuthUser {
+  email: string;
+  password: string;
+  name: string;
+}
+
 interface AppState {
   profile: UserProfile | null;
   lists: ListEntry[];
   progress: ProgressEntry[];
   friends: Friend[];
   isLoading: boolean;
+  isAuthenticated: boolean;
+  authUser: AuthUser | null;
 }
 
 interface AppContextValue extends AppState {
@@ -37,6 +45,9 @@ interface AppContextValue extends AppState {
   addFriend: (friend: Friend) => Promise<void>;
   removeFriend: (id: string) => Promise<void>;
   clearAllData: () => Promise<void>;
+  login: (email: string, password: string) => Promise<boolean>;
+  signup: (name: string, email: string, password: string) => Promise<boolean>;
+  logout: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -46,6 +57,9 @@ const STORAGE_KEYS = {
   lists: "@nextup_lists",
   progress: "@nextup_progress",
   friends: "@nextup_friends",
+  auth: "@nextup_auth",
+  authUsers: "@nextup_auth_users",
+  currentAuth: "@nextup_current_auth",
 };
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -55,6 +69,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     progress: [],
     friends: [],
     isLoading: true,
+    isAuthenticated: false,
+    authUser: null,
   });
 
   useEffect(() => {
@@ -63,20 +79,36 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const loadData = async () => {
     try {
-      const [profileStr, listsStr, progressStr, friendsStr] = await Promise.all(
-        [
+      const [profileStr, listsStr, progressStr, friendsStr, currentAuthEmail, authUsersStr] =
+        await Promise.all([
           AsyncStorage.getItem(STORAGE_KEYS.profile),
           AsyncStorage.getItem(STORAGE_KEYS.lists),
           AsyncStorage.getItem(STORAGE_KEYS.progress),
           AsyncStorage.getItem(STORAGE_KEYS.friends),
-        ],
-      );
+          AsyncStorage.getItem(STORAGE_KEYS.currentAuth),
+          AsyncStorage.getItem(STORAGE_KEYS.authUsers),
+        ]);
+
+      let isAuthenticated = false;
+      let authUser: AuthUser | null = null;
+
+      if (currentAuthEmail && authUsersStr) {
+        const users: AuthUser[] = JSON.parse(authUsersStr);
+        const found = users.find((u) => u.email === currentAuthEmail);
+        if (found) {
+          isAuthenticated = true;
+          authUser = found;
+        }
+      }
+
       setState({
         profile: profileStr ? JSON.parse(profileStr) : null,
         lists: listsStr ? JSON.parse(listsStr) : [],
         progress: progressStr ? JSON.parse(progressStr) : [],
         friends: friendsStr ? JSON.parse(friendsStr) : [],
         isLoading: false,
+        isAuthenticated,
+        authUser,
       });
     } catch {
       setState((prev) => ({ ...prev, isLoading: false }));
@@ -174,7 +206,89 @@ export function AppProvider({ children }: { children: ReactNode }) {
       progress: [],
       friends: [],
       isLoading: false,
+      isAuthenticated: false,
+      authUser: null,
     });
+  }, []);
+
+  const login = useCallback(async (email: string, password: string): Promise<boolean> => {
+    try {
+      const authUsersStr = await AsyncStorage.getItem(STORAGE_KEYS.authUsers);
+      if (!authUsersStr) return false;
+
+      const users: AuthUser[] = JSON.parse(authUsersStr);
+      const found = users.find(
+        (u) => u.email === email && u.password === password,
+      );
+      if (!found) return false;
+
+      await AsyncStorage.setItem(STORAGE_KEYS.currentAuth, email);
+
+      const profileStr = await AsyncStorage.getItem(STORAGE_KEYS.profile);
+      const profile = profileStr ? JSON.parse(profileStr) : null;
+
+      setState((prev) => ({
+        ...prev,
+        isAuthenticated: true,
+        authUser: found,
+        profile,
+      }));
+
+      return true;
+    } catch {
+      return false;
+    }
+  }, []);
+
+  const signup = useCallback(
+    async (name: string, email: string, password: string): Promise<boolean> => {
+      try {
+        const authUsersStr = await AsyncStorage.getItem(STORAGE_KEYS.authUsers);
+        const users: AuthUser[] = authUsersStr ? JSON.parse(authUsersStr) : [];
+
+        const exists = users.find((u) => u.email === email);
+        if (exists) return false;
+
+        const newUser: AuthUser = { email, password, name };
+        const updatedUsers = [...users, newUser];
+
+        const newProfile: UserProfile = {
+          id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+          name,
+          favoriteGenres: [],
+          language: "en",
+          region: "US",
+          onboarded: false,
+        };
+
+        await Promise.all([
+          AsyncStorage.setItem(STORAGE_KEYS.authUsers, JSON.stringify(updatedUsers)),
+          AsyncStorage.setItem(STORAGE_KEYS.currentAuth, email),
+          AsyncStorage.setItem(STORAGE_KEYS.profile, JSON.stringify(newProfile)),
+        ]);
+
+        setState((prev) => ({
+          ...prev,
+          isAuthenticated: true,
+          authUser: newUser,
+          profile: newProfile,
+        }));
+
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    [],
+  );
+
+  const logout = useCallback(async (): Promise<void> => {
+    await AsyncStorage.removeItem(STORAGE_KEYS.currentAuth);
+    setState((prev) => ({
+      ...prev,
+      isAuthenticated: false,
+      authUser: null,
+    }));
   }, []);
 
   const value = useMemo(
@@ -191,6 +305,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addFriend,
       removeFriend,
       clearAllData,
+      login,
+      signup,
+      logout,
     }),
     [
       state,
@@ -205,6 +322,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addFriend,
       removeFriend,
       clearAllData,
+      login,
+      signup,
+      logout,
     ],
   );
 
