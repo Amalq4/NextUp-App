@@ -14,7 +14,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '@/context/AppContext';
-import Colors from '@/constants/colors';
+import Colors from '@/theme/colors';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -48,7 +48,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <LinearGradient colors={['#254C42', '#4C2744']} style={styles.gradient}>
+    <LinearGradient colors={[Colors.background, Colors.backgroundDark]} style={styles.gradient}>
       <ScrollView
         contentContainerStyle={[
           styles.container,
@@ -61,7 +61,7 @@ export default function LoginScreen() {
       >
         <View style={styles.logoContainer}>
           <View style={styles.logoIcon}>
-            <Ionicons name="play" size={28} color="#FFFFFF" />
+            <Ionicons name="play" size={28} color={Colors.text} />
           </View>
           <Text style={styles.logoText}>NextUp</Text>
         </View>
@@ -79,7 +79,7 @@ export default function LoginScreen() {
           <TextInput
             style={styles.input}
             placeholder="Email"
-            placeholderTextColor="rgba(255,255,255,0.5)"
+            placeholderTextColor={Colors.textMuted}
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
@@ -91,7 +91,7 @@ export default function LoginScreen() {
           <TextInput
             style={styles.input}
             placeholder="Password"
-            placeholderTextColor="rgba(255,255,255,0.5)"
+            placeholderTextColor={Colors.textMuted}
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -105,13 +105,13 @@ export default function LoginScreen() {
           style={styles.buttonWrapper}
         >
           <LinearGradient
-            colors={['#C47955', '#9B4C34']}
+            colors={[Colors.tan, Colors.coffee]}
             style={styles.button}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
           >
             {loading ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color={Colors.text} />
             ) : (
               <Text style={styles.buttonText}>Login</Text>
             )}
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: Colors.glassBorder,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -159,31 +159,31 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 36,
     fontFamily: 'DMSans_700Bold',
-    color: '#FFFFFF',
+    color: Colors.text,
   },
   title: {
     fontSize: 28,
     fontFamily: 'DMSans_700Bold',
-    color: '#FFFFFF',
+    color: Colors.text,
     textAlign: 'center',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
     fontFamily: 'DMSans_400Regular',
-    color: 'rgba(255,255,255,0.6)',
+    color: Colors.textSecondary,
     textAlign: 'center',
     marginBottom: 32,
   },
   errorContainer: {
-    backgroundColor: 'rgba(239,68,68,0.15)',
+    backgroundColor: Colors.dangerBg,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
     marginBottom: 16,
   },
   errorText: {
-    color: '#FF6B6B',
+    color: Colors.danger,
     fontFamily: 'DMSans_500Medium',
     fontSize: 14,
     textAlign: 'center',
@@ -192,15 +192,15 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   input: {
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: Colors.inputBg,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
+    borderColor: Colors.inputBorder,
     borderRadius: 16,
     paddingHorizontal: 20,
     paddingVertical: 16,
     fontSize: 16,
     fontFamily: 'DMSans_400Regular',
-    color: '#FFFFFF',
+    color: Colors.text,
   },
   buttonWrapper: {
     marginTop: 8,
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonText: {
-    color: '#FFFFFF',
+    color: Colors.text,
     fontSize: 17,
     fontFamily: 'DMSans_600SemiBold',
   },
@@ -221,12 +221,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   linkText: {
-    color: 'rgba(255,255,255,0.6)',
+    color: Colors.textSecondary,
     fontSize: 15,
     fontFamily: 'DMSans_400Regular',
   },
   linkHighlight: {
-    color: '#EFCABB',
+    color: Colors.tan,
     fontFamily: 'DMSans_600SemiBold',
   },
 });

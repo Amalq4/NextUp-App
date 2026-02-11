@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Colors from '@/constants/colors';
+import Colors from '@/theme/colors';
 
 interface SectionHeaderProps {
   title: string;
@@ -13,7 +13,7 @@ export function SectionHeader({ title, onSeeAll, icon }: SectionHeaderProps) {
   return (
     <View style={styles.container}>
       <View style={styles.left}>
-        {icon && <Ionicons name={icon} size={18} color={Colors.light.warm} style={{ marginRight: 6 }} />}
+        {icon && <Ionicons name={icon} size={18} color={Colors.tan} style={{ marginRight: 6 }} />}
         <Text style={styles.title}>{title}</Text>
       </View>
       {onSeeAll && (
@@ -38,17 +38,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderLeftWidth: 3,
-    borderLeftColor: Colors.light.warm,
+    borderLeftColor: Colors.tan,
     paddingLeft: 8,
   },
   title: {
     fontSize: 18,
     fontFamily: 'DMSans_700Bold',
-    color: Colors.light.text,
+    color: Colors.text,
   },
   seeAll: {
     fontSize: 13,
     fontFamily: 'DMSans_500Medium',
-    color: Colors.light.warm,
+    color: Colors.tan,
   },
 });

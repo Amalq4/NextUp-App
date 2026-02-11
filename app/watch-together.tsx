@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence, withTiming } from 'react-native-reanimated';
 import AppBackground from '@/components/AppBackground';
-import { DARK_THEME } from '@/components/AppBackground';
+import Colors from '@/theme/colors';
 import { useApp } from '@/context/AppContext';
 import { Friend, ListEntry, getPosterUrl, getGenreName } from '@/types/media';
 
@@ -50,7 +50,7 @@ export default function WatchTogetherScreen() {
       <View style={[styles.container, { paddingTop: Platform.OS === 'web' ? 67 : insets.top }]}>
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={22} color={DARK_THEME.text} />
+            <Ionicons name="arrow-back" size={22} color={Colors.text} />
           </Pressable>
           <Text style={styles.headerTitle}>Watch Together</Text>
           <View style={{ width: 40 }} />
@@ -69,12 +69,12 @@ export default function WatchTogetherScreen() {
               return (
                 <Pressable onPress={() => toggleFriend(item.id)} style={styles.friendChip}>
                   <View style={[styles.friendAvatar, isSelected && styles.friendAvatarSelected]}>
-                    <Text style={[styles.friendAvatarText, isSelected && { color: '#fff' }]}>
+                    <Text style={[styles.friendAvatarText, isSelected && { color: Colors.text }]}>
                       {item.displayName.charAt(0).toUpperCase()}
                     </Text>
                     {isSelected && (
                       <View style={styles.checkMark}>
-                        <Ionicons name="checkmark" size={10} color="#fff" />
+                        <Ionicons name="checkmark" size={10} color={Colors.text} />
                       </View>
                     )}
                   </View>
@@ -103,8 +103,8 @@ export default function WatchTogetherScreen() {
                 {pickedItem.posterPath ? (
                   <Image source={{ uri: getPosterUrl(pickedItem.posterPath, 'w342')! }} style={styles.resultPoster} contentFit="cover" />
                 ) : (
-                  <View style={[styles.resultPoster, { backgroundColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center' }]}>
-                    <Ionicons name="film-outline" size={24} color={DARK_THEME.textMuted} />
+                  <View style={[styles.resultPoster, { backgroundColor: Colors.surface, alignItems: 'center', justifyContent: 'center' }]}>
+                    <Ionicons name="film-outline" size={24} color={Colors.textMuted} />
                   </View>
                 )}
                 <View style={styles.resultInfo}>
@@ -114,7 +114,7 @@ export default function WatchTogetherScreen() {
                     {pickedItem.genreIds.length > 0 ? ` \u00B7 ${getGenreName(pickedItem.genreIds[0])}` : ''}
                   </Text>
                 </View>
-                <Ionicons name="arrow-forward" size={20} color={DARK_THEME.textMuted} />
+                <Ionicons name="arrow-forward" size={20} color={Colors.textMuted} />
               </Pressable>
             </Animated.View>
           )}
@@ -132,10 +132,10 @@ export default function WatchTogetherScreen() {
                 {item.posterPath ? (
                   <Image source={{ uri: getPosterUrl(item.posterPath, 'w92')! }} style={styles.titlePoster} contentFit="cover" />
                 ) : (
-                  <View style={[styles.titlePoster, { backgroundColor: 'rgba(255,255,255,0.06)' }]} />
+                  <View style={[styles.titlePoster, { backgroundColor: Colors.surface }]} />
                 )}
                 <Text style={styles.titleName} numberOfLines={1}>{item.title}</Text>
-                <Ionicons name="chevron-forward" size={16} color={DARK_THEME.textMuted} />
+                <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
               </Pressable>
             )}
           />
@@ -151,7 +151,7 @@ export default function WatchTogetherScreen() {
               { opacity: pressed ? 0.9 : 1 },
             ]}
           >
-            <Ionicons name="shuffle" size={22} color="#fff" />
+            <Ionicons name="shuffle" size={22} color={Colors.text} />
             <Text style={styles.pickBtnText}>
               {pickedItem ? 'Re-roll' : 'Fair Pick'}
             </Text>
@@ -177,16 +177,16 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: DARK_THEME.glass,
+    backgroundColor: Colors.glass,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: DARK_THEME.glassBorder,
+    borderColor: Colors.glassBorder,
   },
   headerTitle: {
     fontSize: 17,
     fontFamily: 'DMSans_600SemiBold',
-    color: DARK_THEME.text,
+    color: Colors.text,
   },
   content: {
     flex: 1,
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 13,
     fontFamily: 'DMSans_600SemiBold',
-    color: DARK_THEME.textSoft,
+    color: Colors.textSecondary,
     marginBottom: 10,
     marginTop: 10,
     textTransform: 'uppercase',
@@ -212,20 +212,20 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: Colors.surfaceBorder,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: DARK_THEME.glassBorder,
+    borderColor: Colors.glassBorder,
   },
   friendAvatarSelected: {
-    backgroundColor: DARK_THEME.accent,
-    borderColor: DARK_THEME.accent,
+    backgroundColor: Colors.accent,
+    borderColor: Colors.accent,
   },
   friendAvatarText: {
     fontSize: 18,
     fontFamily: 'DMSans_700Bold',
-    color: DARK_THEME.textSoft,
+    color: Colors.textSecondary,
   },
   checkMark: {
     position: 'absolute',
@@ -234,34 +234,34 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     borderRadius: 9,
-    backgroundColor: DARK_THEME.accent,
+    backgroundColor: Colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: DARK_THEME.bg1,
+    borderColor: Colors.background,
   },
   friendChipName: {
     fontSize: 11,
     fontFamily: 'DMSans_400Regular',
-    color: DARK_THEME.text,
+    color: Colors.text,
     marginTop: 4,
   },
   noFriends: {
     fontSize: 13,
     fontFamily: 'DMSans_400Regular',
-    color: DARK_THEME.textMuted,
+    color: Colors.textMuted,
   },
   helpText: {
     fontSize: 13,
     fontFamily: 'DMSans_400Regular',
-    color: DARK_THEME.textMuted,
+    color: Colors.textMuted,
     marginBottom: 10,
   },
   resultCard: {
-    backgroundColor: DARK_THEME.glass,
+    backgroundColor: Colors.glass,
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: DARK_THEME.accent,
+    borderColor: Colors.accent,
     overflow: 'hidden',
     marginBottom: 16,
   },
@@ -282,12 +282,12 @@ const styles = StyleSheet.create({
   resultTitle: {
     fontSize: 15,
     fontFamily: 'DMSans_700Bold',
-    color: DARK_THEME.text,
+    color: Colors.text,
   },
   resultMeta: {
     fontSize: 12,
     fontFamily: 'DMSans_400Regular',
-    color: DARK_THEME.textSoft,
+    color: Colors.textSecondary,
     marginTop: 4,
   },
   titlesList: {
@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     fontFamily: 'DMSans_500Medium',
-    color: DARK_THEME.text,
+    color: Colors.text,
   },
   footer: {
     paddingHorizontal: 20,
@@ -319,13 +319,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    backgroundColor: DARK_THEME.accent,
+    backgroundColor: Colors.accent,
     borderRadius: 14,
     paddingVertical: 16,
   },
   pickBtnText: {
     fontSize: 16,
     fontFamily: 'DMSans_600SemiBold',
-    color: '#fff',
+    color: Colors.text,
   },
 });

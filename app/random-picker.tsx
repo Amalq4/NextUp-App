@@ -30,6 +30,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useApp } from '@/context/AppContext';
+import Colors from '@/theme/colors';
 import { ListEntry, ListStatus, MediaType, GENRES, getGenreName, getPosterUrl } from '@/types/media';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -44,36 +45,6 @@ const GRID_CARD_H = GRID_COL_W * 1.5;
 const FILTER_GENRES = GENRES.filter(g =>
   [28, 35, 18, 27, 878, 10749, 53, 16].includes(g.id)
 );
-
-const DARK = {
-  bg1: '#0B1023',
-  bg2: '#1A1040',
-  bg3: '#0D0D2B',
-  card: 'rgba(255,255,255,0.06)',
-  cardBorder: 'rgba(255,255,255,0.10)',
-  glass: 'rgba(255,255,255,0.08)',
-  glassBorder: 'rgba(255,255,255,0.15)',
-  text: '#FFFFFF',
-  textSoft: 'rgba(255,255,255,0.6)',
-  textMuted: 'rgba(255,255,255,0.35)',
-  accent: '#4EEAAD',
-  accentGlow: 'rgba(78,234,173,0.3)',
-  copper: '#E8935A',
-  copperGlow: 'rgba(232,147,90,0.25)',
-  emerald: '#34D399',
-  indigo: '#7C3AED',
-  pointer: '#FF6B6B',
-  dot: 'rgba(255,255,255,0.15)',
-  dotActive: '#4EEAAD',
-  success: '#22C55E',
-  star: '#FBBF24',
-  segBg: 'rgba(255,255,255,0.06)',
-  segBorder: 'rgba(255,255,255,0.10)',
-  segInactive: 'rgba(255,255,255,0.04)',
-  searchBg: 'rgba(255,255,255,0.08)',
-  selected: 'rgba(78,234,173,0.35)',
-  selectedBorder: 'rgba(78,234,173,0.7)',
-};
 
 type SpinMode = 'guided' | 'custom';
 
@@ -114,11 +85,11 @@ function CarouselCard({ item, position, isCenter, glowOpacity, isRevealed }: Car
           <Image source={{ uri: getPosterUrl(item.posterPath, 'w342')! }} style={[styles.cardImage, { width: cardWidth, height: cardHeight }]} contentFit="cover" />
         ) : (
           <View style={[styles.cardPlaceholder, { width: cardWidth, height: cardHeight }]}>
-            <Ionicons name="film-outline" size={isCenter ? 32 : 24} color={DARK.textMuted} />
+            <Ionicons name="film-outline" size={isCenter ? 32 : 24} color={Colors.textMuted} />
           </View>
         )}
         {isCenter && isRevealed && (
-          <LinearGradient colors={['transparent', 'rgba(0,0,0,0.7)']} style={styles.cardOverlay}>
+          <LinearGradient colors={['transparent', Colors.overlay]} style={styles.cardOverlay}>
             <Text style={styles.cardTitle} numberOfLines={2}>{item?.title}</Text>
           </LinearGradient>
         )}
@@ -180,12 +151,12 @@ function SelectableCard({
         <Image source={{ uri: posterUri }} style={styles.selectImage} contentFit="cover" />
       ) : (
         <View style={styles.selectPlaceholder}>
-          <Ionicons name="film-outline" size={20} color={DARK.textMuted} />
+          <Ionicons name="film-outline" size={20} color={Colors.textMuted} />
         </View>
       )}
       {isSelected && (
         <View style={styles.selectCheck}>
-          <Ionicons name="checkmark-circle" size={22} color={DARK.accent} />
+          <Ionicons name="checkmark-circle" size={22} color={Colors.accent} />
         </View>
       )}
       <Text style={styles.selectTitle} numberOfLines={2}>{item.title}</Text>
@@ -370,11 +341,11 @@ export default function SpinPickerScreen() {
   const spinDisabled = eligible.length === 0 || isSpinning;
 
   return (
-    <LinearGradient colors={[DARK.bg1, DARK.bg2, DARK.bg3]} style={styles.container}>
+    <LinearGradient colors={[Colors.background, Colors.backgroundDark, Colors.backgroundDeep]} style={styles.container}>
       <View style={{ paddingTop: Platform.OS === 'web' ? 67 : insets.top }}>
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={20} color={DARK.text} />
+            <Ionicons name="arrow-back" size={20} color={Colors.text} />
           </Pressable>
           <Text style={styles.headerTitle}>Spin Picker</Text>
           <View style={{ width: 40 }} />
@@ -383,18 +354,18 @@ export default function SpinPickerScreen() {
         <View style={styles.segContainer}>
           <Animated.View style={[styles.segIndicator, segSlideStyle]}>
             <LinearGradient
-              colors={['#254C42', '#4C2744']}
+              colors={[Colors.background, Colors.backgroundDark]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.segIndicatorGrad}
             />
           </Animated.View>
           <Pressable onPress={() => switchMode('guided')} style={styles.segBtn}>
-            <Ionicons name="options-outline" size={16} color={mode === 'guided' ? '#FFF' : DARK.textSoft} style={{ marginRight: 6 }} />
+            <Ionicons name="options-outline" size={16} color={mode === 'guided' ? Colors.text : Colors.textSecondary} style={{ marginRight: 6 }} />
             <Text style={[styles.segText, mode === 'guided' && styles.segTextActive]}>I'm Looking For...</Text>
           </Pressable>
           <Pressable onPress={() => switchMode('custom')} style={styles.segBtn}>
-            <Ionicons name="grid-outline" size={16} color={mode === 'custom' ? '#FFF' : DARK.textSoft} style={{ marginRight: 6 }} />
+            <Ionicons name="grid-outline" size={16} color={mode === 'custom' ? Colors.text : Colors.textSecondary} style={{ marginRight: 6 }} />
             <Text style={[styles.segText, mode === 'custom' && styles.segTextActive]}>Custom Spin</Text>
           </Pressable>
         </View>
@@ -437,7 +408,7 @@ export default function SpinPickerScreen() {
                       <Ionicons
                         name={status === 'want' ? 'bookmark' : 'play-circle'}
                         size={14}
-                        color={selectedLists.includes(status) ? '#FFF' : DARK.textSoft}
+                        color={selectedLists.includes(status) ? Colors.text : Colors.textSecondary}
                         style={{ marginRight: 4 }}
                       />
                       <Text style={[styles.filterChipText, selectedLists.includes(status) && styles.filterChipTextActive]}>
@@ -472,7 +443,7 @@ export default function SpinPickerScreen() {
               {eligible.length === 0 ? (
                 <View style={styles.emptyState}>
                   <View style={styles.emptyIcon}>
-                    <Ionicons name="film-outline" size={44} color={DARK.textMuted} />
+                    <Ionicons name="film-outline" size={44} color={Colors.textMuted} />
                   </View>
                   <Text style={styles.emptyTitle}>Nothing to Spin</Text>
                   <Text style={styles.emptySubtitle}>Add movies or shows to your list first</Text>
@@ -516,7 +487,7 @@ export default function SpinPickerScreen() {
                   style={styles.resultCard}
                 >
                   <LinearGradient
-                    colors={['rgba(78,234,173,0.08)', 'rgba(124,58,237,0.08)']}
+                    colors={[Colors.accentSoft, Colors.accentSoft]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={styles.resultCardInner}
@@ -525,7 +496,7 @@ export default function SpinPickerScreen() {
                       <Image source={{ uri: getPosterUrl(selectedItem.posterPath, 'w185')! }} style={styles.resultPoster} contentFit="cover" />
                     ) : (
                       <View style={[styles.resultPoster, styles.resultPosterEmpty]}>
-                        <Ionicons name="film-outline" size={20} color={DARK.textMuted} />
+                        <Ionicons name="film-outline" size={20} color={Colors.textMuted} />
                       </View>
                     )}
                     <View style={styles.resultInfo}>
@@ -535,12 +506,12 @@ export default function SpinPickerScreen() {
                         {selectedItem.genreIds.length > 0 ? ` \u00B7 ${getGenreName(selectedItem.genreIds[0])}` : ''}
                       </Text>
                       <View style={styles.resultRating}>
-                        <Ionicons name="star" size={12} color={DARK.star} />
+                        <Ionicons name="star" size={12} color={Colors.star} />
                         <Text style={styles.resultRatingText}>{selectedItem.voteAverage.toFixed(1)}</Text>
                       </View>
                     </View>
                     <View style={styles.resultArrow}>
-                      <Ionicons name="arrow-forward" size={18} color={DARK.accent} />
+                      <Ionicons name="arrow-forward" size={18} color={Colors.accent} />
                     </View>
                   </LinearGradient>
                 </Pressable>
@@ -551,30 +522,30 @@ export default function SpinPickerScreen() {
           <View style={styles.modeContent}>
             <View style={styles.customHeader}>
               <View style={styles.customSearchBar}>
-                <Ionicons name="search" size={16} color={DARK.textMuted} />
+                <Ionicons name="search" size={16} color={Colors.textMuted} />
                 <TextInput
                   style={styles.customSearchInput}
                   placeholder="Search your titles..."
-                  placeholderTextColor={DARK.textMuted}
+                  placeholderTextColor={Colors.textMuted}
                   value={customSearch}
                   onChangeText={setCustomSearch}
-                  selectionColor={DARK.accent}
+                  selectionColor={Colors.accent}
                 />
                 {customSearch.length > 0 && (
                   <Pressable onPress={() => setCustomSearch('')} hitSlop={10}>
-                    <Ionicons name="close-circle" size={16} color={DARK.textSoft} />
+                    <Ionicons name="close-circle" size={16} color={Colors.textSecondary} />
                   </Pressable>
                 )}
               </View>
 
               <View style={styles.customActions}>
                 <Pressable onPress={selectAllCustom} style={styles.customActBtn}>
-                  <Ionicons name="checkmark-done" size={14} color={DARK.accent} />
+                  <Ionicons name="checkmark-done" size={14} color={Colors.accent} />
                   <Text style={styles.customActText}>Select All</Text>
                 </Pressable>
                 <Pressable onPress={deselectAllCustom} style={styles.customActBtn}>
-                  <Ionicons name="close" size={14} color={DARK.textSoft} />
-                  <Text style={[styles.customActText, { color: DARK.textSoft }]}>Deselect All</Text>
+                  <Ionicons name="close" size={14} color={Colors.textSecondary} />
+                  <Text style={[styles.customActText, { color: Colors.textSecondary }]}>Deselect All</Text>
                 </Pressable>
                 <Text style={styles.customCount}>{customSelected.size} selected</Text>
               </View>
@@ -595,7 +566,7 @@ export default function SpinPickerScreen() {
               )}
               ListEmptyComponent={
                 <View style={styles.emptyState}>
-                  <Ionicons name="film-outline" size={40} color={DARK.textMuted} />
+                  <Ionicons name="film-outline" size={40} color={Colors.textMuted} />
                   <Text style={styles.emptyTitle}>No titles in your lists</Text>
                   <Text style={styles.emptySubtitle}>Add movies or shows first to use custom spin</Text>
                 </View>
@@ -616,12 +587,12 @@ export default function SpinPickerScreen() {
           ]}
         >
           <LinearGradient
-            colors={isSpinning ? ['#6B21A8', '#7C3AED'] : ['#254C42', '#4C2744']}
+            colors={isSpinning ? [Colors.slateGray, Colors.slateGray] : [Colors.background, Colors.backgroundDark]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.spinBtn}
           >
-            <Ionicons name={isSpinning ? 'sync' : 'shuffle'} size={22} color="#FFF" />
+            <Ionicons name={isSpinning ? 'sync' : 'shuffle'} size={22} color={Colors.text} />
             <Text style={styles.spinBtnText}>
               {isSpinning ? 'Spinning...' : selectedItem ? 'Spin Again' : 'Spin the Wheel'}
             </Text>
@@ -647,16 +618,16 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 14,
-    backgroundColor: DARK.glass,
+    backgroundColor: Colors.glass,
     borderWidth: 1,
-    borderColor: DARK.glassBorder,
+    borderColor: Colors.glassBorder,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontFamily: 'DMSans_700Bold',
-    color: DARK.text,
+    color: Colors.text,
     letterSpacing: 0.5,
   },
   segContainer: {
@@ -664,10 +635,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginTop: 4,
     marginBottom: 8,
-    backgroundColor: DARK.segBg,
+    backgroundColor: Colors.surface,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: DARK.segBorder,
+    borderColor: Colors.surfaceBorder,
     height: 48,
     position: 'relative',
     overflow: 'hidden',
@@ -693,11 +664,11 @@ const styles = StyleSheet.create({
   segText: {
     fontSize: 13,
     fontFamily: 'DMSans_500Medium',
-    color: DARK.textSoft,
+    color: Colors.textSecondary,
   },
   segTextActive: {
     fontFamily: 'DMSans_700Bold',
-    color: '#FFF',
+    color: Colors.text,
   },
   modeContent: {
     flex: 1,
@@ -705,10 +676,10 @@ const styles = StyleSheet.create({
   filterPanel: {
     marginHorizontal: 16,
     marginTop: 4,
-    backgroundColor: DARK.glass,
+    backgroundColor: Colors.glass,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: DARK.glassBorder,
+    borderColor: Colors.glassBorder,
     padding: 14,
   },
   filterSection: {
@@ -717,7 +688,7 @@ const styles = StyleSheet.create({
   filterLabel: {
     fontSize: 10,
     fontFamily: 'DMSans_700Bold',
-    color: DARK.textMuted,
+    color: Colors.textMuted,
     letterSpacing: 1.5,
     marginBottom: 6,
   },
@@ -731,48 +702,48 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 10,
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.10)',
+    borderColor: Colors.surfaceBorder,
   },
   filterChipActive: {
-    backgroundColor: 'rgba(78,234,173,0.2)',
-    borderColor: 'rgba(78,234,173,0.4)',
+    backgroundColor: Colors.accentSoft,
+    borderColor: Colors.accentBorder,
   },
   filterChipText: {
     fontSize: 12,
     fontFamily: 'DMSans_500Medium',
-    color: DARK.textSoft,
+    color: Colors.textSecondary,
   },
   filterChipTextActive: {
-    color: DARK.accent,
+    color: Colors.accent,
   },
   genreChip: {
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 8,
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: Colors.surfaceBorder,
     marginRight: 6,
     marginBottom: 6,
   },
   genreChipActive: {
-    backgroundColor: 'rgba(124,58,237,0.25)',
-    borderColor: 'rgba(124,58,237,0.5)',
+    backgroundColor: Colors.accentSoft,
+    borderColor: Colors.accentBorder,
   },
   genreChipText: {
     fontSize: 11,
     fontFamily: 'DMSans_500Medium',
-    color: DARK.textSoft,
+    color: Colors.textSecondary,
   },
   genreChipTextActive: {
-    color: '#C4B5FD',
+    color: Colors.slateGray,
   },
   eligibleText: {
     fontSize: 11,
     fontFamily: 'DMSans_400Regular',
-    color: DARK.textMuted,
+    color: Colors.textMuted,
     textAlign: 'center',
     marginTop: 4,
   },
@@ -796,7 +767,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 14,
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
-    borderTopColor: DARK.accent,
+    borderTopColor: Colors.accent,
   },
   pointerGlow: {
     position: 'absolute',
@@ -804,7 +775,7 @@ const styles = StyleSheet.create({
     width: 30,
     height: 20,
     borderRadius: 10,
-    backgroundColor: DARK.accentGlow,
+    backgroundColor: Colors.accentBorder,
   },
   carouselContainer: {
     width: SCREEN_WIDTH,
@@ -827,9 +798,9 @@ const styles = StyleSheet.create({
   carouselCard: {
     borderRadius: 14,
     overflow: 'hidden',
-    backgroundColor: DARK.card,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: DARK.cardBorder,
+    borderColor: Colors.surfaceBorder,
   },
   cardImage: {
     borderRadius: 14,
@@ -837,14 +808,14 @@ const styles = StyleSheet.create({
   cardPlaceholder: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: DARK.card,
+    backgroundColor: Colors.surface,
   },
   cardGlow: {
     position: 'absolute',
     width: CENTER_CARD_W + 30,
     height: CENTER_CARD_H + 30,
     borderRadius: 22,
-    backgroundColor: DARK.accentGlow,
+    backgroundColor: Colors.accentBorder,
     zIndex: -1,
   },
   cardOverlay: {
@@ -860,7 +831,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 13,
     fontFamily: 'DMSans_700Bold',
-    color: '#FFF',
+    color: Colors.text,
     textAlign: 'center',
   },
   dotsRow: {
@@ -874,15 +845,15 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: DARK.dot,
+    backgroundColor: Colors.glassBorder,
   },
   glowDotActive: {
-    backgroundColor: DARK.dotActive,
+    backgroundColor: Colors.accent,
   },
   swipeHint: {
     fontSize: 12,
     fontFamily: 'DMSans_400Regular',
-    color: DARK.textMuted,
+    color: Colors.textMuted,
     textAlign: 'center',
     marginTop: 10,
   },
@@ -896,7 +867,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: DARK.glass,
+    backgroundColor: Colors.glass,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 4,
@@ -904,12 +875,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 17,
     fontFamily: 'DMSans_600SemiBold',
-    color: DARK.text,
+    color: Colors.text,
   },
   emptySubtitle: {
     fontSize: 13,
     fontFamily: 'DMSans_400Regular',
-    color: DARK.textMuted,
+    color: Colors.textMuted,
     textAlign: 'center',
     paddingHorizontal: 40,
   },
@@ -922,7 +893,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: DARK.glassBorder,
+    borderColor: Colors.glassBorder,
   },
   resultCardInner: {
     flexDirection: 'row',
@@ -936,7 +907,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   resultPosterEmpty: {
-    backgroundColor: DARK.card,
+    backgroundColor: Colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -947,12 +918,12 @@ const styles = StyleSheet.create({
   resultTitle: {
     fontSize: 15,
     fontFamily: 'DMSans_700Bold',
-    color: DARK.text,
+    color: Colors.text,
   },
   resultMeta: {
     fontSize: 12,
     fontFamily: 'DMSans_400Regular',
-    color: DARK.textSoft,
+    color: Colors.textSecondary,
   },
   resultRating: {
     flexDirection: 'row',
@@ -962,13 +933,13 @@ const styles = StyleSheet.create({
   resultRatingText: {
     fontSize: 12,
     fontFamily: 'DMSans_600SemiBold',
-    color: DARK.star,
+    color: Colors.star,
   },
   resultArrow: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: DARK.glass,
+    backgroundColor: Colors.glass,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -979,19 +950,19 @@ const styles = StyleSheet.create({
   customSearchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: DARK.searchBg,
+    backgroundColor: Colors.glass,
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
     gap: 8,
     borderWidth: 1,
-    borderColor: DARK.segBorder,
+    borderColor: Colors.surfaceBorder,
   },
   customSearchInput: {
     flex: 1,
     fontSize: 14,
     fontFamily: 'DMSans_400Regular',
-    color: DARK.text,
+    color: Colors.text,
     padding: 0,
   },
   customActions: {
@@ -1009,13 +980,13 @@ const styles = StyleSheet.create({
   customActText: {
     fontSize: 12,
     fontFamily: 'DMSans_600SemiBold',
-    color: DARK.accent,
+    color: Colors.accent,
   },
   customCount: {
     flex: 1,
     fontSize: 11,
     fontFamily: 'DMSans_400Regular',
-    color: DARK.textMuted,
+    color: Colors.textMuted,
     textAlign: 'right',
   },
   customGrid: {
@@ -1042,7 +1013,7 @@ const styles = StyleSheet.create({
     width: GRID_COL_W,
     height: GRID_CARD_H,
     borderRadius: 12,
-    backgroundColor: DARK.card,
+    backgroundColor: Colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
@@ -1052,13 +1023,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 6,
     right: 6,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: Colors.overlay,
     borderRadius: 12,
   },
   selectTitle: {
     fontSize: 10,
     fontFamily: 'DMSans_500Medium',
-    color: DARK.textSoft,
+    color: Colors.textSecondary,
     marginTop: 4,
     lineHeight: 14,
   },
@@ -1081,6 +1052,6 @@ const styles = StyleSheet.create({
   spinBtnText: {
     fontSize: 17,
     fontFamily: 'DMSans_700Bold',
-    color: '#FFF',
+    color: Colors.text,
   },
 });

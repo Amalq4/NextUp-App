@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, Pressable, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import Colors from '@/constants/colors';
+import Colors from '@/theme/colors';
 import { MediaItem, getPosterUrl, getGenreName } from '@/types/media';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -38,12 +38,12 @@ export function MediaCard({ item, onPress, size = 'medium', showRating = true, s
           />
         ) : (
           <View style={[styles.placeholder, { borderRadius: size === 'small' ? 10 : 12 }]}>
-            <Ionicons name="film-outline" size={32} color={Colors.light.textTertiary} />
+            <Ionicons name="film-outline" size={32} color={Colors.textMuted} />
           </View>
         )}
         {showRating && item.voteAverage > 0 && (
           <View style={styles.ratingBadge}>
-            <Ionicons name="star" size={10} color={Colors.light.star} />
+            <Ionicons name="star" size={10} color={Colors.star} />
             <Text style={styles.ratingText}>{item.voteAverage.toFixed(1)}</Text>
           </View>
         )}
@@ -57,7 +57,7 @@ export function MediaCard({ item, onPress, size = 'medium', showRating = true, s
       ) : (
         <Text style={styles.subtitle} numberOfLines={1}>
           {item.releaseDate ? new Date(item.releaseDate).getFullYear() : ''}
-          {item.genreIds.length > 0 ? ` \u00B7 ${getGenreName(item.genreIds[0])}` : ''}
+          {item.genreIds.length > 0 ? ` · ${getGenreName(item.genreIds[0])}` : ''}
         </Text>
       )}
     </Pressable>
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
   },
   posterContainer: {
     overflow: 'hidden',
-    backgroundColor: Colors.light.surfaceSecondary,
+    backgroundColor: Colors.surface,
     shadowColor: '#8B7355',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.10,
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
   placeholder: {
     width: '100%',
     height: '100%',
-    backgroundColor: Colors.light.surfaceSecondary,
+    backgroundColor: Colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 6,
     right: 6,
-    backgroundColor: 'rgba(0,0,0,0.75)',
+    backgroundColor: Colors.overlay,
     borderRadius: 6,
     paddingHorizontal: 6,
     paddingVertical: 2,
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     gap: 3,
   },
   ratingText: {
-    color: '#fff',
+    color: Colors.white,
     fontSize: 11,
     fontFamily: 'DMSans_600SemiBold',
   },
@@ -109,13 +109,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 6,
     left: 6,
-    backgroundColor: Colors.light.emerald,
+    backgroundColor: Colors.accent,
     borderRadius: 4,
     paddingHorizontal: 6,
     paddingVertical: 2,
   },
   typeText: {
-    color: '#fff',
+    color: Colors.white,
     fontSize: 9,
     fontFamily: 'DMSans_700Bold',
     letterSpacing: 0.5,
@@ -123,14 +123,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 13,
     fontFamily: 'DMSans_600SemiBold',
-    color: Colors.light.text,
+    color: Colors.text,
     marginTop: 8,
     lineHeight: 17,
   },
   subtitle: {
     fontSize: 11,
     fontFamily: 'DMSans_400Regular',
-    color: Colors.light.textSecondary,
+    color: Colors.textSecondary,
     marginTop: 2,
   },
 });

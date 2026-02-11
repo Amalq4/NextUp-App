@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, Pressable } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
+import Colors from '@/theme/colors';
 
 interface GenreChipProps {
   label: string;
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: Colors.light.surfaceTertiary,
+    backgroundColor: Colors.glass,
     marginRight: 8,
     marginBottom: 8,
   },
@@ -51,17 +51,17 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   chipSelected: {
-    backgroundColor: Colors.light.accent,
+    backgroundColor: Colors.accent,
   },
   label: {
     fontSize: 14,
     fontFamily: 'DMSans_500Medium',
-    color: Colors.light.text,
+    color: Colors.text,
   },
   labelCompact: {
     fontSize: 12,
   },
   labelSelected: {
-    color: '#fff',
+    color: Colors.white,
   },
 });
