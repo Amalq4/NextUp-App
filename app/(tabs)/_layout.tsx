@@ -3,13 +3,11 @@ import { Tabs } from "expo-router";
 import { NativeTabs, Icon, Label } from "expo-router/unstable-native-tabs";
 import { BlurView } from "expo-blur";
 import { Ionicons } from "@expo/vector-icons";
-import { Platform, StyleSheet, useColorScheme, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Platform, StyleSheet, View } from "react-native";
 import React, { useEffect } from "react";
 import { router } from "expo-router";
 import { useApp } from "@/context/AppContext";
-import Colors from "@/constants/colors";
-import { DARK_THEME } from "@/components/AppBackground";
+import Colors from "@/theme/colors";
 
 function NativeTabLayout() {
   return (
@@ -46,13 +44,13 @@ function ClassicTabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: DARK_THEME.accent,
-        tabBarInactiveTintColor: DARK_THEME.textMuted,
+        tabBarActiveTintColor: Colors.tabActive,
+        tabBarInactiveTintColor: Colors.tabInactive,
         tabBarStyle: {
           position: "absolute",
-          backgroundColor: isIOS ? "transparent" : DARK_THEME.bg1,
+          backgroundColor: isIOS ? "transparent" : Colors.background,
           borderTopWidth: isWeb ? 1 : 0,
-          borderTopColor: DARK_THEME.glassBorder,
+          borderTopColor: Colors.glassBorder,
           elevation: 0,
           ...(isWeb ? { height: 84 } : {}),
         },
@@ -67,7 +65,7 @@ function ClassicTabLayout() {
             <View
               style={[
                 StyleSheet.absoluteFill,
-                { backgroundColor: DARK_THEME.bg1 },
+                { backgroundColor: Colors.background },
               ]}
             />
           ) : null,
