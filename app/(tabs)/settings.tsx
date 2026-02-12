@@ -56,6 +56,7 @@ export default function SettingsScreen() {
   const { profile, lists, clearAllData, logout, authUser } = useApp();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [showClearModal, setShowClearModal] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const stats = {
     want: lists.filter(l => l.status === 'want').length,
@@ -68,17 +69,15 @@ export default function SettingsScreen() {
     : 'No genres selected';
 
   const handleLogout = () => {
-    Alert.alert('Log Out', 'Are you sure you want to log out?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Log Out', style: 'destructive',
-        onPress: async () => {
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-          await logout();
-          router.replace('/(auth)/login');
-        },
-      },
-    ]);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setShowLogoutModal(true);
+  };
+
+  const confirmLogout = async () => {
+    setShowLogoutModal(false);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    await logout();
+    router.replace('/(auth)/login');
   };
 
   const handleClearCache = () => {
@@ -202,6 +201,28 @@ export default function SettingsScreen() {
               </Pressable>
               <Pressable onPress={confirmClearAll} style={styles.modalDeleteBtn}>
                 <Text style={styles.modalDeleteText}>Delete Everything</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={showLogoutModal} transparent animationType="fade" onRequestClose={() => setShowLogoutModal(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={[styles.modalIconWrap, { backgroundColor: Colors.accentSoft }]}>
+              <Ionicons name="log-out-outline" size={32} color={Colors.accent} />
+            </View>
+            <Text style={styles.modalTitle}>Log Out?</Text>
+            <Text style={styles.modalDesc}>
+              Are you sure you want to log out of your account?
+            </Text>
+            <View style={styles.modalActions}>
+              <Pressable onPress={() => setShowLogoutModal(false)} style={styles.modalCancelBtn}>
+                <Text style={styles.modalCancelText}>Cancel</Text>
+              </Pressable>
+              <Pressable onPress={confirmLogout} style={styles.modalDeleteBtn} testID="confirm-logout-btn">
+                <Text style={styles.modalDeleteText}>Log Out</Text>
               </Pressable>
             </View>
           </View>
