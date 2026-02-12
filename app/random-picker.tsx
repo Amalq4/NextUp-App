@@ -432,80 +432,6 @@ export default function SpinPickerScreen() {
 
               <Text style={styles.eligibleText}>{guidedEligible.length} eligible title{guidedEligible.length !== 1 ? 's' : ''}</Text>
             </View>
-
-            <View style={styles.wheelSection} {...panResponder.panHandlers}>
-              {eligible.length === 0 ? (
-                <View style={styles.emptyState}>
-                  <View style={styles.emptyIcon}>
-                    <Ionicons name="film-outline" size={44} color={Colors.textMuted} />
-                  </View>
-                  <Text style={styles.emptyTitle}>Nothing to Spin</Text>
-                  <Text style={styles.emptySubtitle}>Add movies or shows to your list first</Text>
-                </View>
-              ) : (
-                <>
-                  <View style={styles.pointerContainer}>
-                    <View style={styles.pointer} />
-                    <View style={styles.pointerGlow} />
-                  </View>
-                  <View style={styles.carouselContainer}>
-                    <View style={styles.carouselTrack}>
-                      {[0, 1, 2, 3, 4].map(i => (
-                        <CarouselCard
-                          key={i}
-                          item={displayItems[i]}
-                          position={i - 2}
-                          isCenter={i === 2}
-                          glowOpacity={glowOpacity}
-                          isRevealed={isRevealed && i === 2}
-                        />
-                      ))}
-                    </View>
-                  </View>
-                  <View style={styles.dotsRow}>
-                    {Array.from({ length: 9 }).map((_, i) => (
-                      <GlowDot key={i} index={i} isSpinning={isSpinning} activeIndex={4} />
-                    ))}
-                  </View>
-                  <Text style={styles.swipeHint}>
-                    {isSpinning ? 'Spinning...' : 'Swipe Up to Spin'}
-                  </Text>
-                </>
-              )}
-            </View>
-
-            {selectedItem && isRevealed && (
-              <Animated.View style={[styles.resultPanel, resultAnimStyle]}>
-                <Pressable
-                  onPress={() => router.push({ pathname: '/details/[id]', params: { id: selectedItem.mediaId.toString(), type: selectedItem.mediaType } })}
-                  style={styles.resultCard}
-                >
-                  <View style={[styles.resultCardInner, { backgroundColor: Colors.accentSoft }]}>
-                    {selectedItem.posterPath ? (
-                      <Image source={{ uri: getPosterUrl(selectedItem.posterPath, 'w185')! }} style={styles.resultPoster} contentFit="cover" />
-                    ) : (
-                      <View style={[styles.resultPoster, styles.resultPosterEmpty]}>
-                        <Ionicons name="film-outline" size={20} color={Colors.textMuted} />
-                      </View>
-                    )}
-                    <View style={styles.resultInfo}>
-                      <Text style={styles.resultTitle} numberOfLines={1}>{selectedItem.title}</Text>
-                      <Text style={styles.resultMeta}>
-                        {selectedItem.mediaType === 'tv' ? 'TV Series' : 'Movie'}
-                        {selectedItem.genreIds.length > 0 ? ` \u00B7 ${getGenreName(selectedItem.genreIds[0])}` : ''}
-                      </Text>
-                      <View style={styles.resultRating}>
-                        <Ionicons name="star" size={12} color={Colors.star} />
-                        <Text style={styles.resultRatingText}>{selectedItem.voteAverage.toFixed(1)}</Text>
-                      </View>
-                    </View>
-                    <View style={styles.resultArrow}>
-                      <Ionicons name="arrow-forward" size={18} color={Colors.accent} />
-                    </View>
-                  </View>
-                </Pressable>
-              </Animated.View>
-            )}
           </ScrollView>
         ) : (
           <View style={styles.modeContent}>
@@ -562,6 +488,80 @@ export default function SpinPickerScreen() {
               }
             />
           </View>
+        )}
+
+        <View style={styles.wheelSection} {...panResponder.panHandlers}>
+          {eligible.length === 0 ? (
+            <View style={styles.emptyState}>
+              <View style={styles.emptyIcon}>
+                <Ionicons name="film-outline" size={44} color={Colors.textMuted} />
+              </View>
+              <Text style={styles.emptyTitle}>Nothing to Spin</Text>
+              <Text style={styles.emptySubtitle}>{mode === 'custom' ? 'Select titles above first' : 'Add movies or shows to your list first'}</Text>
+            </View>
+          ) : (
+            <>
+              <View style={styles.pointerContainer}>
+                <View style={styles.pointer} />
+                <View style={styles.pointerGlow} />
+              </View>
+              <View style={styles.carouselContainer}>
+                <View style={styles.carouselTrack}>
+                  {[0, 1, 2, 3, 4].map(i => (
+                    <CarouselCard
+                      key={i}
+                      item={displayItems[i]}
+                      position={i - 2}
+                      isCenter={i === 2}
+                      glowOpacity={glowOpacity}
+                      isRevealed={isRevealed && i === 2}
+                    />
+                  ))}
+                </View>
+              </View>
+              <View style={styles.dotsRow}>
+                {Array.from({ length: 9 }).map((_, i) => (
+                  <GlowDot key={i} index={i} isSpinning={isSpinning} activeIndex={4} />
+                ))}
+              </View>
+              <Text style={styles.swipeHint}>
+                {isSpinning ? 'Spinning...' : 'Swipe Up to Spin'}
+              </Text>
+            </>
+          )}
+        </View>
+
+        {selectedItem && isRevealed && (
+          <Animated.View style={[styles.resultPanel, resultAnimStyle]}>
+            <Pressable
+              onPress={() => router.push({ pathname: '/details/[id]', params: { id: selectedItem.mediaId.toString(), type: selectedItem.mediaType } })}
+              style={styles.resultCard}
+            >
+              <View style={[styles.resultCardInner, { backgroundColor: Colors.accentSoft }]}>
+                {selectedItem.posterPath ? (
+                  <Image source={{ uri: getPosterUrl(selectedItem.posterPath, 'w185')! }} style={styles.resultPoster} contentFit="cover" />
+                ) : (
+                  <View style={[styles.resultPoster, styles.resultPosterEmpty]}>
+                    <Ionicons name="film-outline" size={20} color={Colors.textMuted} />
+                  </View>
+                )}
+                <View style={styles.resultInfo}>
+                  <Text style={styles.resultTitle} numberOfLines={1}>{selectedItem.title}</Text>
+                  <Text style={styles.resultMeta}>
+                    {selectedItem.mediaType === 'tv' ? 'TV Series' : 'Movie'}
+                    {selectedItem.genreIds.length > 0 ? ` \u00B7 ${getGenreName(selectedItem.genreIds[0])}` : ''}
+                  </Text>
+                  <View style={styles.resultRating}>
+                    <Ionicons name="star" size={12} color={Colors.star} />
+                    <Text style={styles.resultRatingText}>{selectedItem.voteAverage.toFixed(1)}</Text>
+                  </View>
+                </View>
+                <View style={styles.resultArrow}>
+                  <Ionicons name="arrow-forward" size={18} color={Colors.accent} />
+                </View>
+              </View>
+            </Pressable>
+          </Animated.View>
         )}
       </Animated.View>
 
