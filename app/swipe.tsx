@@ -92,11 +92,11 @@ function SwipeCard({ item, onSwipeLeft, onSwipeRight }: SwipeCardProps) {
         )}
 
         <Animated.View style={[styles.overlayBadge, styles.seenBadge, seenOverlayStyle]}>
-          <Text style={styles.seenBadgeText}>SEEN</Text>
+          <Text style={styles.seenBadgeText}>WATCHED</Text>
         </Animated.View>
 
         <Animated.View style={[styles.overlayBadge, styles.notSeenBadge, notSeenOverlayStyle]}>
-          <Text style={styles.notSeenBadgeText}>NOT SEEN</Text>
+          <Text style={styles.notSeenBadgeText}>NOT WATCHED</Text>
         </Animated.View>
 
         <View style={styles.cardInfo}>
@@ -251,11 +251,11 @@ export default function SwipeScreen() {
           <View style={styles.counters}>
             <View style={styles.counterPill}>
               <Ionicons name="eye" size={14} color={Colors.accent} />
-              <Text style={styles.counterText}>{watched.length} Seen</Text>
+              <Text style={styles.counterText}>{watched.length} Watched</Text>
             </View>
             <View style={styles.counterPill}>
               <Ionicons name="eye-off" size={14} color={Colors.textMuted} />
-              <Text style={styles.counterTextMuted}>{notSeen.length} Not Seen</Text>
+              <Text style={styles.counterTextMuted}>{notSeen.length} Not Watched</Text>
             </View>
           </View>
         )}
@@ -333,12 +333,12 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   seenBadge: {
-    left: 16,
+    right: 16,
     borderColor: Colors.accent,
     backgroundColor: 'rgba(201,162,77,0.15)',
   },
   notSeenBadge: {
-    right: 16,
+    left: 16,
     borderColor: Colors.textMuted,
     backgroundColor: 'rgba(232,220,194,0.1)',
   },
