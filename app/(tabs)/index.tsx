@@ -267,12 +267,16 @@ export default function HomeScreen() {
           </View>
           <View style={styles.actionBtns}>
             <Pressable
+              testID="swipe-button"
+              accessibilityLabel="Swipe to Decide"
               onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/swipe'); }}
               style={({ pressed }) => [styles.spinBtn, { opacity: pressed ? 0.8 : 1 }]}
             >
               <Ionicons name="layers-outline" size={20} color={Colors.accent} />
             </Pressable>
             <Pressable
+              testID="spin-button"
+              accessibilityLabel="Spin Picker"
               onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/random-picker'); }}
               style={({ pressed }) => [styles.spinBtn, { opacity: pressed ? 0.8 : 1 }]}
             >
