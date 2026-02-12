@@ -13,6 +13,8 @@ import {
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
+import * as ImagePicker from 'expo-image-picker';
 import * as Haptics from 'expo-haptics';
 import AppBackground from '@/components/AppBackground';
 import Colors from '@/theme/colors';
@@ -42,6 +44,7 @@ export default function EditProfileScreen() {
 
   const [name, setName] = useState(profile?.name || '');
   const [email, setEmail] = useState(authUser?.email || '');
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(profile?.avatarUrl);
   const [selectedGenres, setSelectedGenres] = useState<number[]>(profile?.favoriteGenres || []);
   const [selectedProviders, setSelectedProviders] = useState<number[]>(profile?.preferredProviders || []);
   const [currentPassword, setCurrentPassword] = useState('');
@@ -54,11 +57,25 @@ export default function EditProfileScreen() {
   useEffect(() => {
     if (profile) {
       setName(profile.name);
+      setAvatarUrl(profile.avatarUrl);
       setSelectedGenres(profile.favoriteGenres);
       setSelectedProviders(profile.preferredProviders || []);
     }
     if (authUser) setEmail(authUser.email);
   }, [profile?.name, authUser?.email]);
+
+  const pickAvatar = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+    if (!result.canceled && result.assets[0]) {
+      setAvatarUrl(result.assets[0].uri);
+    }
+  };
 
   const toggleGenre = (id: number) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -105,6 +122,7 @@ export default function EditProfileScreen() {
       await saveProfile({
         ...profile,
         name: name.trim(),
+        avatarUrl,
         favoriteGenres: selectedGenres,
         preferredProviders: selectedProviders,
       });
@@ -138,12 +156,22 @@ export default function EditProfileScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={styles.avatarSection}>
+          <Pressable
+            onPress={pickAvatar}
+            style={({ pressed }) => [styles.avatarSection, { opacity: pressed ? 0.7 : 1 }]}
+          >
             <View style={[styles.avatar, { backgroundColor: Colors.surface }]}>
-              <Text style={styles.avatarText}>{name?.charAt(0)?.toUpperCase() || '?'}</Text>
+              {avatarUrl ? (
+                <Image source={{ uri: avatarUrl }} style={styles.avatarImage} contentFit="cover" />
+              ) : (
+                <Text style={styles.avatarText}>{name?.charAt(0)?.toUpperCase() || '?'}</Text>
+              )}
+              <View style={styles.avatarBadge}>
+                <Ionicons name="camera" size={14} color={Colors.text} />
+              </View>
             </View>
-            <Text style={styles.avatarHint}>Tap to change avatar</Text>
-          </View>
+            <Text style={styles.avatarHint}>Tap to change photo</Text>
+          </Pressable>
 
           <View style={styles.formSection}>
             <Text style={styles.sectionLabel}>PERSONAL INFO</Text>
@@ -347,10 +375,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  avatarImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+  },
   avatarText: {
     fontSize: 32,
     fontFamily: 'DMSans_700Bold',
     color: Colors.text,
+  },
+  avatarBadge: {
+    position: 'absolute' as const,
+    bottom: 0,
+    right: -2,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: Colors.gold,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    borderWidth: 2,
+    borderColor: Colors.background,
   },
   avatarHint: {
     fontSize: 12,

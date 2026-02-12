@@ -37,6 +37,7 @@ export interface ProgressEntry {
 export interface UserProfile {
   id: string;
   name: string;
+  avatarUrl?: string;
   favoriteGenres: number[];
   preferredMediaType?: 'movie' | 'tv' | 'both';
   preferredProviders?: number[];

@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 
+import { Image } from 'expo-image';
 import AppBackground from '@/components/AppBackground';
 import Colors from '@/theme/colors';
 import { useApp } from '@/context/AppContext';
@@ -107,9 +108,13 @@ export default function SettingsScreen() {
             style={({ pressed }) => [styles.profileLeft, { opacity: pressed ? 0.7 : 1 }]}
           >
             <View style={styles.profileAvatar}>
-              <Text style={styles.profileAvatarText}>
-                {profile?.name?.charAt(0)?.toUpperCase() || '?'}
-              </Text>
+              {profile?.avatarUrl ? (
+                <Image source={{ uri: profile.avatarUrl }} style={styles.profileAvatarImage} contentFit="cover" />
+              ) : (
+                <Text style={styles.profileAvatarText}>
+                  {profile?.name?.charAt(0)?.toUpperCase() || '?'}
+                </Text>
+              )}
             </View>
             <View style={styles.profileInfo}>
               <Text style={styles.profileName}>{profile?.name || 'User'}</Text>
@@ -238,6 +243,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: Colors.surface,
+  },
+  profileAvatarImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
   },
   profileAvatarText: {
     fontSize: 24,
