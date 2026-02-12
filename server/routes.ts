@@ -123,6 +123,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/tmdb/movie/now_playing", async (req: Request, res: Response) => {
+    try {
+      const region = (req.query.region as string) || "";
+      const cacheKey = `now_playing_${region}`;
+
+      const cached = getCached(cacheKey);
+      if (cached) {
+        return res.json(cached);
+      }
+
+      const params: Record<string, string> = { page: "1" };
+      if (region) params.region = region;
+
+      let data = await tmdbFetch("/movie/now_playing", params);
+
+      if (region && (!data.results || data.results.length === 0)) {
+        data = await tmdbFetch("/movie/now_playing", { page: "1" });
+      }
+
+      const results = (data.results || []).slice(0, 10).map((r: any) => ({
+        ...r,
+        media_type: "movie",
+      }));
+
+      const result = { results, region: region || "global" };
+      setCache(cacheKey, result);
+      res.json(result);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   app.get("/api/tmdb/movie/:id", async (req: Request, res: Response) => {
     try {
       const data = await tmdbFetch(`/movie/${req.params.id}`);
