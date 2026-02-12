@@ -64,8 +64,11 @@ export default function FriendsScreen() {
             <Pressable
               onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/qr-scanner'); }}
               style={styles.addBtn}
+              testID="scan-qr-btn"
+              accessibilityLabel="Scan QR Code"
+              accessibilityRole="button"
             >
-              <Ionicons name="scan-outline" size={20} color={Colors.tan} />
+              <Ionicons name="scan-outline" size={20} color={Colors.tan} style={{ pointerEvents: 'none' as any }} />
             </Pressable>
             <Pressable
               onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setShowAdd(!showAdd); }}

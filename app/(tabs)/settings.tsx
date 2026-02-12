@@ -101,11 +101,11 @@ export default function SettingsScreen() {
       >
         <Text style={styles.screenTitle}>Settings</Text>
 
-        <Pressable
-          onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/edit-profile'); }}
-          style={({ pressed }) => [styles.profileCard, { opacity: pressed ? 0.9 : 1 }]}
-        >
-          <View style={styles.profileLeft}>
+        <View style={styles.profileCard}>
+          <Pressable
+            onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/edit-profile'); }}
+            style={({ pressed }) => [styles.profileLeft, { opacity: pressed ? 0.7 : 1 }]}
+          >
             <View style={styles.profileAvatar}>
               <Text style={styles.profileAvatarText}>
                 {profile?.name?.charAt(0)?.toUpperCase() || '?'}
@@ -116,19 +116,23 @@ export default function SettingsScreen() {
               <Text style={styles.profileEmail}>{authUser?.email || 'No email'}</Text>
               <Text style={styles.profileGenres} numberOfLines={1}>{genreText}</Text>
             </View>
-          </View>
+          </Pressable>
           <View style={styles.profileBtns}>
             <Pressable
-              onPress={(e) => { e.stopPropagation(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/my-qr-code'); }}
+              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/my-qr-code'); }}
               style={({ pressed }) => [styles.profileEditBtn, { opacity: pressed ? 0.7 : 1 }]}
+              testID="qr-code-btn"
             >
               <Ionicons name="qr-code-outline" size={18} color={Colors.accent} />
             </Pressable>
-            <View style={styles.profileEditBtn}>
+            <Pressable
+              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/edit-profile'); }}
+              style={({ pressed }) => [styles.profileEditBtn, { opacity: pressed ? 0.7 : 1 }]}
+            >
               <Ionicons name="create-outline" size={18} color={Colors.accent} />
-            </View>
+            </Pressable>
           </View>
-        </Pressable>
+        </View>
 
         <View style={styles.statsRow}>
           {[
