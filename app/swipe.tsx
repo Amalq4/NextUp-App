@@ -40,11 +40,11 @@ function SwipeCard({ item, onSwipeLeft, onSwipeRight }: SwipeCardProps) {
         if (gs.dx > SWIPE_THRESHOLD) {
           translateX.value = withTiming(SCREEN_WIDTH * 1.5, { duration: 300 });
           translateY.value = withTiming(gs.dy * 0.5, { duration: 300 });
-          runOnJS(onSwipeRight)();
+          runOnJS(onSwipeLeft)();
         } else if (gs.dx < -SWIPE_THRESHOLD) {
           translateX.value = withTiming(-SCREEN_WIDTH * 1.5, { duration: 300 });
           translateY.value = withTiming(gs.dy * 0.5, { duration: 300 });
-          runOnJS(onSwipeLeft)();
+          runOnJS(onSwipeRight)();
         } else {
           translateX.value = withSpring(0, { damping: 15, stiffness: 150 });
           translateY.value = withSpring(0, { damping: 15, stiffness: 150 });
@@ -69,11 +69,11 @@ function SwipeCard({ item, onSwipeLeft, onSwipeRight }: SwipeCardProps) {
   });
 
   const seenOverlayStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(translateX.value, [0, SWIPE_THRESHOLD], [0, 1], 'clamp'),
+    opacity: interpolate(translateX.value, [-SWIPE_THRESHOLD, 0], [1, 0], 'clamp'),
   }));
 
   const notSeenOverlayStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(translateX.value, [-SWIPE_THRESHOLD, 0], [1, 0], 'clamp'),
+    opacity: interpolate(translateX.value, [0, SWIPE_THRESHOLD], [0, 1], 'clamp'),
   }));
 
   const posterUri = getPosterUrl(item.posterPath, 'w500');
