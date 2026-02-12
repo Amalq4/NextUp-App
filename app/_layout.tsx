@@ -24,6 +24,8 @@ function RootLayoutNav() {
       <Stack.Screen name="watch-together" />
       <Stack.Screen name="swipe" />
       <Stack.Screen name="swipe-summary" />
+      <Stack.Screen name="my-qr-code" />
+      <Stack.Screen name="qr-scanner" />
     </Stack>
   );
 }

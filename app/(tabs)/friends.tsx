@@ -60,12 +60,20 @@ export default function FriendsScreen() {
       <View style={[styles.container, { paddingTop: Platform.OS === 'web' ? 67 : insets.top }]}>
         <View style={styles.header}>
           <Text style={styles.screenTitle}>Friends</Text>
-          <Pressable
-            onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setShowAdd(!showAdd); }}
-            style={styles.addBtn}
-          >
-            <Ionicons name={showAdd ? 'close' : 'person-add'} size={20} color={Colors.tan} />
-          </Pressable>
+          <View style={styles.headerBtns}>
+            <Pressable
+              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/qr-scanner'); }}
+              style={styles.addBtn}
+            >
+              <Ionicons name="scan-outline" size={20} color={Colors.tan} />
+            </Pressable>
+            <Pressable
+              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setShowAdd(!showAdd); }}
+              style={styles.addBtn}
+            >
+              <Ionicons name={showAdd ? 'close' : 'person-add'} size={20} color={Colors.tan} />
+            </Pressable>
+          </View>
         </View>
 
         {showAdd && (
@@ -139,6 +147,11 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontFamily: 'DMSans_700Bold',
     color: Colors.text,
+  },
+  headerBtns: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   addBtn: {
     width: 42,

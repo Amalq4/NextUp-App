@@ -117,8 +117,16 @@ export default function SettingsScreen() {
               <Text style={styles.profileGenres} numberOfLines={1}>{genreText}</Text>
             </View>
           </View>
-          <View style={styles.profileEditBtn}>
-            <Ionicons name="create-outline" size={18} color={Colors.accent} />
+          <View style={styles.profileBtns}>
+            <Pressable
+              onPress={(e) => { e.stopPropagation(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/my-qr-code'); }}
+              style={({ pressed }) => [styles.profileEditBtn, { opacity: pressed ? 0.7 : 1 }]}
+            >
+              <Ionicons name="qr-code-outline" size={18} color={Colors.accent} />
+            </Pressable>
+            <View style={styles.profileEditBtn}>
+              <Ionicons name="create-outline" size={18} color={Colors.accent} />
+            </View>
           </View>
         </Pressable>
 
@@ -252,6 +260,11 @@ const styles = StyleSheet.create({
     fontFamily: 'DMSans_400Regular',
     color: Colors.textMuted,
     marginTop: 2,
+  },
+  profileBtns: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   profileEditBtn: {
     width: 36,
