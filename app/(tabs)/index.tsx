@@ -98,6 +98,71 @@ function Top10Card({
   );
 }
 
+function InTheatersSection() {
+  const { addToList, getListEntry } = useApp();
+  const baseUrl = getApiUrl();
+
+  const { data, isLoading, error } = useQuery<MediaItem[]>({
+    queryKey: ['/api/tmdb/movie/now_playing'],
+    queryFn: async () => {
+      const res = await fetch(`${baseUrl}api/tmdb/movie/now_playing?region=SA`);
+      if (!res.ok) throw new Error('Failed to fetch');
+      const json = await res.json();
+      return (json.results || []).map((r: any) => mapTmdbToMediaItem(r));
+    },
+    staleTime: 10 * 60 * 1000,
+    retry: 1,
+  });
+
+  const handleAdd = useCallback((item: MediaItem) => {
+    if (getListEntry(item.id)) return;
+    addToList({
+      mediaId: item.id,
+      mediaType: item.mediaType,
+      status: 'want',
+      addedAt: new Date().toISOString(),
+      title: item.title,
+      posterPath: item.posterPath,
+      voteAverage: item.voteAverage,
+      genreIds: item.genreIds,
+    });
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  }, [addToList, getListEntry]);
+
+  if (error) return null;
+
+  return (
+    <View style={styles.sectionContainer}>
+      <View style={styles.sectionHeader}>
+        <View style={[styles.providerDot, { backgroundColor: Colors.gold }]} />
+        <Text style={styles.sectionTitle}>In Theaters</Text>
+      </View>
+      {isLoading ? (
+        <View style={styles.sectionLoading}>
+          <ActivityIndicator size="small" color={Colors.gold} />
+        </View>
+      ) : (
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          data={data || []}
+          keyExtractor={(item) => `theater-${item.id}`}
+          contentContainerStyle={styles.sectionList}
+          renderItem={({ item, index }) => (
+            <Top10Card
+              item={item}
+              rank={index + 1}
+              onPress={() => router.push({ pathname: '/details/[id]', params: { id: item.id.toString(), type: item.mediaType } })}
+              isInList={!!getListEntry(item.id)}
+              onAdd={() => handleAdd(item)}
+            />
+          )}
+        />
+      )}
+    </View>
+  );
+}
+
 function ProviderSection({ provider }: { provider: Provider }) {
   const { lists, addToList, getListEntry } = useApp();
   const baseUrl = getApiUrl();
@@ -177,7 +242,10 @@ export default function HomeScreen() {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    queryClient.invalidateQueries({ queryKey: ['/api/tmdb/provider'] }).then(() => {
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['/api/tmdb/provider'] }),
+      queryClient.invalidateQueries({ queryKey: ['/api/tmdb/movie/now_playing'] }),
+    ]).then(() => {
       setRefreshing(false);
     });
   }, [queryClient]);
@@ -276,6 +344,8 @@ export default function HomeScreen() {
             />
           </View>
         )}
+
+        <InTheatersSection />
 
         {visibleProviders.map(provider => (
           <ProviderSection key={provider.id} provider={provider} />
