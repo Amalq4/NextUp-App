@@ -1,0 +1,122 @@
+Add a QR Code friend system to the app.
+
+================================================
+PART 1: SETTINGS – MY QR CODE
+================================================
+
+In the Settings screen, inside the profile card area
+(where Edit icon exists),
+
+Add a new button next to Edit:
+
+Button label: My QR Code
+Icon: QR code icon
+Style: Must follow existing button system and theme
+
+When user taps "My QR Code":
+
+Open a new screen called:
+My QR Code
+
+This screen must:
+
+- Use the same background as the entire app
+- Use centralized theme (no hardcoded colors)
+- Use same typography system
+
+Display:
+
+1) Large QR Code centered on screen
+2) Below it show:
+   - Username
+   - Profile avatar
+3) Optional: Share button
+
+QR Code must encode:
+User unique ID (NOT display name)
+Example:
+user.id
+
+Ensure:
+- High contrast QR
+- Clean white QR on dark card
+- Scannable
+- Responsive size
+
+================================================
+PART 2: ADD FRIENDS – CAMERA SCAN OPTION
+================================================
+
+In the Add Friends screen:
+
+Currently user can search by name.
+
+Add a second option:
+
+Button: Scan QR
+Icon: Camera or QR scanner icon
+
+Position:
+Top right or below search bar.
+
+When tapped:
+
+Open camera using:
+Expo Camera or compatible scanner library.
+
+Enable QR scanning mode only.
+
+================================================
+QR SCAN BEHAVIOR
+================================================
+
+When QR is scanned:
+
+1) Extract user ID
+2) Validate it exists in database
+3) Prevent adding self
+4) Prevent duplicate friend requests
+
+If valid:
+
+Show preview card:
+- Avatar
+- Username
+- Add Friend button
+
+If user confirms:
+Send friend request or add directly (based on current logic)
+
+================================================
+SECURITY RULES
+================================================
+
+- Only accept valid user IDs
+- Ignore malformed QR
+- Show error message if invalid
+- Do not expose sensitive data in QR
+
+================================================
+UI REQUIREMENTS
+================================================
+
+- Must use centralized theme files
+- No new color system
+- Same shadows
+- Same border radius
+- Same typography hierarchy
+- Maintain cinematic premium look
+
+================================================
+FINAL RESULT
+================================================
+
+User can:
+
+- Open Settings → Generate personal QR
+- Show QR to others
+- Go to Add Friends → Scan QR
+- Instantly add friend without searching by name
+
+Everything must feel integrated and native.
+Do not break existing friend search functionality.
