@@ -91,12 +91,12 @@ function SwipeCard({ item, onSwipeLeft, onSwipeRight }: SwipeCardProps) {
           </View>
         )}
 
-        <Animated.View style={[styles.overlayBadge, styles.seenBadge, seenOverlayStyle]}>
-          <Text style={styles.seenBadgeText}>WATCHED</Text>
-        </Animated.View>
-
         <Animated.View style={[styles.overlayBadge, styles.notSeenBadge, notSeenOverlayStyle]}>
           <Text style={styles.notSeenBadgeText}>NOT WATCHED</Text>
+        </Animated.View>
+
+        <Animated.View style={[styles.overlayBadge, styles.seenBadge, seenOverlayStyle]}>
+          <Text style={styles.seenBadgeText}>WATCHED</Text>
         </Animated.View>
 
         <View style={styles.cardInfo}>
@@ -333,12 +333,12 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   seenBadge: {
-    right: 16,
+    left: 16,
     borderColor: Colors.accent,
     backgroundColor: 'rgba(201,162,77,0.15)',
   },
   notSeenBadge: {
-    left: 16,
+    right: 16,
     borderColor: Colors.textMuted,
     backgroundColor: 'rgba(232,220,194,0.1)',
   },
