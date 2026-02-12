@@ -123,8 +123,8 @@ export default function SwipeScreen() {
   const [hasMore, setHasMore] = useState(true);
   const fetchingRef = useRef(false);
 
-  const watchedIds = useRef(new Set(
-    lists.filter(e => e.status === 'watched').map(e => e.mediaId)
+  const excludedIds = useRef(new Set(
+    lists.map(e => e.mediaId)
   ));
 
   const mediaType = profile?.preferredMediaType === 'tv' ? 'tv' : 'movie';
@@ -147,7 +147,7 @@ export default function SwipeScreen() {
       const json = await res.json();
       const results: MediaItem[] = (json.results || [])
         .map((r: any) => mapTmdbToMediaItem(r, mediaType))
-        .filter((item: MediaItem) => !watchedIds.current.has(item.id));
+        .filter((item: MediaItem) => !excludedIds.current.has(item.id));
 
       if (results.length === 0) {
         setHasMore(false);
@@ -180,6 +180,7 @@ export default function SwipeScreen() {
 
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setWatched(prev => [...prev, item]);
+    excludedIds.current.add(item.id);
 
     addToList({
       mediaId: item.id,
@@ -332,12 +333,12 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   seenBadge: {
-    right: 16,
+    left: 16,
     borderColor: Colors.accent,
     backgroundColor: 'rgba(201,162,77,0.15)',
   },
   notSeenBadge: {
-    left: 16,
+    right: 16,
     borderColor: Colors.textMuted,
     backgroundColor: 'rgba(232,220,194,0.1)',
   },
