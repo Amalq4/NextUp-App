@@ -265,12 +265,20 @@ export default function HomeScreen() {
             <Text style={styles.greeting}>Hello, {profile?.name || 'there'}</Text>
             <Text style={styles.subtitle}>What's on tonight?</Text>
           </View>
-          <Pressable
-            onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/random-picker'); }}
-            style={({ pressed }) => [styles.spinBtn, { opacity: pressed ? 0.8 : 1 }]}
-          >
-            <Ionicons name="shuffle" size={20} color={Colors.accent} />
-          </Pressable>
+          <View style={styles.actionBtns}>
+            <Pressable
+              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/swipe'); }}
+              style={({ pressed }) => [styles.spinBtn, { opacity: pressed ? 0.8 : 1 }]}
+            >
+              <Ionicons name="layers-outline" size={20} color={Colors.accent} />
+            </Pressable>
+            <Pressable
+              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/random-picker'); }}
+              style={({ pressed }) => [styles.spinBtn, { opacity: pressed ? 0.8 : 1 }]}
+            >
+              <Ionicons name="shuffle" size={20} color={Colors.accent} />
+            </Pressable>
+          </View>
         </View>
 
         <ScrollView
@@ -378,6 +386,11 @@ const styles = StyleSheet.create({
     fontFamily: 'DMSans_400Regular',
     color: Colors.textSecondary,
     marginTop: 2,
+  },
+  actionBtns: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 8,
   },
   spinBtn: {
     width: 44,

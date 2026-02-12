@@ -1,0 +1,186 @@
+Add a new Swipe feature to the app and implement the full flow as described below.
+
+================================================
+HOME SCREEN UPDATE
+================================================
+
+Add a new button next to the Spin button in the Home screen action row.
+
+Button label: Swipe
+Icon: cards or swipe style icon
+Style: Must follow the exact same design system as existing buttons
+- Same border radius
+- Same padding
+- Same typography
+- Same shadow
+- Same color usage from centralized theme
+Do not introduce new random styles.
+
+================================================
+SWIPE SCREEN
+================================================
+
+When user taps Swipe:
+
+Open a new screen called:
+Swipe to Decide
+
+This screen must:
+- Use the same background as all other screens
+- Use centralized theme
+- Use same typography hierarchy
+- Maintain cinematic premium look
+- No new colors
+
+================================================
+CONTENT SOURCE
+================================================
+
+Fetch content dynamically from TMDB.
+
+Only show:
+- Titles based on user's preferred genres
+- Respect user's default content type (Movie / Series / Both)
+- Exclude titles already in Watched
+- Use pagination for continuous loading (infinite swipe)
+
+================================================
+SWIPE BEHAVIOR
+================================================
+
+Display one large centered poster card at a time.
+
+Swipe RIGHT:
+- Mark as Watched
+- Automatically add to Watched list
+- Show subtle confirmation animation
+
+Swipe LEFT:
+- Mark as Not Seen
+- Do NOT add automatically to Want
+
+After LEFT swipe:
+Store those titles temporarily for summary screen.
+
+================================================
+CARD DESIGN
+================================================
+
+Card must display:
+- Poster
+- Title
+- Year
+- Runtime
+- Genre (secondary muted text)
+
+Overlay indicators:
+- Right swipe → subtle “Seen” badge
+- Left swipe → subtle “Not Seen” badge
+
+Use existing theme colors only.
+No neon colors.
+
+================================================
+FINISH BUTTON BEHAVIOR
+================================================
+
+At bottom of Swipe screen:
+Add a button labeled “Finish”
+
+When user presses Finish:
+
+Do NOT go back to Home directly.
+
+Instead open a new screen:
+Swipe Summary
+
+================================================
+SWIPE SUMMARY SCREEN
+================================================
+
+This screen must follow full app design consistency:
+- Same background
+- Same typography
+- Same spacing
+- Same theme usage
+- No hardcoded colors
+
+------------------------------------------------
+SECTION 1: Watched
+------------------------------------------------
+
+Title: Watched
+
+Display all titles swiped RIGHT.
+
+Each item must show:
+- Small rounded poster
+- Title
+- Year
+- Genre
+
+These are already added to Watched.
+No plus button here.
+
+------------------------------------------------
+SECTION 2: Not Seen
+------------------------------------------------
+
+Title: Not Seen
+
+Display all titles swiped LEFT.
+
+Each item must show:
+- Small rounded poster
+- Title
+- Year
+- Genre
+
+On the right side of each item:
+Add a PLUS button.
+
+This PLUS button must:
+- Match the exact same style used on Home page posters
+- Same size
+- Same radius
+- Same animation
+- Same color behavior
+
+When pressed:
+- Add title to Want list
+- Show confirmation animation
+- Change icon to checkmark if added
+
+================================================
+LOGIC RULES
+================================================
+
+- Prevent duplicate entries in lists
+- If already in Want → show checked state
+- If already in Watched → do not display in Not Seen
+- Maintain performance
+- Use centralized state management
+
+================================================
+BOTTOM ACTION
+================================================
+
+At bottom of Swipe Summary screen:
+
+Primary button:
+Label: Back to Home
+Use same primary button style as rest of app.
+
+================================================
+REQUIREMENTS
+================================================
+
+- Use centralized theme files only
+- No hardcoded colors
+- No inconsistent font sizes
+- Maintain full visual consistency
+- Keep Spin feature untouched
+- Do not modify Top 10 layout
+- Do not modify bottom tab navigation
+
+Ensure everything feels cohesive, cinematic, and premium.

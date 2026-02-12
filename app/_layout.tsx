@@ -22,6 +22,8 @@ function RootLayoutNav() {
       <Stack.Screen name="random-picker" />
       <Stack.Screen name="edit-profile" />
       <Stack.Screen name="watch-together" />
+      <Stack.Screen name="swipe" />
+      <Stack.Screen name="swipe-summary" />
     </Stack>
   );
 }
