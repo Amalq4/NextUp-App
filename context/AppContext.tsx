@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useCallback,
   useMemo,
+  useRef,
   ReactNode,
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -52,15 +53,46 @@ interface AppContextValue extends AppState {
 
 const AppContext = createContext<AppContextValue | null>(null);
 
-const STORAGE_KEYS = {
-  profile: "@nextup_profile",
-  lists: "@nextup_lists",
-  progress: "@nextup_progress",
-  friends: "@nextup_friends",
-  auth: "@nextup_auth",
+const GLOBAL_KEYS = {
   authUsers: "@nextup_auth_users",
   currentAuth: "@nextup_current_auth",
 };
+
+function userKeys(email: string) {
+  const prefix = `@nextup_user_${email}`;
+  return {
+    profile: `${prefix}_profile`,
+    lists: `${prefix}_lists`,
+    progress: `${prefix}_progress`,
+    friends: `${prefix}_friends`,
+  };
+}
+
+async function loadUserData(email: string): Promise<{
+  profile: UserProfile | null;
+  lists: ListEntry[];
+  progress: ProgressEntry[];
+  friends: Friend[];
+}> {
+  const keys = userKeys(email);
+  const [profileStr, listsStr, progressStr, friendsStr] = await Promise.all([
+    AsyncStorage.getItem(keys.profile),
+    AsyncStorage.getItem(keys.lists),
+    AsyncStorage.getItem(keys.progress),
+    AsyncStorage.getItem(keys.friends),
+  ]);
+  return {
+    profile: profileStr ? JSON.parse(profileStr) : null,
+    lists: listsStr ? JSON.parse(listsStr) : [],
+    progress: progressStr ? JSON.parse(progressStr) : [],
+    friends: friendsStr ? JSON.parse(friendsStr) : [],
+  };
+}
+
+async function saveUserField(email: string, field: "profile" | "lists" | "progress" | "friends", data: unknown): Promise<void> {
+  const keys = userKeys(email);
+  await AsyncStorage.setItem(keys[field], JSON.stringify(data));
+}
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AppState>({
@@ -73,42 +105,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
     authUser: null,
   });
 
+  const currentEmailRef = useRef<string | null>(null);
+
   useEffect(() => {
-    loadData();
+    loadSession();
   }, []);
 
-  const loadData = async () => {
+  const loadSession = async () => {
     try {
-      const [profileStr, listsStr, progressStr, friendsStr, currentAuthEmail, authUsersStr] =
-        await Promise.all([
-          AsyncStorage.getItem(STORAGE_KEYS.profile),
-          AsyncStorage.getItem(STORAGE_KEYS.lists),
-          AsyncStorage.getItem(STORAGE_KEYS.progress),
-          AsyncStorage.getItem(STORAGE_KEYS.friends),
-          AsyncStorage.getItem(STORAGE_KEYS.currentAuth),
-          AsyncStorage.getItem(STORAGE_KEYS.authUsers),
-        ]);
+      const [currentAuthEmail, authUsersStr] = await Promise.all([
+        AsyncStorage.getItem(GLOBAL_KEYS.currentAuth),
+        AsyncStorage.getItem(GLOBAL_KEYS.authUsers),
+      ]);
 
-      let isAuthenticated = false;
-      let authUser: AuthUser | null = null;
-
-      if (currentAuthEmail && authUsersStr) {
-        const users: AuthUser[] = JSON.parse(authUsersStr);
-        const found = users.find((u) => u.email === currentAuthEmail);
-        if (found) {
-          isAuthenticated = true;
-          authUser = found;
-        }
+      if (!currentAuthEmail || !authUsersStr) {
+        setState((prev) => ({ ...prev, isLoading: false }));
+        return;
       }
 
+      const users: AuthUser[] = JSON.parse(authUsersStr);
+      const found = users.find((u) => u.email === currentAuthEmail);
+      if (!found) {
+        await AsyncStorage.removeItem(GLOBAL_KEYS.currentAuth);
+        setState((prev) => ({ ...prev, isLoading: false }));
+        return;
+      }
+
+      currentEmailRef.current = currentAuthEmail;
+      const userData = await loadUserData(currentAuthEmail);
+
       setState({
-        profile: profileStr ? JSON.parse(profileStr) : null,
-        lists: listsStr ? JSON.parse(listsStr) : [],
-        progress: progressStr ? JSON.parse(progressStr) : [],
-        friends: friendsStr ? JSON.parse(friendsStr) : [],
+        ...userData,
         isLoading: false,
-        isAuthenticated,
-        authUser,
+        isAuthenticated: true,
+        authUser: found,
       });
     } catch {
       setState((prev) => ({ ...prev, isLoading: false }));
@@ -116,34 +146,42 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const saveProfile = useCallback(async (profile: UserProfile) => {
-    await AsyncStorage.setItem(STORAGE_KEYS.profile, JSON.stringify(profile));
+    const email = currentEmailRef.current;
+    if (!email) return;
+    await saveUserField(email, "profile", profile);
     setState((prev) => ({ ...prev, profile }));
   }, []);
 
   const addToList = useCallback(async (entry: ListEntry) => {
+    const email = currentEmailRef.current;
+    if (!email) return;
     setState((prev) => {
       const filtered = prev.lists.filter((e) => e.mediaId !== entry.mediaId);
       const newLists = [...filtered, entry];
-      AsyncStorage.setItem(STORAGE_KEYS.lists, JSON.stringify(newLists));
+      saveUserField(email, "lists", newLists);
       return { ...prev, lists: newLists };
     });
   }, []);
 
   const removeFromList = useCallback(async (mediaId: number) => {
+    const email = currentEmailRef.current;
+    if (!email) return;
     setState((prev) => {
       const newLists = prev.lists.filter((e) => e.mediaId !== mediaId);
-      AsyncStorage.setItem(STORAGE_KEYS.lists, JSON.stringify(newLists));
+      saveUserField(email, "lists", newLists);
       return { ...prev, lists: newLists };
     });
   }, []);
 
   const updateListStatus = useCallback(
     async (mediaId: number, status: ListStatus) => {
+      const email = currentEmailRef.current;
+      if (!email) return;
       setState((prev) => {
         const newLists = prev.lists.map((e) =>
           e.mediaId === mediaId ? { ...e, status } : e,
         );
-        AsyncStorage.setItem(STORAGE_KEYS.lists, JSON.stringify(newLists));
+        saveUserField(email, "lists", newLists);
         return { ...prev, lists: newLists };
       });
     },
@@ -165,10 +203,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 
   const updateProgress = useCallback(async (entry: ProgressEntry) => {
+    const email = currentEmailRef.current;
+    if (!email) return;
     setState((prev) => {
       const filtered = prev.progress.filter((p) => p.mediaId !== entry.mediaId);
       const newProgress = [...filtered, entry];
-      AsyncStorage.setItem(STORAGE_KEYS.progress, JSON.stringify(newProgress));
+      saveUserField(email, "progress", newProgress);
       return { ...prev, progress: newProgress };
     });
   }, []);
@@ -181,25 +221,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 
   const addFriend = useCallback(async (friend: Friend) => {
+    const email = currentEmailRef.current;
+    if (!email) return;
     setState((prev) => {
       const newFriends = [...prev.friends, friend];
-      AsyncStorage.setItem(STORAGE_KEYS.friends, JSON.stringify(newFriends));
+      saveUserField(email, "friends", newFriends);
       return { ...prev, friends: newFriends };
     });
   }, []);
 
   const removeFriend = useCallback(async (id: string) => {
+    const email = currentEmailRef.current;
+    if (!email) return;
     setState((prev) => {
       const newFriends = prev.friends.filter((f) => f.id !== id);
-      AsyncStorage.setItem(STORAGE_KEYS.friends, JSON.stringify(newFriends));
+      saveUserField(email, "friends", newFriends);
       return { ...prev, friends: newFriends };
     });
   }, []);
 
   const clearAllData = useCallback(async () => {
-    await Promise.all(
-      Object.values(STORAGE_KEYS).map((k) => AsyncStorage.removeItem(k)),
-    );
+    const email = currentEmailRef.current;
+    if (email) {
+      const keys = userKeys(email);
+      await Promise.all(
+        Object.values(keys).map((k) => AsyncStorage.removeItem(k)),
+      );
+    }
+    await AsyncStorage.removeItem(GLOBAL_KEYS.currentAuth);
+    currentEmailRef.current = null;
     setState({
       profile: null,
       lists: [],
@@ -213,7 +263,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {
     try {
-      const authUsersStr = await AsyncStorage.getItem(STORAGE_KEYS.authUsers);
+      const authUsersStr = await AsyncStorage.getItem(GLOBAL_KEYS.authUsers);
       if (!authUsersStr) return false;
 
       const users: AuthUser[] = JSON.parse(authUsersStr);
@@ -222,16 +272,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       );
       if (!found) return false;
 
-      await AsyncStorage.setItem(STORAGE_KEYS.currentAuth, email);
+      await AsyncStorage.setItem(GLOBAL_KEYS.currentAuth, email);
+      currentEmailRef.current = email;
 
-      const profileStr = await AsyncStorage.getItem(STORAGE_KEYS.profile);
-      const profile = profileStr ? JSON.parse(profileStr) : null;
+      const userData = await loadUserData(email);
 
       setState((prev) => ({
         ...prev,
+        ...userData,
         isAuthenticated: true,
         authUser: found,
-        profile,
       }));
 
       return true;
@@ -243,7 +293,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const signup = useCallback(
     async (name: string, email: string, password: string): Promise<boolean> => {
       try {
-        const authUsersStr = await AsyncStorage.getItem(STORAGE_KEYS.authUsers);
+        const authUsersStr = await AsyncStorage.getItem(GLOBAL_KEYS.authUsers);
         const users: AuthUser[] = authUsersStr ? JSON.parse(authUsersStr) : [];
 
         const exists = users.find((u) => u.email === email);
@@ -261,17 +311,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
           onboarded: false,
         };
 
+        const keys = userKeys(email);
         await Promise.all([
-          AsyncStorage.setItem(STORAGE_KEYS.authUsers, JSON.stringify(updatedUsers)),
-          AsyncStorage.setItem(STORAGE_KEYS.currentAuth, email),
-          AsyncStorage.setItem(STORAGE_KEYS.profile, JSON.stringify(newProfile)),
+          AsyncStorage.setItem(GLOBAL_KEYS.authUsers, JSON.stringify(updatedUsers)),
+          AsyncStorage.setItem(GLOBAL_KEYS.currentAuth, email),
+          AsyncStorage.setItem(keys.profile, JSON.stringify(newProfile)),
+          AsyncStorage.setItem(keys.lists, JSON.stringify([])),
+          AsyncStorage.setItem(keys.progress, JSON.stringify([])),
+          AsyncStorage.setItem(keys.friends, JSON.stringify([])),
         ]);
+
+        currentEmailRef.current = email;
 
         setState((prev) => ({
           ...prev,
           isAuthenticated: true,
           authUser: newUser,
           profile: newProfile,
+          lists: [],
+          progress: [],
+          friends: [],
         }));
 
         return true;
@@ -283,11 +342,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 
   const logout = useCallback(async (): Promise<void> => {
-    await AsyncStorage.removeItem(STORAGE_KEYS.currentAuth);
+    await AsyncStorage.removeItem(GLOBAL_KEYS.currentAuth);
+    currentEmailRef.current = null;
     setState((prev) => ({
       ...prev,
       isAuthenticated: false,
       authUser: null,
+      profile: null,
+      lists: [],
+      progress: [],
+      friends: [],
     }));
   }, []);
 
