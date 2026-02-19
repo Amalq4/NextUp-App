@@ -25,7 +25,50 @@ export default function SignUpScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({});
   const [loading, setLoading] = useState(false);
+
+  const EMAIL_REGEX = /^[a-zA-Z0-9](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9])?@[a-zA-Z0-9](?:[a-zA-Z0-9.-]*[a-zA-Z0-9])?\.[a-zA-Z]{2,}$/;
+
+  const validateEmail = (value: string): string => {
+    if (!value.trim()) return '';
+    if (!EMAIL_REGEX.test(value.trim())) return 'Enter a valid email (e.g. user@example.com)';
+    return '';
+  };
+
+  const validatePassword = (value: string): string => {
+    if (!value) return '';
+    const missing: string[] = [];
+    if (value.length < 8) missing.push('at least 8 characters');
+    if (!/[A-Z]/.test(value)) missing.push('an uppercase letter');
+    if (!/[a-z]/.test(value)) missing.push('a lowercase letter');
+    if (!/[0-9]/.test(value)) missing.push('a number');
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(value)) missing.push('a special character');
+    if (missing.length === 0) return '';
+    return 'Password needs ' + missing.join(', ');
+  };
+
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+    setFieldErrors(prev => ({ ...prev, email: validateEmail(value) }));
+  };
+
+  const handlePasswordChange = (value: string) => {
+    setPassword(value);
+    setFieldErrors(prev => ({
+      ...prev,
+      password: validatePassword(value),
+      confirmPassword: confirmPassword && value !== confirmPassword ? 'Passwords do not match' : '',
+    }));
+  };
+
+  const handleConfirmPasswordChange = (value: string) => {
+    setConfirmPassword(value);
+    setFieldErrors(prev => ({
+      ...prev,
+      confirmPassword: value && value !== password ? 'Passwords do not match' : '',
+    }));
+  };
 
   const handleSignUp = async () => {
     setError('');
@@ -33,8 +76,11 @@ export default function SignUpScreen() {
       setError('Please fill in all fields.');
       return;
     }
-    if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+    const emailErr = validateEmail(email);
+    const pwErr = validatePassword(password);
+    const confirmErr = password !== confirmPassword ? 'Passwords do not match' : '';
+    if (emailErr || pwErr || confirmErr) {
+      setFieldErrors({ email: emailErr, password: pwErr, confirmPassword: confirmErr });
       return;
     }
     setLoading(true);
@@ -93,36 +139,39 @@ export default function SignUpScreen() {
 
         <View style={styles.inputContainer}>
           <TextInput
-            style={styles.input}
+            style={[styles.input, fieldErrors.email ? styles.inputFieldError : null]}
             placeholder="Email"
             placeholderTextColor={Colors.textMuted}
             value={email}
-            onChangeText={setEmail}
+            onChangeText={handleEmailChange}
             autoCapitalize="none"
             keyboardType="email-address"
           />
+          {fieldErrors.email ? <Text style={styles.fieldErrorText}>{fieldErrors.email}</Text> : null}
         </View>
 
         <View style={styles.inputContainer}>
           <TextInput
-            style={styles.input}
+            style={[styles.input, fieldErrors.password ? styles.inputFieldError : null]}
             placeholder="Password"
             placeholderTextColor={Colors.textMuted}
             value={password}
-            onChangeText={setPassword}
+            onChangeText={handlePasswordChange}
             secureTextEntry
           />
+          {fieldErrors.password ? <Text style={styles.fieldErrorText}>{fieldErrors.password}</Text> : null}
         </View>
 
         <View style={styles.inputContainer}>
           <TextInput
-            style={styles.input}
+            style={[styles.input, fieldErrors.confirmPassword ? styles.inputFieldError : null]}
             placeholder="Confirm Password"
             placeholderTextColor={Colors.textMuted}
             value={confirmPassword}
-            onChangeText={setConfirmPassword}
+            onChangeText={handleConfirmPasswordChange}
             secureTextEntry
           />
+          {fieldErrors.confirmPassword ? <Text style={styles.fieldErrorText}>{fieldErrors.confirmPassword}</Text> : null}
         </View>
 
         <TouchableOpacity
@@ -212,6 +261,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'DMSans_400Regular',
     color: Colors.text,
+  },
+  inputFieldError: {
+    borderColor: Colors.danger,
+  },
+  fieldErrorText: {
+    color: Colors.danger,
+    fontFamily: 'DMSans_400Regular',
+    fontSize: 12,
+    marginTop: 6,
+    marginLeft: 4,
   },
   buttonWrapper: {
     marginTop: 8,
