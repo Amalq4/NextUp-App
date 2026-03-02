@@ -263,6 +263,10 @@ export default function HomeScreen() {
         }
       >
         <View style={styles.headerRow}>
+          <View style={styles.greetingBlock}>
+            <Text style={styles.greeting}>Hello, {profile?.name || 'there'}</Text>
+            <Text style={styles.subtitle}>What's on tonight?</Text>
+          </View>
           <Pressable
             testID="drawer-menu-button"
             accessibilityLabel="Open Menu"
@@ -271,11 +275,6 @@ export default function HomeScreen() {
           >
             <Ionicons name="menu" size={24} color={Colors.accent} />
           </Pressable>
-          <View style={styles.greetingBlock}>
-            <Text style={styles.greeting}>Hello, {profile?.name || 'there'}</Text>
-            <Text style={styles.subtitle}>What's on tonight?</Text>
-          </View>
-          <View style={styles.actionBtns} />
         </View>
 
         <ScrollView
@@ -382,7 +381,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.glassBorder,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginLeft: 12,
   },
   greetingBlock: {
     flex: 1,
@@ -397,11 +396,6 @@ const styles = StyleSheet.create({
     fontFamily: 'DMSans_400Regular',
     color: Colors.textSecondary,
     marginTop: 2,
-  },
-  actionBtns: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 8,
   },
   providerRow: {
     paddingHorizontal: 16,
