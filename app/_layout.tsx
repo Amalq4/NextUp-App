@@ -10,6 +10,8 @@ import Animated, { useSharedValue, useAnimatedStyle, withTiming, withDelay, runO
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { queryClient } from "@/lib/query-client";
 import { AppProvider } from "@/context/AppContext";
+import { DrawerProvider } from "@/context/DrawerContext";
+import AppDrawer from "@/components/AppDrawer";
 import Colors from "@/theme/colors";
 
 SplashScreen.preventAutoHideAsync();
@@ -110,7 +112,10 @@ export default function RootLayout() {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <KeyboardProvider>
             <AppProvider>
-              <RootLayoutNav />
+              <DrawerProvider>
+                <RootLayoutNav />
+                <AppDrawer />
+              </DrawerProvider>
             </AppProvider>
           </KeyboardProvider>
         </GestureHandlerRootView>

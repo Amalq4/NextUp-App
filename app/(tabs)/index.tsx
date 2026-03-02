@@ -19,6 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import { useApp } from '@/context/AppContext';
+import { useDrawer } from '@/context/DrawerContext';
 import { MediaItem, mapTmdbToMediaItem, getPosterUrl, getGenreName } from '@/types/media';
 import { getApiUrl } from '@/lib/query-client';
 import Colors from '@/theme/colors';
@@ -231,6 +232,7 @@ function ProviderSection({ provider }: { provider: Provider }) {
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { profile, lists, progress } = useApp();
+  const { openDrawer } = useDrawer();
   const queryClient = useQueryClient();
   const [activeProvider, setActiveProvider] = useState<number | null>(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -261,7 +263,15 @@ export default function HomeScreen() {
         }
       >
         <View style={styles.headerRow}>
-          <View>
+          <Pressable
+            testID="drawer-menu-button"
+            accessibilityLabel="Open Menu"
+            onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); openDrawer(); }}
+            style={({ pressed }) => [styles.menuBtn, { opacity: pressed ? 0.8 : 1 }]}
+          >
+            <Ionicons name="menu" size={24} color={Colors.accent} />
+          </Pressable>
+          <View style={styles.greetingBlock}>
             <Text style={styles.greeting}>Hello, {profile?.name || 'there'}</Text>
             <Text style={styles.subtitle}>What's on tonight?</Text>
           </View>
@@ -379,6 +389,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 10,
     marginBottom: 16,
+  },
+  menuBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: Colors.glass,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  greetingBlock: {
+    flex: 1,
   },
   greeting: {
     fontSize: 26,
