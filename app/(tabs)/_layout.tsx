@@ -24,10 +24,6 @@ function NativeTabLayout() {
         <Icon sf={{ default: "list.bullet", selected: "list.bullet" }} />
         <Label>My Lists</Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="friends">
-        <Icon sf={{ default: "person.2", selected: "person.2.fill" }} />
-        <Label>Friends</Label>
-      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="settings">
         <Icon sf={{ default: "gearshape", selected: "gearshape.fill" }} />
         <Label>Settings</Label>
@@ -105,10 +101,7 @@ function ClassicTabLayout() {
       <Tabs.Screen
         name="friends"
         options={{
-          title: "Friends",
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? "people" : "people-outline"} size={22} color={color} />
-          ),
+          href: null,
         }}
       />
       <Tabs.Screen

@@ -275,24 +275,7 @@ export default function HomeScreen() {
             <Text style={styles.greeting}>Hello, {profile?.name || 'there'}</Text>
             <Text style={styles.subtitle}>What's on tonight?</Text>
           </View>
-          <View style={styles.actionBtns}>
-            <Pressable
-              testID="swipe-button"
-              accessibilityLabel="Swipe to Decide"
-              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/swipe'); }}
-              style={({ pressed }) => [styles.spinBtn, { opacity: pressed ? 0.8 : 1 }]}
-            >
-              <Ionicons name="layers-outline" size={20} color={Colors.accent} />
-            </Pressable>
-            <Pressable
-              testID="spin-button"
-              accessibilityLabel="Spin Picker"
-              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/random-picker'); }}
-              style={({ pressed }) => [styles.spinBtn, { opacity: pressed ? 0.8 : 1 }]}
-            >
-              <Ionicons name="shuffle" size={20} color={Colors.accent} />
-            </Pressable>
-          </View>
+          <View style={styles.actionBtns} />
         </View>
 
         <ScrollView
@@ -419,16 +402,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
     gap: 8,
-  },
-  spinBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.surfaceBorder,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   providerRow: {
     paddingHorizontal: 16,

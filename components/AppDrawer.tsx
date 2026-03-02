@@ -178,11 +178,6 @@ export default function AppDrawer() {
         <Text style={styles.sectionLabel}>ACCOUNT</Text>
         <View style={styles.drawerSection}>
           <DrawerItem
-            icon="create-outline"
-            label="Edit Profile"
-            onPress={() => navigateTo('/edit-profile')}
-          />
-          <DrawerItem
             icon="qr-code-outline"
             label="My QR Code"
             onPress={() => navigateTo('/my-qr-code')}
