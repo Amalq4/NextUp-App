@@ -19,12 +19,13 @@ Preferred communication style: Simple, everyday language.
 - **Framework**: Expo SDK 54 with React Native 0.81, TypeScript
 - **Navigation**: expo-router (file-based routing) with Stack, Tab, and custom Drawer navigators
   - `(auth)/` - Authentication flow (login, signup)
-  - `(tabs)/` - Main app tabs (Home, Search, Lists, Friends, Settings)
+  - `(tabs)/` - Main app tabs (Home, Search, Lists, Settings). Friends tab hidden from tab bar but file retained.
   - `details/[id]` - Media detail pages
   - `progress/[id]` - Episode progress tracker
   - `onboarding` - First-time user setup
   - `random-picker` and `watch-together` - Feature screens
-  - Custom Drawer: Slides in from left via hamburger menu on Home tab. Provides shortcuts to Swipe Decisions, Random Picker, Watch Together, Edit Profile, My QR Code, and Log Out. Implemented as a custom animated overlay (`components/AppDrawer.tsx`) with `DrawerContext` (`context/DrawerContext.tsx`), not a navigation-level drawer.
+  - `watch-together` - Combined Friends management + Watch Together screen with segmented tabs (Friends / Watch). Includes add friend, scan QR, remove friend, friends list, friend selection, and random pick from Want list.
+  - Custom Drawer: Slides in from right via hamburger menu on Home tab. Provides shortcuts to Swipe Decisions, Random Picker, Watch Together, My QR Code, and Log Out. Implemented as a custom animated overlay (`components/AppDrawer.tsx`) with `DrawerContext` (`context/DrawerContext.tsx`), not a navigation-level drawer.
 - **State Management**: React Context (`AppContext` for global app state, `DrawerContext` for drawer open/close state) including profile, lists, progress, friends, and auth state
 - **Data Persistence**: AsyncStorage for all user data (profile, watchlists, progress, friends, auth)
 - **Styling**: StyleSheet with a centralized theme system under `theme/` directory. All colors are defined in `theme/colors.ts` and imported as `Colors` across all screens and components. The design palette uses: Space Cadet (#25344F - primary bg), Slate Gray (#617891 - muted text/icons), Tan (#D5B893 - accent/secondary), Coffee (#6F4D38 - button gradient start), Caput Mortuum (#632024 - button gradient end/danger). No hardcoded colors should be used in screens.
