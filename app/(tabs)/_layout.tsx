@@ -99,12 +99,6 @@ function ClassicTabLayout() {
         }}
       />
       <Tabs.Screen
-        name="friends"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
         name="settings"
         options={{
           title: "Settings",
