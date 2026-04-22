@@ -1,3 +1,24 @@
+/**
+ * AppDrawer.tsx — Custom animated side drawer (slides in from the left)
+ *
+ * Implementation notes:
+ * - This is NOT a navigation-level drawer (not expo-router's Drawer).
+ *   It is a plain animated View rendered as an absolutely positioned overlay
+ *   at the root layout level so it can appear above all tab screens.
+ * - Open/close state is managed by DrawerContext and driven by the hamburger
+ *   button in the Home tab header.
+ * - The `isMounted` state (not a ref) keeps the component in the tree during
+ *   the close animation — without it, the drawer would disappear instantly
+ *   before the slide-out animation completes.
+ * - Navigation after a drawer item tap is delayed 200ms so the close
+ *   animation has time to start before the screen transition begins.
+ *
+ * Drawer sections:
+ *   FEATURES — Swipe Decisions, Random Picker, Watch Together
+ *   ACCOUNT  — My QR Code
+ *   FOOTER   — Log Out button + version number
+ */
+
 import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
@@ -16,23 +37,30 @@ import { useDrawer } from '@/context/DrawerContext';
 import { useApp } from '@/context/AppContext';
 import Colors from '@/theme/colors';
 
+/** Width of the sliding drawer panel in logical pixels. */
 const DRAWER_WIDTH = 280;
+
+// ─── DrawerItem ───────────────────────────────────────────────────────────────
 
 interface DrawerItemProps {
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
   onPress: () => void;
   iconColor?: string;
-  isLast?: boolean;
+  isLast?: boolean; // When true, suppresses the bottom border divider
 }
 
+/**
+ * A single tappable row inside the drawer panel.
+ * Shows an icon, label, and a right-chevron arrow.
+ */
 function DrawerItem({ icon, label, onPress, iconColor, isLast }: DrawerItemProps) {
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
         styles.drawerItem,
-        !isLast && styles.drawerItemBorder,
+        !isLast && styles.drawerItemBorder, // Divider between items (skip on last)
         { opacity: pressed ? 0.6 : 1 },
       ]}
     >
@@ -45,48 +73,65 @@ function DrawerItem({ icon, label, onPress, iconColor, isLast }: DrawerItemProps
   );
 }
 
+// ─── AppDrawer ────────────────────────────────────────────────────────────────
+
 export default function AppDrawer() {
   const { isOpen, closeDrawer } = useDrawer();
   const { profile, logout, authUser } = useApp();
   const insets = useSafeAreaInsets();
 
+  // Animated values for the drawer slide and dimmed backdrop
   const translateX = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
+
+  /**
+   * `isMounted` keeps the component rendered during the closing animation.
+   * Set to true when drawer opens → stays true during close animation →
+   * set to false only after the animation callback fires.
+   */
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
+      // Mount the component first, then start the slide-in animation
       setIsMounted(true);
       Animated.parallel([
         Animated.timing(translateX, {
-          toValue: 0,
+          toValue: 0,         // Slide fully into view
           duration: 280,
           useNativeDriver: true,
         }),
         Animated.timing(overlayOpacity, {
-          toValue: 1,
+          toValue: 1,         // Fade overlay to full opacity
           duration: 280,
           useNativeDriver: true,
         }),
       ]).start();
     } else {
+      // Start slide-out, then unmount after animation finishes
       Animated.parallel([
         Animated.timing(translateX, {
-          toValue: -DRAWER_WIDTH,
+          toValue: -DRAWER_WIDTH, // Slide off-screen to the left
           duration: 250,
           useNativeDriver: true,
         }),
         Animated.timing(overlayOpacity, {
-          toValue: 0,
+          toValue: 0,             // Fade overlay out
           duration: 250,
           useNativeDriver: true,
         }),
       ]).start(() => {
+        // Unmount only after close animation is fully complete
         setIsMounted(false);
       });
     }
   }, [isOpen]);
 
+  /**
+   * Closes the drawer with haptic feedback, waits 200ms for the close
+   * animation to begin, then navigates to the target screen.
+   * The delay prevents the navigation from interrupting the animation.
+   */
   const navigateTo = (path: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     closeDrawer();
@@ -95,6 +140,10 @@ export default function AppDrawer() {
     }, 200);
   };
 
+  /**
+   * Logs the user out, closes the drawer, and redirects to the login screen.
+   * Uses a warning haptic to signal a significant action.
+   */
   const handleLogout = async () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     closeDrawer();
@@ -102,24 +151,31 @@ export default function AppDrawer() {
     router.replace('/(auth)/login');
   };
 
+  // Don't render anything when drawer is closed AND has finished animating out
   if (!isOpen && !isMounted) return null;
 
   return (
+    // pointerEvents="none" when closed so taps fall through to the screen below
     <View style={styles.container} pointerEvents={isOpen ? 'auto' : 'none'}>
+
+      {/* Dimmed backdrop — tapping it closes the drawer */}
       <Animated.View style={[styles.overlay, { opacity: overlayOpacity }]}>
         <Pressable style={StyleSheet.absoluteFill} onPress={closeDrawer} />
       </Animated.View>
 
+      {/* Sliding drawer panel */}
       <Animated.View
         style={[
           styles.drawer,
           {
             transform: [{ translateX }],
+            // Respect device safe areas: notch / Dynamic Island on top, home indicator on bottom
             paddingTop: Platform.OS === 'web' ? 67 : insets.top + 16,
             paddingBottom: Platform.OS === 'web' ? 34 : insets.bottom + 16,
           },
         ]}
       >
+        {/* ── Header: avatar, name, email, close button ── */}
         <View style={styles.drawerHeader}>
           <View style={styles.drawerAvatar}>
             {profile?.avatarUrl ? (
@@ -129,6 +185,7 @@ export default function AppDrawer() {
                 resizeMode="cover"
               />
             ) : (
+              // Fallback: first initial of user's display name
               <Text style={styles.drawerAvatarText}>
                 {profile?.name?.charAt(0)?.toUpperCase() || '?'}
               </Text>
@@ -142,6 +199,7 @@ export default function AppDrawer() {
               {authUser?.email || ''}
             </Text>
           </View>
+          {/* Close (X) button in the top-right corner of the drawer */}
           <Pressable
             onPress={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -155,6 +213,7 @@ export default function AppDrawer() {
 
         <View style={styles.divider} />
 
+        {/* ── Features section ── */}
         <Text style={styles.sectionLabel}>FEATURES</Text>
         <View style={styles.drawerSection}>
           <DrawerItem
@@ -175,6 +234,7 @@ export default function AppDrawer() {
           />
         </View>
 
+        {/* ── Account section ── */}
         <Text style={styles.sectionLabel}>ACCOUNT</Text>
         <View style={styles.drawerSection}>
           <DrawerItem
@@ -185,6 +245,7 @@ export default function AppDrawer() {
           />
         </View>
 
+        {/* ── Footer: logout + version ── */}
         <View style={styles.drawerFooter}>
           <Pressable
             onPress={handleLogout}
@@ -201,13 +262,17 @@ export default function AppDrawer() {
   );
 }
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
+
 const styles = StyleSheet.create({
   container: {
+    // Covers the entire screen as an overlay layer
     ...StyleSheet.absoluteFillObject,
     zIndex: 9999,
-    elevation: 9999,
+    elevation: 9999, // Android requires explicit elevation for overlay stacking
   },
   overlay: {
+    // Full-screen semi-transparent dimmed backdrop
     ...StyleSheet.absoluteFillObject,
     backgroundColor: Colors.overlay,
   },
@@ -236,7 +301,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: Colors.gold,
+    borderColor: Colors.gold, // Gold ring around avatar — theatre theme
   },
   drawerAvatarImage: {
     width: 48,
@@ -276,6 +341,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sectionLabel: {
+    // ALL-CAPS category label above each drawer section
     fontSize: 11,
     fontFamily: 'DMSans_700Bold',
     color: Colors.textMuted,
@@ -298,6 +364,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
   },
   drawerItemBorder: {
+    // Adds a separator line below each item except the last one in a section
     borderBottomWidth: 1,
     borderBottomColor: Colors.divider,
   },
@@ -305,7 +372,7 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 10,
-    backgroundColor: Colors.accentSoft,
+    backgroundColor: Colors.accentSoft, // Soft gold background for icon container
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -317,7 +384,7 @@ const styles = StyleSheet.create({
     color: Colors.text,
   },
   drawerFooter: {
-    marginTop: 'auto',
+    marginTop: 'auto', // Pushes footer to the bottom of the drawer
     alignItems: 'center',
     gap: 16,
   },

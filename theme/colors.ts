@@ -1,47 +1,74 @@
+/**
+ * colors.ts — Theatre-Inspired Design Palette
+ *
+ * Every colour used in the app is defined here and imported as `Colors`.
+ * No hex values should appear anywhere else in the codebase.
+ *
+ * Design system palette:
+ *   Gold    #C9A24D — primary accent, stars, active states
+ *   Cream   #E8DCC2 — all body text (replaces white)
+ *   Black   #1C1C1C — primary background
+ *   Velvet  #7A0F14 — danger / destructive actions
+ *
+ * Opacity variants (e.g. accentSoft, textSecondary) are derived from the
+ * base colours so the palette stays visually coherent across light/dark states.
+ */
+
 const Colors = {
-  gold: '#C9A24D',
-  cream: '#E8DCC2',
-  black: '#1C1C1C',
-  velvet: '#7A0F14',
+  // ── Brand primitives ──────────────────────────────────────────────────────
+  gold: '#C9A24D',       // Primary accent — gold foil theatre feel
+  cream: '#E8DCC2',      // Primary text colour — warm cream instead of white
+  black: '#1C1C1C',      // App background — deep charcoal black
+  velvet: '#7A0F14',     // Danger / destructive — deep velvet red
 
-  background: '#1C1C1C',
-  backgroundDark: '#151515',
-  backgroundDeep: '#111111',
+  // ── Backgrounds ───────────────────────────────────────────────────────────
+  background: '#1C1C1C',       // Default screen background
+  backgroundDark: '#151515',   // Slightly darker surfaces (drawer, modals)
+  backgroundDeep: '#111111',   // Deepest black for contrast layers
 
-  surface: '#2A2A2A',
-  surfaceBorder: 'rgba(201,162,77,0.12)',
-  glass: '#2A2A2A',
-  glassBorder: 'rgba(232,220,194,0.1)',
+  // ── Surfaces & Cards ──────────────────────────────────────────────────────
+  surface: '#2A2A2A',                        // Card and input backgrounds
+  surfaceBorder: 'rgba(201,162,77,0.12)',    // Subtle gold-tinted card borders
+  glass: '#2A2A2A',                          // Frosted-glass style panels
+  glassBorder: 'rgba(232,220,194,0.1)',      // Faint cream border for glass panels
 
-  text: '#E8DCC2',
-  textSecondary: 'rgba(232,220,194,0.7)',
-  textMuted: 'rgba(232,220,194,0.5)',
+  // ── Typography ────────────────────────────────────────────────────────────
+  text: '#E8DCC2',                           // Primary body text (cream)
+  textSecondary: 'rgba(232,220,194,0.7)',    // Supporting / label text
+  textMuted: 'rgba(232,220,194,0.5)',        // Placeholder and disabled text
 
-  accent: '#C9A24D',
-  accentSoft: 'rgba(201,162,77,0.15)',
-  accentBorder: 'rgba(201,162,77,0.35)',
+  // ── Accent (Gold) Variants ────────────────────────────────────────────────
+  accent: '#C9A24D',                         // Same as gold — alias for semantic use
+  accentSoft: 'rgba(201,162,77,0.15)',       // Soft gold tint for icon backgrounds
+  accentBorder: 'rgba(201,162,77,0.35)',     // Highlighted border colour
 
-  danger: '#7A0F14',
-  dangerBg: 'rgba(122,15,20,0.2)',
-  dangerBorder: 'rgba(122,15,20,0.4)',
+  // ── Danger (Velvet) Variants ──────────────────────────────────────────────
+  danger: '#7A0F14',                         // Destructive action text / icons
+  dangerBg: 'rgba(122,15,20,0.2)',           // Soft red background for danger buttons
+  dangerBorder: 'rgba(122,15,20,0.4)',       // Border for danger button outlines
 
-  star: '#C9A24D',
+  // ── Miscellaneous ─────────────────────────────────────────────────────────
+  star: '#C9A24D',                           // Star / rating icon colour (matches gold)
 
-  inputBg: '#2A2A2A',
-  inputBorder: 'rgba(232,220,194,0.12)',
+  // ── Form Inputs ───────────────────────────────────────────────────────────
+  inputBg: '#2A2A2A',                        // Text input background
+  inputBorder: 'rgba(232,220,194,0.12)',     // Default input border
 
-  divider: 'rgba(232,220,194,0.08)',
-  overlay: 'rgba(0,0,0,0.8)',
+  // ── Layout ────────────────────────────────────────────────────────────────
+  divider: 'rgba(232,220,194,0.08)',         // Thin horizontal rule between items
+  overlay: 'rgba(0,0,0,0.8)',               // Backdrop behind modals and drawer
 
-  tabActive: '#C9A24D',
-  tabInactive: 'rgba(232,220,194,0.5)',
+  // ── Tab Bar ───────────────────────────────────────────────────────────────
+  tabActive: '#C9A24D',                      // Active tab icon + label
+  tabInactive: 'rgba(232,220,194,0.5)',      // Inactive tab icon + label
 
-  white: '#E8DCC2',
-  tan: '#C9A24D',
-  slateGray: 'rgba(232,220,194,0.5)',
-  spaceCadet: '#1C1C1C',
-  coffee: '#C9A24D',
-  caputMortuum: '#7A0F14',
+  // ── Legacy / Alias names kept for backward compatibility ──────────────────
+  white: '#E8DCC2',        // Mapped to cream — never use pure white (#FFF)
+  tan: '#C9A24D',          // Alias for gold
+  slateGray: 'rgba(232,220,194,0.5)',  // Alias for textMuted
+  spaceCadet: '#1C1C1C',   // Alias for background
+  coffee: '#C9A24D',       // Alias for gold
+  caputMortuum: '#7A0F14', // Alias for velvet/danger
 };
 
 export default Colors;
