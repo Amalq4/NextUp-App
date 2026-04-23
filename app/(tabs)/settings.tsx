@@ -1,4 +1,22 @@
-import React, { useState } from 'react';
+/**
+ * settings.tsx — Settings screen
+ *
+ * Sections:
+ *   Profile card   — Avatar, name, email, genres; tap to edit profile
+ *   Stats row      — Want / Watching / Watched counts
+ *   NOTIFICATIONS  — Toggle daily reminder on/off; pick reminder hour
+ *   GENERAL        — Log Out
+ *   DATA           — Clear Cache, Clear All Data
+ *
+ * Notification flow:
+ *   1. User flips the toggle ON → requestNotificationPermission() called
+ *   2. If granted → scheduleDailyReminder() scheduled → prefs saved
+ *   3. If denied  → OS-level alert shown → toggle stays off
+ *   4. User flips OFF → cancelAllNotifications() → prefs saved
+ *   5. User changes reminder hour → reschedules daily reminder immediately
+ */
+
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -14,12 +32,22 @@ import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-
 import { Image } from 'expo-image';
 import AppBackground from '@/components/AppBackground';
 import Colors from '@/theme/colors';
 import { useApp } from '@/context/AppContext';
 import { getGenreName } from '@/types/media';
+import {
+  requestNotificationPermission,
+  getNotificationPermissionStatus,
+  scheduleDailyReminder,
+  cancelAllNotifications,
+  saveNotificationPrefs,
+  loadNotificationPrefs,
+  DEFAULT_REMINDER_HOUR,
+} from '@/lib/notifications';
+
+// ─── Reusable settings row ────────────────────────────────────────────────────
 
 interface SettingsRowProps {
   icon: keyof typeof Ionicons.glyphMap;
@@ -51,13 +79,33 @@ function SettingsRow({ icon, iconColor, iconBg, label, labelColor, subtitle, onP
   );
 }
 
+// ─── Hour labels for the time picker ─────────────────────────────────────────
+
+const REMINDER_HOURS = [
+  { value: 17, label: '5:00 PM' },
+  { value: 18, label: '6:00 PM' },
+  { value: 19, label: '7:00 PM' },
+  { value: 20, label: '8:00 PM' },
+  { value: 21, label: '9:00 PM' },
+  { value: 22, label: '10:00 PM' },
+];
+
+// ─── SettingsScreen ───────────────────────────────────────────────────────────
+
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
-  const { profile, lists, clearAllData, logout, authUser } = useApp();
+  const { profile, lists, progress, clearAllData, logout, authUser } = useApp();
+
+  // Notification state
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [reminderHour, setReminderHour] = useState(DEFAULT_REMINDER_HOUR);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+
+  // Modal visibility
   const [showClearModal, setShowClearModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
+  // Stats derived from the current user's lists
   const stats = {
     want: lists.filter(l => l.status === 'want').length,
     watching: lists.filter(l => l.status === 'watching').length,
@@ -68,6 +116,74 @@ export default function SettingsScreen() {
     ? profile.favoriteGenres.slice(0, 3).map(id => getGenreName(id)).join(', ')
     : 'No genres selected';
 
+  // ── Load saved notification preferences on mount ──────────────────────────
+
+  useEffect(() => {
+    (async () => {
+      const prefs = await loadNotificationPrefs();
+      // Also verify the OS permission is still granted — user may have revoked it
+      if (prefs.enabled) {
+        const status = await getNotificationPermissionStatus();
+        setNotificationsEnabled(status === 'granted');
+      } else {
+        setNotificationsEnabled(false);
+      }
+      setReminderHour(prefs.hour);
+    })();
+  }, []);
+
+  // ── Notification toggle handler ───────────────────────────────────────────
+
+  const handleNotificationToggle = async (value: boolean) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    if (value) {
+      // Turning ON: request permission first
+      const granted = await requestNotificationPermission();
+
+      if (!granted) {
+        // Permission denied — inform the user and leave toggle off
+        if (Platform.OS !== 'web') {
+          Alert.alert(
+            'Notifications Disabled',
+            'Please enable notifications for NextUp in your device Settings to receive reminders.',
+            [{ text: 'OK' }],
+          );
+        }
+        return; // Don't update toggle state
+      }
+
+      // Permission granted — schedule the daily reminder and save prefs
+      await scheduleDailyReminder(reminderHour, lists, progress);
+      await saveNotificationPrefs(true, reminderHour);
+      setNotificationsEnabled(true);
+    } else {
+      // Turning OFF — cancel all scheduled notifications and save prefs
+      await cancelAllNotifications();
+      await saveNotificationPrefs(false, reminderHour);
+      setNotificationsEnabled(false);
+    }
+  };
+
+  // ── Reminder hour change ──────────────────────────────────────────────────
+
+  const handleHourSelect = async (hour: number) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setReminderHour(hour);
+    setShowTimePicker(false);
+
+    // If notifications are on, reschedule immediately with the new time
+    if (notificationsEnabled) {
+      await scheduleDailyReminder(hour, lists, progress);
+      await saveNotificationPrefs(true, hour);
+    } else {
+      // Just save the preferred time even if notifications are off
+      await saveNotificationPrefs(false, hour);
+    }
+  };
+
+  // ── Auth/data actions ─────────────────────────────────────────────────────
+
   const handleLogout = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setShowLogoutModal(true);
@@ -76,6 +192,7 @@ export default function SettingsScreen() {
   const confirmLogout = async () => {
     setShowLogoutModal(false);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    await cancelAllNotifications(); // Clean up notifications before logging out
     await logout();
     router.replace('/(auth)/login');
   };
@@ -88,9 +205,14 @@ export default function SettingsScreen() {
   const confirmClearAll = async () => {
     setShowClearModal(false);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    await cancelAllNotifications(); // Clear notifications before wiping data
     await clearAllData();
     router.replace('/onboarding');
   };
+
+  // Format the selected hour for display (e.g., 19 → "7:00 PM")
+  const reminderHourLabel =
+    REMINDER_HOURS.find(h => h.value === reminderHour)?.label || '7:00 PM';
 
   return (
     <AppBackground>
@@ -101,6 +223,7 @@ export default function SettingsScreen() {
       >
         <Text style={styles.screenTitle}>Settings</Text>
 
+        {/* ── Profile card ── */}
         <View style={styles.profileCard}>
           <Pressable
             onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push('/edit-profile'); }}
@@ -138,6 +261,7 @@ export default function SettingsScreen() {
           </View>
         </View>
 
+        {/* ── Stats row ── */}
         <View style={styles.statsRow}>
           {[
             { label: 'Want', value: stats.want, color: Colors.tan },
@@ -151,31 +275,76 @@ export default function SettingsScreen() {
           ))}
         </View>
 
+        {/* ── Notifications section ── */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>GENERAL</Text>
+          <Text style={styles.sectionHeader}>NOTIFICATIONS</Text>
           <View style={styles.sectionCard}>
+            {/* Toggle: enable/disable daily reminders */}
             <SettingsRow
               icon="notifications-outline"
-              label="Notifications"
-              onPress={() => { setNotificationsEnabled(prev => !prev); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
+              label="Daily Reminder"
+              subtitle={notificationsEnabled ? `Fires every day at ${reminderHourLabel}` : 'Get a nightly nudge to watch something'}
+              onPress={() => handleNotificationToggle(!notificationsEnabled)}
               trailing={
                 <Switch
                   value={notificationsEnabled}
-                  onValueChange={v => { setNotificationsEnabled(v); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
+                  onValueChange={handleNotificationToggle}
                   trackColor={{ false: Colors.glassBorder, true: Colors.accentBorder }}
                   thumbColor={notificationsEnabled ? Colors.accent : Colors.textMuted}
                 />
               }
             />
-            <SettingsRow icon="log-out-outline" iconColor={Colors.danger} iconBg={Colors.dangerBg} label="Log Out" labelColor={Colors.danger} onPress={handleLogout} isLast />
+            {/* Reminder time picker — only shown when notifications are on */}
+            {notificationsEnabled && (
+              <SettingsRow
+                icon="time-outline"
+                label="Reminder Time"
+                subtitle={reminderHourLabel}
+                onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setShowTimePicker(true); }}
+                isLast
+              />
+            )}
+            {!notificationsEnabled && (
+              <View style={styles.notifHint}>
+                <Ionicons name="information-circle-outline" size={14} color={Colors.textMuted} />
+                <Text style={styles.notifHintText}>
+                  Enable to get reminders about your watchlist every evening.
+                </Text>
+              </View>
+            )}
           </View>
         </View>
 
+        {/* ── General section ── */}
+        <View style={styles.section}>
+          <Text style={styles.sectionHeader}>GENERAL</Text>
+          <View style={styles.sectionCard}>
+            <SettingsRow
+              icon="log-out-outline"
+              iconColor={Colors.danger}
+              iconBg={Colors.dangerBg}
+              label="Log Out"
+              labelColor={Colors.danger}
+              onPress={handleLogout}
+              isLast
+            />
+          </View>
+        </View>
+
+        {/* ── Data section ── */}
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>DATA</Text>
           <View style={styles.sectionCard}>
             <SettingsRow icon="trash-bin-outline" label="Clear Cache" onPress={handleClearCache} />
-            <SettingsRow icon="warning-outline" iconColor={Colors.danger} iconBg={Colors.dangerBg} label="Clear All Data" labelColor={Colors.danger} onPress={() => setShowClearModal(true)} isLast />
+            <SettingsRow
+              icon="warning-outline"
+              iconColor={Colors.danger}
+              iconBg={Colors.dangerBg}
+              label="Clear All Data"
+              labelColor={Colors.danger}
+              onPress={() => setShowClearModal(true)}
+              isLast
+            />
           </View>
         </View>
 
@@ -185,6 +354,48 @@ export default function SettingsScreen() {
         </View>
       </ScrollView>
 
+      {/* ── Time picker modal ── */}
+      <Modal visible={showTimePicker} transparent animationType="fade" onRequestClose={() => setShowTimePicker(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={[styles.modalIconWrap, { backgroundColor: Colors.accentSoft }]}>
+              <Ionicons name="time-outline" size={32} color={Colors.accent} />
+            </View>
+            <Text style={styles.modalTitle}>Reminder Time</Text>
+            <Text style={styles.modalDesc}>
+              Pick the time you'd like to receive your daily watch reminder.
+            </Text>
+            <View style={styles.timeOptions}>
+              {REMINDER_HOURS.map(h => (
+                <Pressable
+                  key={h.value}
+                  onPress={() => handleHourSelect(h.value)}
+                  style={({ pressed }) => [
+                    styles.timeOption,
+                    reminderHour === h.value && styles.timeOptionActive,
+                    { opacity: pressed ? 0.7 : 1 },
+                  ]}
+                >
+                  <Text style={[
+                    styles.timeOptionText,
+                    reminderHour === h.value && styles.timeOptionTextActive,
+                  ]}>
+                    {h.label}
+                  </Text>
+                  {reminderHour === h.value && (
+                    <Ionicons name="checkmark" size={16} color={Colors.black} />
+                  )}
+                </Pressable>
+              ))}
+            </View>
+            <Pressable onPress={() => setShowTimePicker(false)} style={styles.modalCancelBtn}>
+              <Text style={styles.modalCancelText}>Cancel</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+
+      {/* ── Clear all data confirmation modal ── */}
       <Modal visible={showClearModal} transparent animationType="fade" onRequestClose={() => setShowClearModal(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
@@ -207,6 +418,7 @@ export default function SettingsScreen() {
         </View>
       </Modal>
 
+      {/* ── Logout confirmation modal ── */}
       <Modal visible={showLogoutModal} transparent animationType="fade" onRequestClose={() => setShowLogoutModal(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
@@ -231,6 +443,8 @@ export default function SettingsScreen() {
     </AppBackground>
   );
 }
+
+// ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
   screenTitle: {
@@ -355,6 +569,21 @@ const styles = StyleSheet.create({
     borderColor: Colors.glassBorder,
     overflow: 'hidden',
   },
+  notifHint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingBottom: 12,
+    paddingTop: 2,
+  },
+  notifHintText: {
+    fontSize: 11,
+    fontFamily: 'DMSans_400Regular',
+    color: Colors.textMuted,
+    flex: 1,
+    lineHeight: 15,
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -397,6 +626,37 @@ const styles = StyleSheet.create({
     fontFamily: 'DMSans_400Regular',
     color: Colors.textMuted,
   },
+  // Time picker modal styles
+  timeOptions: {
+    width: '100%',
+    gap: 8,
+    marginBottom: 16,
+  },
+  timeOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    backgroundColor: Colors.glass,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+  },
+  timeOptionActive: {
+    backgroundColor: Colors.gold,
+    borderColor: Colors.gold,
+  },
+  timeOptionText: {
+    fontSize: 15,
+    fontFamily: 'DMSans_500Medium',
+    color: Colors.text,
+  },
+  timeOptionTextActive: {
+    color: Colors.black,
+    fontFamily: 'DMSans_700Bold',
+  },
+  // Shared modal styles
   modalOverlay: {
     flex: 1,
     backgroundColor: Colors.overlay,

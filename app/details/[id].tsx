@@ -10,6 +10,7 @@ import Colors from '@/theme/colors';
 import { useApp } from '@/context/AppContext';
 import { MediaItem, ListStatus, mapTmdbToMediaItem, getBackdropUrl, getPosterUrl, getGenreName, TmdbMovie } from '@/types/media';
 import { getApiUrl } from '@/lib/query-client';
+import { scheduleNewItemReminder, loadNotificationPrefs } from '@/lib/notifications';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -46,7 +47,7 @@ export default function DetailsScreen() {
     }
   };
 
-  const handleStatusPress = (status: ListStatus) => {
+  const handleStatusPress = async (status: ListStatus) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     if (!item) return;
     if (listEntry?.status === status) {
@@ -62,6 +63,18 @@ export default function DetailsScreen() {
         voteAverage: item.voteAverage,
         genreIds: item.genreIds,
       });
+
+      // Schedule a nudge notification when adding to Want list (if notifications are enabled)
+      if (status === 'want') {
+        try {
+          const prefs = await loadNotificationPrefs();
+          if (prefs.enabled) {
+            await scheduleNewItemReminder(item.title, item.id);
+          }
+        } catch {
+          // Never let notification failures break the UI
+        }
+      }
     }
   };
 

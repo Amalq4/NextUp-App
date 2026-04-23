@@ -99,3 +99,23 @@ Preferred communication style: Simple, everyday language.
 - `expo-image` (~3.0) - Optimized image loading
 - `expo-haptics` (~15.0) - Haptic feedback
 - `expo-linear-gradient` (~15.0) - Gradient backgrounds
+- `expo-notifications` (~55.0) - Local push notifications for watch reminders
+
+### Local Notifications
+
+Implemented in `lib/notifications.ts`. All notifications are local (no push server required).
+
+**Notification types:**
+- **Daily Watch Reminder** — Fires nightly at user-chosen hour (5–10 PM). Body text adapts: "Continue watching [Show]" if something is in-progress, "You have N titles waiting" if Want list is non-empty, or a generic nudge.
+- **New Item Reminder** — Fires 20 hours after adding a title to the Want list: "Don't forget about [Title]!"
+
+**User controls (Settings screen):**
+- Toggle on/off — triggers OS permission request on first enable
+- Reminder time picker — 5 PM through 10 PM in 1-hour increments
+- Rescheduled immediately when either setting changes
+
+**AsyncStorage keys:**
+- `@nextup_notif_enabled` — boolean
+- `@nextup_notif_hour` — 0–23 integer (default 19 = 7 PM)
+
+**app.json:** `expo-notifications` added to plugins array with Gold accent color.
