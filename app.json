@@ -48,6 +48,18 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {
+        "origin": "https://replit.com/"
+      },
+      "eas": {
+        "projectId": "26338d40-ac31-4923-ae51-382de5b7c7a3"
+      }
+    },
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/26338d40-ac31-4923-ae51-382de5b7c7a3"
     }
   }
 }
